@@ -1,0 +1,10 @@
+exocat/settings_local.py
+exocat/settings_local*
+exocat/settings/local.pyc
+/static/
+*pyc
+*.egg-info
+.idea/*
+*.sublime-project
+*.sublime-workspace
+*.sublime*

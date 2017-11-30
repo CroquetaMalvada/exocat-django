@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!--<title>{{ titulo }}</title>-->
+
+    <!--<link href="{% static 'jqueryui/jquery-ui.min.css' %}" rel="stylesheet">-->
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet"><!--Esta url es diferente porque bootstrap esta colocado en la carpeta bootstrap del static-->
+
+    <script src="{% static 'jquery/jquery-3.2.1.min.js' %}" ></script>
+    <script src="{% static 'tether/tether.min.js' %}" ></script>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}" ></script> <!-- integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous" ->
+    <!--<link href="{% static 'css/dataTables.bootstrap.min.css' %}" rel="stylesheet">-->
+
+    <!--<link href="{% static 'css/dataTables.jqueryui.min.css' %}" rel="stylesheet">-->
+    <!--<link href="{% static 'css/buttons.dataTables.min.css' %}" rel="stylesheet">-->
+    <!--<link href="{% static 'css/jquery-ui.css' %}" rel="stylesheet">-->
+
+
+    <!--<link href="{% static 'css/jquery-confirm.css' %}" rel="stylesheet" media="screen">-->
+    <!--<link href="{% static 'css/dashboard.css' %}" rel="stylesheet" media="screen">-->
+    <!--<link href="{% static 'css/signin.css' %}" rel="stylesheet" media="screen">-->
+    <!--<link href="{% static 'css/docs.min.css' %}" rel="stylesheet" media="screen">-->
+
+    <!--<style>-->
+        <!--html{-->
+        <!--height:100%;-->
+        <!--}-->
+        <!--body{-->
+        <!--background-image: url("{% static 'imagenes/fondo.jpg' %}");-->
+        <!--}-->
+        <!--.ui-dialog{-->
+        <!--z-index:9999;-->
+        <!--}-->
+        <!--.ui-widget-header{-->
+        <!--border:none;-->
+        <!--background:none;-->
+        <!--color:none;-->
+        <!--}-->
+        <!--.datatable td{-->
+        <!--text-align:right;-->
+        <!--}-->
+
+    <!--</style>-->
+    <!-- Bootstrap Core JavaScript -->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/jquery-3.0.0.min.js' %}"></script>-->
+    <!--<script src="{% static 'jquery/scripts_externos/bootstrap.min.js' %}" ></script> &lt;!&ndash; integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous" ->-->
+    <!--&lt;!&ndash;<script type="text/javascript" src="{% static 'bootstrap/js/jquery.js' %}"></script>&ndash;&gt;-->
+    <!--<script src="{% static 'jquery/scripts_externos/jquery-2.2.0.min.js' %}"></script>-->
+    <!--&lt;!&ndash; jQuery &ndash;&gt;-->
+    <!--<script type="text/javascript" src="{% static 'jquery/loading.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jqueryui/jquery-ui.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jqueryui/datepicker-ca.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/jszip.min.js' %}"></script> &lt;!&ndash;Estos tres sirven para que funcione el html5 export html5.min.js&ndash;&gt;-->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/pdfmake.min.js' %}"></script>&lt;!&ndash;>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/vfs_fonts.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/datatables/jquery.dataTables.min.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/datatables/dataTables.bootstrap.min.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/datatables/dataTables.buttons.min.js' %}"></script>-->
+
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/buttons.html5.min.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/buttons.print.min.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/numeric-comma.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/scripts_externos/js.cookie.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/formatnumber.js' %}"></script>-->
+
+
+    <!--<script type="text/javascript" src="{% static 'jquery/sum().js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/jquery-confirm.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'js-cookie-master/src/js.cookie.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/funciones_ajax.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/funciones_formulario.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/efectos_projecte_nou.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/funciones_datatables.js' %}"></script>-->
+    <!--&lt;!&ndash;Ojo que este se ejecutara en la cabecera.html&ndash;&gt;-->
+    <!--<script type="text/javascript" src="{% static 'jquery/funciones_cabecera.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/jquery_personal.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/jquery_financament.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/jquery_pressupost.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/jquery_justificacions.js' %}"></script>-->
+
+    <!--<script type="text/javascript" src="{% static 'jquery/contabilidad/datatables_contabilidad.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/contabilidad/funciones_contabilidad.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/date_de.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'jquery/dialog_suport.js' %}"></script>-->
+
+</head>
+
+<body>
+<div class="container-fluid">
+{% block cabecera %} {% include "exocat/cabecera.html" %} {% endblock %}
+<br>
+
+    <div class="col-md-6 offset-md-3 border border-secondary">
+        <br>
+        <form>
+            <div class="row">
+                <div class="input-group col-md-4">
+                    <span class="input-group-addon" id="basic-addon2">Espècie</span>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="input-group col-md-4">
+                    <span class="input-group-addon" id="basic-addon2">Grups</span>
+                    <input type="text" class="form-control">
+                </div>
+                                <div class="input-group col-md-4">
+                    <span class="input-group-addon" id="basic-addon2">Estatus Catalunya</span>
+                    <input type="text" class="form-control">
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="input-group col-md-4">
+                    <span class="input-group-addon" id="basic-addon2">Espècie</span>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="input-group col-md-4">
+                    <span class="input-group-addon" id="basic-addon2">Grups</span>
+                    <input type="text" class="form-control">
+                </div>
+                                <div class="input-group col-md-4">
+                    <span class="input-group-addon" id="basic-addon2">Estatus Catalunya</span>
+                    <input type="text" class="form-control">
+                </div>
+            </div>
+        </form>
+        <br>
+    </div>
+
+</div>
+
+
+<!--<img id="loading" src="{% static 'imagenes/loading.gif' %}" hidden/>-->
+<!--<img id="alertsuccess" src="{% static 'imagenes/success.ico' %}" hidden/>-->
+<!--<noscript>-->
+    <!--<div class="alert alert-block span12 " align="center">-->
+        <!--<h4 class="alert-heading">AtenciÃ³!</h4>-->
+        <!--<p><br>Necessites instalÂ·lar o activar <a href="http://en.wikipedia.org/wiki/JavaScript"-->
+                                                  <!--target="_blank">JavaScript</a> per utilitzar-->
+            <!--aquesta aplicaciÃ² correctament.</p>-->
+    <!--</div>-->
+<!--</noscript>-->
+
+
+<!--<div id="loading" class="text-center">-->
+    <!--<img src="{% static 'imagenes/loading.gif' %}"/>-->
+    <!--<h1></h1>-->
+<!--</div>-->
+
+<!--<div id="alertsuccess" class="text-center">-->
+    <!--<img src="{% static 'imagenes/success.ico' %}"/>-->
+    <!--<h1></h1>-->
+<!--</div>-->
+
+</body>
+
+
+</html>
