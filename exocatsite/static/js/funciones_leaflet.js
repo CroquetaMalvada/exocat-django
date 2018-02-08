@@ -2,7 +2,7 @@ $(document).ready(function(){
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) { //Actualizamos el mapa cuando el usuario clica en la pestana mapa del dialog
         if($(e.target).attr("value"))
             if($(e.target).attr("id")=="mapa_de_especie"){
-                mymap.invalidateSize(false);
+                map_info_especie.invalidateSize(false);
                 obtener_pos_especie();
             }
     });
@@ -12,10 +12,11 @@ function obtener_pos_especie(){
 id=$("#mapa_de_especie").attr("value");
 //    if(wmsLayer_presencia_10000!=false)
 
-wmsLayer_presencia_10000.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
-wmsLayer_presencia_1000.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
-wmsLayer_citacions.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
-wmsLayer_presencia_ma.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
+    // OJO QUE LOS ID CAMBIAN !
+mapainfo_wmsLayer_presencia_10000.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
+mapainfo_wmsLayer_presencia_1000.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
+mapainfo_wmsLayer_citacions.setParams({cql_filter:"idspinvasora='"+id+"'"});
+mapainfo_wmsLayer_presencia_ma.setParams({cql_filter:"idtaxon='"+id+"'"});
 
 
 //    if(wmsLayer_presencia_10000!=false)
@@ -32,7 +33,8 @@ wmsLayer_presencia_ma.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
     //control.selectLayer(wmsLayer_presencia_10000);
 }
 
-function obtener_especies_geom(){
+function obtener_especies_geom(){ // OBTENER ESPECIES DE RECTANGULO O FIGURA(aqui se usa la datatable)
+    cargando_datos_mapa(0);
     var filtro= pasar_wkt();
 //    alert("INTERSECTS(geom_4326,"+filtro+")");
     // mostramos las layers(cuadriculas,citacions,rius,etc) que hay en la zona marcada
@@ -42,26 +44,20 @@ function obtener_especies_geom(){
     wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
 
     //ahora las especies que hay en los cuadros de 10 km
-    taula_especies_map.clear();
-    taula_especies_map.row.add(["Carregant dades...",""]);
+//    taula_especies_map.clear();
+//    taula_especies_map.row.add(["Carregant dades...",""]);
     $.ajax({
         url:"/especies_seleccion/",
         data:{"pol":filtro},
 //        type:'json',
         success: function (data, status, xhr) {
-            console.log(data);
-            taula_especies_map.clear();
-            $(data).each(function(){
-                console.log(this);
-                taula_especies_map.row.add([
-                    this.nom,
-                    '<a class="btn btn-info mostrar_info_especie" value="'+this.id+'" title="Info" href="#"><i class="fa fa-eye fa-lg"></i></a>'
-                ]);
-            });
-            taula_especies_map.draw();
+            //console.log(data);
+            rellenar_table_especies_seleccion(data);
+            cargando_datos_mapa(1);
         },
         error: function (xhr, status, error) {
             alert("error");
+            cargando_datos_mapa(2);
         }
     });
 }
@@ -73,9 +69,11 @@ function pasar_wkt(){ // pasa las selecciones/geometrias a wkt
     return wkt.write();
 }
 
-function obtener_especies_pos(latlng,tipo){
+function obtener_especies_pos(latlng,tipo){// OBTENER ESPECIES DEL CLICK(aqui se usa la datatable)
 
 ///////////// PARTE 1,INDICAR SOBRE QUE CAPAS(CAPA EN ESTE CASO) HAY QUE OBTENER LA POSICION DEL CLICK
+    cargando_datos_mapa(0);
+    //mymap.removeLayer(wmsLayer_presencia_10000);
 
     var layers_in_control = [];
     layers_in_control.push(wmsLayer_presencia_10000);
@@ -90,7 +88,7 @@ function obtener_especies_pos(latlng,tipo){
 
         //////////// PARTE 2,CREAR UNA URL PARA PEDIR AL SERVIDOR LAS ESPECIES DE DICHA POSICION
 
-        var point=""
+        var point="";
         if(latlng) // si le pasamos el punto de google maps donde clicamos...
             point = mymap.latLngToContainerPoint(latlng, mymap.getZoom());
 
@@ -126,32 +124,33 @@ function obtener_especies_pos(latlng,tipo){
         }
 
         ////////// PARTE 3,USAMOS LA URL PARA HACER UNA PETICION AJAX
-
         $.ajax({
-            url: url,
+            url: "/especies_de_cuadro/",
+            data:{'url':url},
             //type:'json',
             success: function (data, status, xhr) {
-                console.log(data);
+//                console.log(data);
 //                var err = typeof data === 'string' ? null : data;
 //                if(err){
 //                    alert("error");
 //                }else{
                 ////////// PARTE 4,UNA VEZ OBTENIDOS LOS DATOS,OBTENEMOS LO QUE NOS INTERESE Y LO USAMOS PARA MOSTRARLO EN PANTALLA
-                taula_especies_map.clear();
-                $(data.features).each(function(){
-//                    console.log(this);
-                    taula_especies_map.row.add([
-                        this.properties.nom,
-                        '<a class="btn btn-info mostrar_info_especie" value="'+this.properties.IDSPINVASORA+'" title="Info" href="#"><i class="fa fa-eye fa-lg"></i></a>'
-                    ]).draw();
-                    //alert(this.properties.IDSPINVASORA);
-                });
+//
+//                $.ajax({
+//                    url:"/citacions_especie/",
+//                    data:{'id':this.properties.IDSPINVASORA},
+//                    success:function(){}
+//                 });
+//                console.log(data);
+                rellenar_table_especies_click(data);
 //                }
 
                 //showGetFeatureInfo(err, evt.latlng, data);
+                cargando_datos_mapa(1);
             },
             error: function (xhr, status, error) {
                 alert("error");
+                cargando_datos_mapa(2);
                 //showGetFeatureInfo(error);
             }
         });

@@ -9,7 +9,7 @@ from django.db import connection
 from django.db.models import Q
 from exocatsite.models import *#Grup,Grupespecie,Viaentrada,Viaentradaespecie,Estatus,Especieinvasora,Taxon,Nomvulgar,Nomvulgartaxon,Habitat,Habitatespecie,Regionativa,Zonageografica,Imatges,Imatge
 from django.contrib.gis.geos import GEOSGeometry
-import json
+import json, urllib
 
 # Create your views here.
 def view_base_dades(request):
@@ -233,15 +233,63 @@ def json_taula_especies_filtres(request):
 # INFO DE UNA ESPECIE
 def json_info_especie(request):
     info=request.POST
+    id = info["id"]
     especieinvasora = Especieinvasora.objects.values_list('idtaxon','idtaxon__genere','idtaxon__especie','idtaxon__subespecie','idtaxon__varietat','idtaxon__subvarietat').get(id=info["id"])
-    id=especieinvasora[0]
+    id_taxon=especieinvasora[0]
     genere= especieinvasora[1]
     especie=especieinvasora[2]
     subespecie=especieinvasora[3]
     varietat=especieinvasora[4]
     subvarietat=especieinvasora[5]
     nomsvulgars=""
-    for nomv in Nomvulgartaxon.objects.filter(idtaxon=id):
+
+    # OJO que los datos de citacions a excepcion de ncitacions no se utilizaran por ahora
+    citacions= Citacions.objects.filter(idspinvasora=id).values("citacio","localitat","municipi","comarca","provincia","data","autor_s","font")
+    ncitacions = Citacions.objects.filter(idspinvasora=id).count()
+
+    # calcular el numero de masas de agua y el numero de utms de una especie
+    id_exoaqua= ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+    massesaigua = []
+    nmassesaigua=0
+
+    nutm1000=0
+    nutm10000=0
+    utms= PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
+    for utm in utms:
+        if utm["idquadricula__resolution"]==10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
+            nutm1000=nutm1000+1
+        if utm["idquadricula__resolution"]==1000:
+            nutm10000 = nutm10000 + 1
+
+
+
+    if id_exoaqua: # si existe una relacion de exoaqua-exocat de dicha especie
+        id_exoaqua=id_exoaqua[0]["id_exoaqua"] # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
+        id_massesaigua= MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).values("id_localitzacio")
+
+        for id_massa in id_massesaigua:
+            try:
+                massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+                nom=massa.nom
+            except:
+                nom="# Sense Dades #"
+            try:
+                massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+                tipus=massa.id_categor
+            except:
+                tipus="# Sense Dades #"
+            try:
+                massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+                conca=ConquesPrincipals.objects.filter(id=massa.idconca).values("nom_conca").first()
+            except:
+                conca="# Sense Dades #"
+
+            massesaigua.append({"nom":nom,"tipus":tipus,"conca":conca})
+        nmassesaigua= MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).count()#Ojo mirar bien esto!!!
+
+    #
+
+    for nomv in Nomvulgartaxon.objects.filter(idtaxon=id_taxon):
         if nomv=="":
             nomsvulgars=nomv.idnomvulgar.nomvulgar
         else:
@@ -254,8 +302,16 @@ def json_info_especie(request):
     except:
         regionativa=""#"Desconeguda"
 
-    estatushistoric=Especieinvasora.objects.get(id=info["id"]).idestatushistoric.nom
-    estatuscatalunya=Especieinvasora.objects.get(id=info["id"]).idestatuscatalunya.nom
+    try:
+        estatushistoric=Especieinvasora.objects.get(id=info["id"]).idestatushistoric.nom
+    except:
+        estatushistoric=""
+    try:
+        estatuscatalunya=Especieinvasora.objects.get(id=info["id"]).idestatuscatalunya.nom
+    except:
+        estatuscatalunya =""
+
+
     viesentrada=""
     for via in Viaentradaespecie.objects.filter(idespecieinvasora=info["id"]):
         if viesentrada=='':
@@ -326,7 +382,7 @@ def json_info_especie(request):
     #
     # # Presente en el 'Catálogo espanol de especies exoticas invasoras'
     # present=especie.present_catalogo
-    resultado=json.dumps({'id':info["id"],'genere':genere,'especie':especie,'subespecie':subespecie,'varietat':varietat,'subvarietat':subvarietat,'nomsvulgars':nomsvulgars,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge})
+    resultado=json.dumps({'id':info["id"],'genere':genere,'especie':especie,'subespecie':subespecie,'varietat':varietat,'subvarietat':subvarietat,'nomsvulgars':nomsvulgars,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge,'nutm1000':nutm1000,'nutm10000':nutm10000,'ncitacions':ncitacions,'nmassesaigua':nmassesaigua})
     return HttpResponse(resultado, content_type='application/json;')
 
 #ESPECIES DE X COORDENADAS
@@ -344,16 +400,79 @@ def json_info_especie(request):
 #
 #     return result
 
+
+#ESPECIES EN UN CUADRO DE 10KM(EN REALIDAD SE OBTIENE UN RECUADRO DE UN CLICK)
+def json_especies_de_cuadro(request):
+    url=request.GET["url"]
+    response=urllib.urlopen(url)
+    data = json.loads(response.read())
+    resultado=[]
+    for especie in data["features"]:
+        id=especie["properties"]["IDSPINVASORA"]
+        id_taxon=Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
+        # calcular el numero de masas de agua y el numero de utms de una especie
+        id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+        massesaigua = []
+        nmassesaigua = 0
+
+        nutm1000 = 0
+        nutm10000 = 0
+        utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
+        for utm in utms:
+            if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
+                nutm1000 = nutm1000 + 1
+            if utm["idquadricula__resolution"] == 1000:
+                nutm10000 = nutm10000 + 1
+
+        if id_exoaqua:  # si existe una relacion de exoaqua-exocat de dicha especie
+            id_exoaqua = id_exoaqua[0]["id_exoaqua"]  # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
+            nmassesaigua = MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).count()  # Ojo mirar bien esto!!!
+
+        #
+        ncitacions=Citacions.objects.filter(idspinvasora=id).count()
+
+        dades=PresenciaSp.objects.filter(idspinvasora=id).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
+        nom=str(dades[0]["idspinvasora__idtaxon__genere"])+" "+str(dades[0]["idspinvasora__idtaxon__especie"])
+        resultado.append({"nom":nom,"id":dades[0]["idspinvasora"],"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
+
+    resultado = json.dumps(resultado)
+    return HttpResponse(resultado, content_type='application/json;')
+
+
 #ESPCEIES EN LOS CUADROS DE 10 KM QUE HAY EN UNA SELECCION
 def json_especies_de_seleccion(request):
     pol=request.GET["pol"]
     # pasamos el poligono a 4326
     poligono= GEOSGeometry(pol, srid=4326)
     # quadriculas de 10km que intersectan con el poligono
-    quad = Quadricula.objects.filter(resolution=10000).filter(geom_4326__intersects=poligono)
+    quad = Quadricula.objects.filter(geom_4326__intersects=poligono) # quitamos el .filter(resolution=10000)
     especies = PresenciaSp.objects.filter(idquadricula__in=quad).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
     resultado=[]
     for especie in especies:
-        resultado.append({"nom":especie["idspinvasora__idtaxon__genere"]+" "+especie["idspinvasora__idtaxon__especie"],"id":especie["idspinvasora"]})
+        id=especie["idspinvasora"]
+        id_taxon = Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
+        # calcular el numero de masas de agua y el numero de utms de una especie
+        id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+        massesaigua = []
+        nmassesaigua = 0
+
+        nutm1000 = 0
+        nutm10000 = 0
+        utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
+        for utm in utms:
+            if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
+                nutm1000 = nutm1000 + 1
+            if utm["idquadricula__resolution"] == 1000:
+                nutm10000 = nutm10000 + 1
+
+        if id_exoaqua:  # si existe una relacion de exoaqua-exocat de dicha especie
+            id_exoaqua = id_exoaqua[0]["id_exoaqua"]  # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
+            nmassesaigua = MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).count()  # Ojo mirar bien esto!!!
+
+        #
+
+        ncitacions = Citacions.objects.filter(idspinvasora=id).count()
+
+        resultado.append({"nom":especie["idspinvasora__idtaxon__genere"]+" "+especie["idspinvasora__idtaxon__especie"],"id":id,"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
     resultado=json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json;')

@@ -30,6 +30,47 @@ class Imatges(models.Model): # Ojo que este en realidad se relaciona con la espe
         managed = False
         db_table = 'imatges'
 
+class Citacions(models.Model):
+    especie = models.CharField(max_length=255, blank=True, null=True)
+    idspinvasora = models.CharField(max_length=100, blank=True, null=True)
+    grup = models.CharField(max_length=255, blank=True, null=True)
+    utmx = models.FloatField(blank=True, null=True)
+    utmy = models.FloatField(blank=True, null=True)
+    localitat = models.CharField(max_length=255, blank=True, null=True)
+    municipi = models.CharField(max_length=255, blank=True, null=True)
+    comarca = models.CharField(max_length=100, blank=True, null=True)
+    provincia = models.CharField(max_length=100, blank=True, null=True)
+    data = models.CharField(max_length=100, blank=True, null=True)
+    autor_s = models.CharField(max_length=255, blank=True, null=True)
+    citacio = models.CharField(max_length=255, blank=True, null=True)
+    font = models.CharField(max_length=255, blank=True, null=True)
+    referencia = models.CharField(max_length=255, blank=True, null=True)
+    observacions = models.CharField(max_length=4000, blank=True, null=True)
+    tipus_cita = models.CharField(max_length=100, blank=True, null=True)
+    habitat = models.CharField(max_length=100, blank=True, null=True)
+    tipus_mort = models.CharField(max_length=100, blank=True, null=True)
+    abundancia = models.CharField(max_length=100, blank=True, null=True)
+    codi_aca = models.CharField(max_length=100, blank=True, null=True)
+    codi_estacio = models.CharField(max_length=100, blank=True, null=True)
+    ind_ha = models.FloatField(blank=True, null=True)
+    ind_capt = models.IntegerField(blank=True, null=True)
+    geom = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'citacions'
+
+class ConquesPrincipals(models.Model):
+    gid = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=100, blank=True, null=True)
+    codi_aca = models.CharField(max_length=254, blank=True, null=True)
+    nom_conca = models.CharField(max_length=254, blank=True, null=True)
+    geom = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'conques_principals'
+
 class Especieinvasora(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
     observacions = models.CharField(max_length=4000, blank=True, null=True)
@@ -83,6 +124,14 @@ class Habitatespecie(models.Model):
         managed = False
         db_table = 'habitatespecie'
 
+class ExoaquaToExocat(models.Model):
+    id_exoaqua = models.CharField(max_length=100, blank=True, null=True)
+    id_exocat = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'exoaqua_to_exocat'
+
 class Grup(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
     nom = models.CharField(max_length=100, blank=True, null=True)
@@ -119,6 +168,29 @@ class Viaentradaespecie(models.Model):
     class Meta:
         managed = False
         db_table = 'viaentradaespecie'
+
+class MassaAiguaTaxon(models.Model):
+    id_taxon_exoaqua = models.CharField(max_length=100, blank=True, null=True)
+    id_localitzacio = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'massa_aigua_taxon'
+
+
+class MassesAigua(models.Model):
+    gid = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=100, blank=True, null=True)
+    codi_aca = models.CharField(max_length=100, blank=True, null=True)
+    tipus_geom = models.CharField(max_length=1, blank=True, null=True)
+    nom = models.CharField(max_length=254, blank=True, null=True)
+    idconca = models.CharField(max_length=100, blank=True, null=True)
+    idcategor = models.CharField(max_length=100, blank=True, null=True)
+    geom = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'masses_aigua'
 
 class Nomvulgar(models.Model):
     id = models.CharField(primary_key=True, max_length=100)

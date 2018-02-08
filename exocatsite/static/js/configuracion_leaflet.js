@@ -1,8 +1,15 @@
 var mymap;
+var map_info_especie;
+///mapa grande
 var wmsLayer_presencia_10000=false;
 var wmsLayer_presencia_1000=false;
 var wmsLayer_citacions=false;
 var wmsLayer_presencia_ma=false;
+//mapa info especie
+var mapainfo_wmsLayer_presencia_10000=false;
+var mapainfo_wmsLayer_presencia_1000=false;
+var mapainfo_wmsLayer_citacions=false;
+var mapainfo_wmsLayer_presencia_ma=false;
 
 var editableLayers=false;
 
@@ -14,108 +21,223 @@ $(document).ready(function(){
 	var g_satellite = new L.Google('SATELLITE');
 	var g_terrain   = new L.Google('TERRAIN');*/
 
-	// OSM layers
-	var osmUrl='http://{s}.tile.osm.org/{z}/{x}/{y}.png';
-	var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-	var osm = new L.TileLayer(osmUrl, {attribution: osmAttrib});
 
-    wmsLayer_presencia_10000 = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
-        layers: 'SIPAN:PRESENCIA_SP_10000_p',
-        transparent: 'true',
-        format: 'image/png',
-        opacity: 0.5
-    });
 
-    wmsLayer_presencia_1000 = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
-        layers: 'SIPAN:PRESENCIA_SP_1000_p',
-        transparent: 'true',
-        format: 'image/png',
-        opacity: 0.5
-    });
 
-    wmsLayer_citacions = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
-        layers: 'SIPAN:citacions',
-        transparent: 'true',
-        format: 'image/png',
-//        opacity: 0.5
-    });
 
-    wmsLayer_presencia_ma = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
-        layers: 'SIPAN:presencia_massa_aigua',
-        transparent: 'true',
-        format: 'image/png',
-//        opacity: 0.5
-    });
-
-    mymap = L.map('map').setView([41.666141,1.761932], 8); //posicion central y zoom por defecto
-
-    ////config para el modulo styledlayercontrol
-    var baseMaps = [
-					/*{
-						groupName : "Google Base Maps",
-						expanded : true,
-						layers    : {
-							"Satellite" :  g_satellite,
-							"Road Map"  :  g_roadmap,
-							"Terreno"   :  g_terrain
-						}
-					},*/
-					{
-						groupName : "Capes base",
-						layers    : {
-							"OpenStreetMaps" : osm
-						}
-					}
-					/*, {
-						groupName : "Bing Base Maps",
-						layers    : {
-							"Satellite" : bing1,
-							"Road"      : bing2
-						}
-					}*/
-	];
-
-	var overlays = [
-					 {
-						groupName : "Presencia espècie",
-						expanded  : true,
-						layers    : {
-							"Presència 10000m" : wmsLayer_presencia_10000,
-							"Presència 1000m" : wmsLayer_presencia_1000,
-							"Citacions" : wmsLayer_citacions,
-							"Masses d'aigua" : wmsLayer_presencia_ma,
-						}
-					 }
-					 /*, {
-						groupName : "Rio de Janeiro",
-						expanded  : true,
-						layers    : {
-							"Bean Plant"     : bean_rj,
-							"Corn Plant" 	 : corn_rj,
-							"Rice Plant"	 : rice_rj
-						}
-					 }, {
-						groupName : "Belo Horizonte",
-						layers    : {
-							"Sugar Cane Plant"	: sugar_bh,
-							"Corn Plant" 	 	: corn_bh
-						}
-					 }*/
-	];
-
-	var options = {
+    var options = {
 		container_width 	: "300px",
 		container_maxHeight : "350px",
 		group_maxHeight     : "80px",
 		exclusive       	: false
 	};
 
+    //////CONFIG PARA EL MAPA BUENO:
+        // OSM layers
+        var osmUrl='http://{s}.tile.osm.org/{z}/{x}/{y}.png';
+        var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+        var osm = new L.TileLayer(osmUrl, {attribution: osmAttrib});
+
+        wmsLayer_presencia_10000 = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:PRESENCIA_SP_10000_p',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
+        });
+
+        wmsLayer_presencia_1000 = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:PRESENCIA_SP_1000_p',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
+        });
+
+        wmsLayer_citacions = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:citacions',
+            transparent: 'true',
+            format: 'image/png',
+        //        opacity: 0.5
+        });
+
+        wmsLayer_presencia_ma = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:presencia_massa_aigua',
+            transparent: 'true',
+            format: 'image/png',
+        //        opacity: 0.5
+        });
+
+        mymap = L.map('map').setView([41.666141,1.761932], 8); //posicion central y zoom por defecto
+        ////config para el modulo styledlayercontrol:
+        var baseMaps = [
+                        /*{
+                            groupName : "Google Base Maps",
+                            expanded : true,
+                            layers    : {
+                                "Satellite" :  g_satellite,
+                                "Road Map"  :  g_roadmap,
+                                "Terreno"   :  g_terrain
+                            }
+                        },*/
+                        {
+                            groupName : "Capes base",
+                            expanded  : true,
+                            layers    : {
+                                "OpenStreetMaps" : osm
+                            }
+                        }
+                        /*, {
+                            groupName : "Bing Base Maps",
+                            layers    : {
+                                "Satellite" : bing1,
+                                "Road"      : bing2
+                            }
+                        }*/
+        ];
+
+        var overlays = [
+                         {
+                            groupName : "Presencia espècie",
+                            expanded  : true,
+                            layers    : {
+                                "Presència 10000m" : wmsLayer_presencia_10000,
+                                "Presència 1000m" : wmsLayer_presencia_1000,
+                                "Citacions" : wmsLayer_citacions,
+                                "Masses d'aigua" : wmsLayer_presencia_ma,
+                            }
+                         }
+                         /*, {
+                            groupName : "Rio de Janeiro",
+                            expanded  : true,
+                            layers    : {
+                                "Bean Plant"     : bean_rj,
+                                "Corn Plant" 	 : corn_rj,
+                                "Rice Plant"	 : rice_rj
+                            }
+                         }, {
+                            groupName : "Belo Horizonte",
+                            layers    : {
+                                "Sugar Cane Plant"	: sugar_bh,
+                                "Corn Plant" 	 	: corn_bh
+                            }
+                         }*/
+        ];
+    //////////////
 	var control = L.Control.styledLayerControl(baseMaps, overlays, options);
-	mymap.addControl(control);
+    mymap.addControl(control);
+
+	////CONFIG PARA EL MAPA DE INFO ESPECIE
+	    // OSM layers
+        var mapainfo_osmUrl='http://{s}.tile.osm.org/{z}/{x}/{y}.png';
+        var mapainfo_osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+        var mapainfo_osm = new L.TileLayer(mapainfo_osmUrl, {attribution: mapainfo_osmAttrib});
+
+        mapainfo_wmsLayer_presencia_10000 = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:PRESENCIA_SP_10000_p',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
+        });
+
+        mapainfo_wmsLayer_presencia_1000 = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:PRESENCIA_SP_1000_p',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
+        });
+
+        mapainfo_wmsLayer_citacions = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:citacions',
+            transparent: 'true',
+            format: 'image/png',
+        //        opacity: 0.5
+        });
+
+        mapainfo_wmsLayer_presencia_ma = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:presencia_massa_aigua',
+            transparent: 'true',
+            format: 'image/png',
+        //        opacity: 0.5
+        });
+        map_info_especie = L.map('map_info').setView([41.666141,1.761932], 8);
+        ////config para el modulo styledlayercontrol:
+        var mapainfo_baseMaps = [
+                        /*{
+                            groupName : "Google Base Maps",
+                            expanded : true,
+                            layers    : {
+                                "Satellite" :  g_satellite,
+                                "Road Map"  :  g_roadmap,
+                                "Terreno"   :  g_terrain
+                            }
+                        },*/
+                        {
+                            groupName : "Capes base",
+                            expanded:true,
+                            layers    : {
+                                "OpenStreetMaps" : mapainfo_osm
+                            }
+                        }
+                        /*, {
+                            groupName : "Bing Base Maps",
+                            layers    : {
+                                "Satellite" : bing1,
+                                "Road"      : bing2
+                            }
+                        }*/
+        ];
+
+        var mapainfo_overlays = [
+                         {
+                            groupName : "Presencia espècie",
+                            expanded  : true,
+                            layers    : {
+                                "Presència 10000m" : mapainfo_wmsLayer_presencia_10000,
+                                "Presència 1000m" : mapainfo_wmsLayer_presencia_1000,
+                                "Citacions" : mapainfo_wmsLayer_citacions,
+                                "Masses d'aigua" : mapainfo_wmsLayer_presencia_ma,
+                            }
+                         }
+                         /*, {
+                            groupName : "Rio de Janeiro",
+                            expanded  : true,
+                            layers    : {
+                                "Bean Plant"     : bean_rj,
+                                "Corn Plant" 	 : corn_rj,
+                                "Rice Plant"	 : rice_rj
+                            }
+                         }, {
+                            groupName : "Belo Horizonte",
+                            layers    : {
+                                "Sugar Cane Plant"	: sugar_bh,
+                                "Corn Plant" 	 	: corn_bh
+                            }
+                         }*/
+        ];
+    //////////////////////
+	var control2 = L.Control.styledLayerControl(mapainfo_baseMaps, mapainfo_overlays, options);
+	map_info_especie.addControl(control2);
+
 	////
 
+    // MARCAR OPCIONES DE LOS MAPAS
+    //en el cuadro de control del mapa bueno seleccionamos la apa del open street map(osm) y la de 10km
 	control.selectLayer(osm);
 	control.selectLayer(wmsLayer_presencia_10000);
+
+    // en el de la info seleccionamos todas las capas ya que se mostraran las de la especie
+	control2.selectLayer(mapainfo_osm);
+	control2.selectLayer(mapainfo_wmsLayer_presencia_10000);
+	control2.selectLayer(mapainfo_wmsLayer_presencia_1000);
+	control2.selectLayer(mapainfo_wmsLayer_citacions);
+	control2.selectLayer(mapainfo_wmsLayer_presencia_ma);
+	//control.selectLayer(wmsLayer_presencia_10000);
+
+    /////////////////////
+
+
+//    control2.selectLayer(osm);
+//	control2.selectLayer(wmsLayer_presencia_10000);
+
 	//wmsLayer_presencia_10000.setParams({cql_filter:"IDSPINVASORA='Abie_pins'"});
     // create the tile layer with correct attribution
 
@@ -236,6 +358,7 @@ mymap.on('click', function(evt){
 
 editableLayers = new L.FeatureGroup();
 mymap.addLayer(editableLayers);
+
 
 
 var draw_options = {

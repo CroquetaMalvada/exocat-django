@@ -30,6 +30,15 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
             $("#info_imatge").attr("title",data['titolimatge']);
 
 
+            // resum de localitats(suma de citacions,utms,masses...)
+            rellenar_table_resum_localitats_especie(data);
+//localizacion/citacions + masses d'aigua
+//            $("#localizacion_mapa_info").html("Localitzat "+data['ncitacions']+" vegades en "+data['nmassesaigua']+ "masses d'aigua.")
+
+//            rellenar_table_info_localitzacio_especie(data);
+//masses d'aigua
+
+
             $("#carousel_contenido").html("");
 
             $.each(data["imatges"],function(k,v){
@@ -77,6 +86,7 @@ $(document).ready(function(){
         hide: {effect:"puff", duration:500},
 //        content:$("#dialogdiv"),
     });
+
 //dialoginfo.dialog("open");
 
 
