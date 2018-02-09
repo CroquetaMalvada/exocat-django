@@ -423,8 +423,8 @@ mymap.on(L.Draw.Event.CREATED, function (e) {
 //////////////////////////////////
 
 
-/// CUADRO PARA HABILITAR EL CLICAR
-$(".leaflet-draw-toolbar:first").append('<a href="#" id="boton_info_clicar" onclick="activar_modo_clicar();" style="background-image:none;" title="Obtenir info al clicar"><i class="fa fa-crosshairs fa-lg"></i></a>');//<span class="sr-only">Draw a rectangle</span><
+/// CUADRO PARA HABILITAR EL CLICAR (el ! del href sirve como preventdefault para evitar el scroll de la pagina al clicar el enlace)
+$(".leaflet-draw-toolbar:first").append('<a href="#!" id="boton_info_clicar" onclick="activar_modo_clicar();" style="background-image:none;" title="Obtenir info al clicar"><i class="fa fa-crosshairs fa-lg"></i></a>');//<span class="sr-only">Draw a rectangle</span><
 /// MOVER EL PANEL A LA IZQUIERDA
 mover_panel(drawControl.getContainer());
 
@@ -441,6 +441,9 @@ function activar_modo_clicar(){
         modo_info_clicar=false;
         $('.leaflet-container').css( 'cursor', '' );
     }else{
+        //mostramos todos los cuadros(haciendo un intersects con un cuadro enorme)
+        wmsLayer_presencia_10000.setParams({cql_filter:'INTERSECTS(geom_4326,POLYGON((-1.590088 39.736762,-1.590088 43.409038,4.749023 43.409038,4.749023 39.736762,-1.590088 39.736762)))'}) //obtenemos todas las utm de 10km
+
         $("#boton_info_clicar").css("background-color","lightgreen");
         modo_info_clicar=true;
         $(".leaflet-container").css( 'cursor', 'crosshair' );

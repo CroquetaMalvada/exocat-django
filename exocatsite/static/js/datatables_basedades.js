@@ -112,8 +112,42 @@ $(document).ready(function(){
 
         taula_especies_map = $("#table_info_map").DataTable({
                     columnDefs:[
-                        { "width": "5%", "targets": [1,2] }
+                        { "width": "5%", "targets": [6] },
+                        { "width": "15%", "targets": [0,1,2,3,4,5] }
                     ],
+                    dom: 'Bfrtip',
+                    buttons:[{
+                            extend: 'print',
+                            header: true,
+                            footer: true,
+                            title: function(){return "Informació de l'area geogràfica"},
+                            text: '<span aria-hidden="true"><i class="fa fa-print fa-lg"></i> Imprimir</span>',
+                            autoPrint: true,
+                            exportOptions: {
+                                columns: [0,1,2,3,4,5],
+                            }
+                    },{
+                        extend: 'excel',
+                        filename: function(){return  "Informació de l'area geogràfica"},
+                        text: '<span aria-hidden="true"><i class="fa fa-file-excel-o fa-lg"></i> Excel</span>',
+                        exportOptions: {
+                            columns: ':visible',
+                        }
+                    },{
+                        extend: 'pdf',
+                        title: function(){return  "Informació de l'area geogràfica"},
+                        text: '<span aria-hidden="true"><i class="fa fa-file-pdf-o fa-lg"></i> PDF</span>',
+                        exportOptions: {
+                            columns: [0,1,2,3,4,5],
+                        }
+                    },{
+                        extend: 'csv',
+                        filename: function(){return  "Informació de l'area geogràfica"},
+                        text: '<span aria-hidden="true"><i class="fa fa-table fa-lg"></i> CSV</span>',
+                        exportOptions: {
+                            columns: [0,1,2,3,4,5],
+                        }
+                    }],
                     order: [[ 0, "asc" ]],
                     scrollY:        '50vh',
                     scrollCollapse: true,
@@ -124,10 +158,32 @@ $(document).ready(function(){
                     language: opciones_idioma,
         });
 
+        /// RESUM DE LOCALITATS
         taula_resum_localitats_especie = $("#table_resum_localitats_especie").DataTable({
                     columnDefs:[
                         { "width": "20%", "targets": [0] }
                     ],
+                    dom: 'Bfrtip',
+                    buttons:[{
+                            extend: 'print',
+                            header: true,
+                            footer: true,
+                            title: function(){return '<h4>Resum de localitats de <b>'+taula_resum_localitats_especie.cell(0,1).data()+'</b></h4>'},
+                            text: '<span aria-hidden="true"><i class="fa fa-print fa-lg"></i> Imprimir</span>',
+                            autoPrint: true
+                    },{
+                        extend: 'excel',
+                        filename: function(){return 'Resum de localitats de '+taula_resum_localitats_especie.cell(0,1).data()},
+                        text: '<span aria-hidden="true"><i class="fa fa-file-excel-o fa-lg"></i> Excel</span>',
+                    },{
+                        extend: 'pdf',
+                        title: function(){return 'Resum de localitats de '+taula_resum_localitats_especie.cell(0,1).data()},
+                        text: '<span aria-hidden="true"><i class="fa fa-file-pdf-o fa-lg"></i> PDF</span>'
+                    },{
+                        extend: 'csv',
+                        filename: function(){return 'Resum de localitats de '+taula_resum_localitats_especie.cell(0,1).data()},
+                        text: '<span aria-hidden="true"><i class="fa fa-table fa-lg"></i> CSV</span>'
+                    }],
                     order:false,
                     scrollY:        '50vh',
                     scrollCollapse: true,
@@ -138,6 +194,7 @@ $(document).ready(function(){
                     language: opciones_idioma,
                     info:false
         });
+        ////////////////////////
 
 //        taula_especies_info_localitzacio = $("#taula_localitzacio_info_especie").DataTable({
 ////                    columnDefs:[
