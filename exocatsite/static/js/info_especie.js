@@ -25,6 +25,18 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
             $('#info_observacions').html(data['observacions']);
             $('#info_titolimatge').html(data['titolimatge']);
 
+            //ocultar la info vacia
+            $(".dada_especie").each(function(){
+                if($(this).html()==""){
+                    $(this).parent("p").hide();
+                    $(this).parent("p").next("hr").hide();
+                }else{
+                    $(this).parent("p").show();
+                    $(this).parent("p").next("hr").show();
+                }
+            });
+            /////
+
             //imagen principal
             $("#info_imatge").attr("src","http://montesdata.creaf.cat/Exocat/grafics_temp/"+data['id']+"_port.jpg");
             $("#info_imatge").attr("title",data['titolimatge']);
@@ -32,6 +44,12 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
 
             // resum de localitats(suma de citacions,utms,masses...)
             rellenar_table_resum_localitats_especie(data);
+
+            // documentacio de la especie
+            rellenar_table_documentacio_especie(data['documentacio']);
+
+            // actuacions de control
+            rellenar_table_actuacions_especie(data['actuacions']);
 //localizacion/citacions + masses d'aigua
 //            $("#localizacion_mapa_info").html("Localitzat "+data['ncitacions']+" vegades en "+data['nmassesaigua']+ "masses d'aigua.")
 

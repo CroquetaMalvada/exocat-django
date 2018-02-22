@@ -3,6 +3,14 @@ from __future__ import unicode_literals
 from django.contrib.gis.db import models
 #from django.db import models
 
+class Actuacio(models.Model):
+    id = models.CharField(primary_key=True, max_length=100)
+    idespecieinvasora = models.ForeignKey('Especieinvasora', models.DO_NOTHING, db_column='idespecieinvasora', blank=True, null=True)
+    iddoc = models.ForeignKey('Documents', models.DO_NOTHING, db_column='iddoc', blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'actuacio'
 
 class Extensions(models.Model):
     idextensio = models.CharField(primary_key=True, max_length=100)
@@ -60,6 +68,18 @@ class Citacions(models.Model):
         managed = False
         db_table = 'citacions'
 
+class Comarques(models.Model):
+    gid = models.AutoField(primary_key=True)
+    codicomar = models.CharField(max_length=254, blank=True, null=True)
+    nomcomar = models.CharField(max_length=254, blank=True, null=True)
+    areacomar = models.FloatField(blank=True, null=True)
+    dataalta = models.CharField(max_length=200, blank=True, null=True)
+    geom = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'comarques_4326'
+
 class ConquesPrincipals(models.Model):
     gid = models.AutoField(primary_key=True)
     id = models.CharField(max_length=100, blank=True, null=True)
@@ -70,6 +90,28 @@ class ConquesPrincipals(models.Model):
     class Meta:
         managed = False
         db_table = 'conques_principals'
+
+class Document(models.Model):
+    id = models.CharField(primary_key=True, max_length=100)
+    idespecieinvasora = models.ForeignKey('Especieinvasora', models.DO_NOTHING, db_column='idespecieinvasora', blank=True, null=True)
+    iddoc = models.ForeignKey('Documents', models.DO_NOTHING, db_column='iddoc', blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'document'
+
+
+class Documents(models.Model):
+    iddocument = models.CharField(primary_key=True, max_length=100)
+    titol = models.CharField(max_length=500, blank=True, null=True)
+    observacions = models.CharField(max_length=500, blank=True, null=True)
+    idextensio = models.ForeignKey('Extensions', models.DO_NOTHING, db_column='idextensio', blank=True, null=True)
+    nomoriginal = models.CharField(max_length=255, blank=True, null=True)
+    fitxer = models.BinaryField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'documents'
 
 class Especieinvasora(models.Model):
     id = models.CharField(primary_key=True, max_length=100)

@@ -85,23 +85,23 @@ L.drawLocal = {
 			// #TODO: this should be reorganized where actions are nested in actions
 			// ex: actions.undo  or actions.cancel
 			actions: {
-				title: 'Cancel drawing',
-				text: 'Cancel'
+				title: 'Cancel·lar',
+				text: 'Cancel·lar'
 			},
 			finish: {
-				title: 'Finish drawing',
-				text: 'Finish'
+				title: 'Finalitzar',
+				text: 'Finalitzar'
 			},
 			undo: {
-				title: 'Delete last point drawn',
-				text: 'Delete last point'
+				title: "Esborrar l'últim punt dibuixat",
+				text: "Esborrar l'últim punt dibuixat"
 			},
 			buttons: {
-				polyline: 'Draw a polyline',
-				polygon: 'Draw a polygon',
-				rectangle: 'Draw a rectangle',
-				circle: 'Draw a circle',
-				marker: 'Draw a marker',
+				polyline: 'Dibuixa una linea',
+				polygon: 'Dibuixa un polígon',
+				rectangle: 'Dibuixa un rectangle',
+				circle: 'Dibuixa un circle',
+				marker: 'Dibuixa una marca',
 				circlemarker: 'Draw a circlemarker'
 			}
 		},
@@ -124,9 +124,9 @@ L.drawLocal = {
 			},
 			polygon: {
 				tooltip: {
-					start: 'Click to start drawing shape.',
-					cont: 'Click to continue drawing shape.',
-					end: 'Click first point to close this shape.'
+					start: 'Clica per començar a dibuixar.',
+					cont: 'Clica per continuar dibuixant.',
+					end: 'Clica el primer punt per confirmar.'
 				}
 			},
 			polyline: {
@@ -139,7 +139,7 @@ L.drawLocal = {
 			},
 			rectangle: {
 				tooltip: {
-					start: 'Click and drag to draw rectangle.'
+					start: 'Clica i arrosega per fer el rectangle.'
 				}
 			},
 			simpleshape: {

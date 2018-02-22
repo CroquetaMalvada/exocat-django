@@ -34,6 +34,7 @@ urlpatterns = [
     url('^ajax_mostrar_info_especies/', views.json_info_especie),
     #AJAX PARA MAPA
     url('^especies_de_cuadro/', views.json_especies_de_cuadro),
+    url('^especies_de_comarca/', views.json_especies_de_comarca),
     url('^especies_seleccion/', views.json_especies_de_seleccion),
 
 ]

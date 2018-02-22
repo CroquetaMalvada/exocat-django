@@ -336,6 +336,13 @@ def json_info_especie(request):
     for img in Imatge.objects.filter(idespecieinvasora=info["id"]).values("idimatge","idimatge__titol","idimatge__idextensio"):
         imatges_especie.append({"id":img["idimatge"],"titol":img["idimatge__titol"],"extensio":img["idimatge__idextensio"]})
 
+    documentacio=[]
+    for docum in Document.objects.filter(idespecieinvasora=info["id"]).values("iddoc__titol","iddoc__nomoriginal"):
+        documentacio.append({"titol":docum["iddoc__titol"],"fitxer":docum["iddoc__nomoriginal"]})
+
+    actuacions=[]
+    for actuacio in Actuacio.objects.filter(idespecieinvasora=info["id"]).values("iddoc__titol","iddoc__nomoriginal").distinct("iddoc__titol"):
+        actuacions.append({"titol":actuacio["iddoc__titol"],"fitxer":actuacio["iddoc__nomoriginal"]})
 
     # try:
     #     titolimatge=Especieinvasora.objects.get(id=info["id"]).idimatgeprincipal
@@ -382,7 +389,7 @@ def json_info_especie(request):
     #
     # # Presente en el 'Catálogo espanol de especies exoticas invasoras'
     # present=especie.present_catalogo
-    resultado=json.dumps({'id':info["id"],'genere':genere,'especie':especie,'subespecie':subespecie,'varietat':varietat,'subvarietat':subvarietat,'nomsvulgars':nomsvulgars,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge,'nutm1000':nutm1000,'nutm10000':nutm10000,'ncitacions':ncitacions,'nmassesaigua':nmassesaigua})
+    resultado=json.dumps({'id':info["id"],'genere':genere,'especie':especie,'subespecie':subespecie,'varietat':varietat,'subvarietat':subvarietat,'nomsvulgars':nomsvulgars,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge,'nutm1000':nutm1000,'nutm10000':nutm10000,'ncitacions':ncitacions,'nmassesaigua':nmassesaigua,'documentacio':documentacio,'actuacions':actuacions})
     return HttpResponse(resultado, content_type='application/json;')
 
 #ESPECIES DE X COORDENADAS
@@ -438,10 +445,66 @@ def json_especies_de_cuadro(request):
     resultado = json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json;')
 
+#ESPECIES EN UN CUADRO DE 10KM(EN REALIDAD SE OBTIENE UN RECUADRO DE UN CLICK)
+def json_especies_de_cuadro(request):
+    url=request.GET["url"]
+    response=urllib.urlopen(url)
+    data = json.loads(response.read())
+    resultado=[]
+    for especie in data["features"]:
+        id=especie["properties"]["IDSPINVASORA"]
+        id_taxon=Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
+        # calcular el numero de masas de agua y el numero de utms de una especie
+        id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+        massesaigua = []
+        nmassesaigua = 0
+
+        nutm1000 = 0
+        nutm10000 = 0
+        utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
+        for utm in utms:
+            if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
+                nutm1000 = nutm1000 + 1
+            if utm["idquadricula__resolution"] == 1000:
+                nutm10000 = nutm10000 + 1
+
+        if id_exoaqua:  # si existe una relacion de exoaqua-exocat de dicha especie
+            id_exoaqua = id_exoaqua[0]["id_exoaqua"]  # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
+            nmassesaigua = MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).count()  # Ojo mirar bien esto!!!
+
+        #
+        ncitacions=Citacions.objects.filter(idspinvasora=id).count()
+
+        dades=PresenciaSp.objects.filter(idspinvasora=id).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
+        nom=str(dades[0]["idspinvasora__idtaxon__genere"])+" "+str(dades[0]["idspinvasora__idtaxon__especie"])
+        resultado.append({"nom":nom,"id":dades[0]["idspinvasora"],"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
+
+    resultado = json.dumps(resultado)
+    return HttpResponse(resultado, content_type='application/json;')
+
+#ESPECIES DE UNA COMARCA( SOLO OBTENER LA GEOM DE LA COMARCA! )
+def json_especies_de_comarca(request):
+    url=request.GET["url"]
+    response=urllib.urlopen(url)
+    data = json.loads(response.read())
+    resultado=[]
+    codi_comarca= data["features"][0]["properties"]["codicomar"]
+    geom =Comarques.objects.filter(codicomar=codi_comarca).values("geom").first()["geom"]
+    filtro_geom = GEOSGeometry(geom).wkt
+    geom=json_especies_de_seleccion(request,filtro_geom)
+    resultado.append({"geom":geom,"filtro":filtro_geom})
+    #resultado.append({"geom":geom.wkt})
+
+    resultado = json.dumps(resultado)
+    return HttpResponse(resultado, content_type='application/json;')
+
 
 #ESPCEIES EN LOS CUADROS DE 10 KM QUE HAY EN UNA SELECCION
-def json_especies_de_seleccion(request):
-    pol=request.GET["pol"]
+def json_especies_de_seleccion(request,multipoligono=False):
+    if multipoligono:
+        pol=multipoligono
+    else:
+        pol=request.GET["pol"]
     # pasamos el poligono a 4326
     poligono= GEOSGeometry(pol, srid=4326)
     # quadriculas de 10km que intersectan con el poligono
@@ -474,5 +537,8 @@ def json_especies_de_seleccion(request):
         ncitacions = Citacions.objects.filter(idspinvasora=id).count()
 
         resultado.append({"nom":especie["idspinvasora__idtaxon__genere"]+" "+especie["idspinvasora__idtaxon__especie"],"id":id,"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
-    resultado=json.dumps(resultado)
-    return HttpResponse(resultado, content_type='application/json;')
+    if multipoligono:
+        return resultado
+    else:
+        resultado = json.dumps(resultado)
+        return HttpResponse(resultado, content_type='application/json;')

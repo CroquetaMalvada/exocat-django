@@ -155,6 +155,17 @@ class Citacions(models.Model):
         managed = False
         db_table = 'citacions'
 
+class Comarques(models.Model):
+    gid = models.AutoField(primary_key=True)
+    codicomar = models.CharField(max_length=254, blank=True, null=True)
+    nomcomar = models.CharField(max_length=254, blank=True, null=True)
+    areacomar = models.FloatField(blank=True, null=True)
+    dataalta = models.CharField(max_length=200, blank=True, null=True)
+    geom = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'comarques_4326'
 
 class ConquesPrincipals(models.Model):
     gid = models.AutoField(primary_key=True)

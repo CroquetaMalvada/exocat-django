@@ -43,9 +43,7 @@ function obtener_especies_geom(){ // OBTENER ESPECIES DE RECTANGULO O FIGURA(aqu
     wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
     wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
 
-    //ahora las especies que hay en los cuadros de 10 km
-//    taula_especies_map.clear();
-//    taula_especies_map.row.add(["Carregant dades...",""]);
+
     $.ajax({
         url:"/especies_seleccion/",
         data:{"pol":filtro},
@@ -65,11 +63,11 @@ function pasar_wkt(){ // pasa las selecciones/geometrias a wkt
     var geojson = editableLayers.toGeoJSON();
     var wkt = new Wkt.Wkt();
     wkt.read( JSON.stringify(geojson.features[0].geometry) );
-    console.log(wkt.write());
+    //console.log(wkt.write());
     return wkt.write();
 }
 
-function obtener_especies_pos(latlng,tipo){// OBTENER ESPECIES DEL CLICK(aqui se usa la datatable)
+function obtener_especies_pos(latlng){// OBTENER ESPECIES DEL CLICK(aqui se usa la datatable)
 
 ///////////// PARTE 1,INDICAR SOBRE QUE CAPAS(CAPA EN ESTE CASO) HAY QUE OBTENER LA POSICION DEL CLICK
     cargando_datos_mapa(0);
@@ -95,33 +93,33 @@ function obtener_especies_pos(latlng,tipo){// OBTENER ESPECIES DEL CLICK(aqui se
         var size = mymap.getSize();
         var url="";
 
-        if(tipo==1){ // si es de un punto
-            var params = {
-                request: 'GetFeatureInfo',
-                service: 'WMS',
-                srs: 'EPSG:4326',
-                styles: '',
-                transparent: true,
-                version: '1.1.1',
-                format: 'image/jpeg',
-                bbox: mymap.getBounds().toBBoxString(),
-                height: size.y,
-                width: size.x,
-                layers: querylayers,
-                query_layers: querylayers,
-                info_format: 'application/json',
-                feature_count: 100000000
-            };
-            // segun la version se usa x o i para especificar el pixel de busqueda
-            params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
-            params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
+//        if(tipo==1){ // si es de un punto
+        var params = {
+            request: 'GetFeatureInfo',
+            service: 'WMS',
+            srs: 'EPSG:4326',
+            styles: '',
+            transparent: true,
+            version: '1.1.1',
+            format: 'image/jpeg',
+            bbox: mymap.getBounds().toBBoxString(),
+            height: size.y,
+            width: size.x,
+            layers: querylayers,
+            query_layers: querylayers,
+            info_format: 'application/json',
+            feature_count: 100000000
+        };
+        // segun la version se usa x o i para especificar el pixel de busqueda
+        params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
+        params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
 
-            wms_url = "http://montesdata.creaf.cat/geoserver/wms";
-            url = wms_url + L.Util.getParamString(params, wms_url, true);
-        }else if(tipo==2){// si son las que hay en los puntos dentro de una caja
-//            var bbox=a1,b1,a2,b2;
-            url = "http://montesdata.creaf.cat/geoserver/wfs?outputFormat=application/json&service=wfs&version=2.0.0&request=GetFeature&typeNames=SIPAN:PRESENCIA_SP_10000_p&srsName=EPSG:23031&41.812744811244976,1.1476136371493342,42.21678824705352,1.7848206683993342";
-        }
+        wms_url = "http://montesdata.creaf.cat/geoserver/wms";
+        url = wms_url + L.Util.getParamString(params, wms_url, true);
+//        }else if(tipo==2){// si es una comarca
+////            var bbox=a1,b1,a2,b2;
+//            //url = "http://montesdata.creaf.cat/geoserver/wfs?outputFormat=application/json&service=wfs&version=2.0.0&request=GetFeature&typeNames=SIPAN:PRESENCIA_SP_10000_p&srsName=EPSG:23031&41.812744811244976,1.1476136371493342,42.21678824705352,1.7848206683993342";
+//        }
 
         ////////// PARTE 3,USAMOS LA URL PARA HACER UNA PETICION AJAX
         $.ajax({
@@ -156,6 +154,93 @@ function obtener_especies_pos(latlng,tipo){// OBTENER ESPECIES DEL CLICK(aqui se
         });
     }
 }
+
+
+function obtener_especies_comarca(latlng){// OBTENER ESPECIES DE COMARCA( se usa datatable)
+
+///////////// PARTE 1,INDICAR SOBRE QUE CAPAS(CAPA EN ESTE CASO) HAY QUE OBTENER LA POSICION DEL CLICK
+    cargando_datos_mapa(0);
+
+    var layers_in_control = [];
+    layers_in_control.push(wmsLayer_comarques);
+    if(layers_in_control.length > 0){
+        var param_layers = [];
+        for(var i=0; i < layers_in_control.length; i++){
+            param_layers.push( layers_in_control[i].wmsParams.layers );
+        }
+        var querylayers = param_layers.join(',');
+        //////////// PARTE 2,CREAR UNA URL PARA PEDIR AL SERVIDOR LAS ESPECIES DE DICHA POSICION
+        var point="";
+        if(latlng) // si le pasamos el punto de google maps donde clicamos...
+            point = mymap.latLngToContainerPoint(latlng, mymap.getZoom());
+
+        var size = mymap.getSize();
+        var url="";
+
+        var params = {
+            request: 'GetFeatureInfo',
+            service: 'WMS',
+            srs: 'EPSG:4326',
+            styles: '',
+            transparent: true,
+            version: '1.1.1',
+            format: 'image/jpeg',
+            bbox: mymap.getBounds().toBBoxString(),
+            height: size.y,
+            width: size.x,
+            layers: querylayers,
+            query_layers: querylayers,
+            info_format: 'application/json',
+            feature_count: 100000000
+        };
+        // segun la version se usa x o i para especificar el pixel de busqueda
+        params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
+        params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
+
+        wms_url = "http://montesdata.creaf.cat/geoserver/wms";
+        url = wms_url + L.Util.getParamString(params, wms_url, true);
+        ////////// PARTE 3,USAMOS LA URL PARA HACER UNA PETICION AJAX(esta nos dara la geom de la comarca
+        $.ajax({
+            url: "/especies_de_comarca/",
+            data:{'url':url},
+            success: function (data, status, xhr) {
+
+//                var wkt = new Wkt.Wkt();
+//                wkt.read( JSON.stringify(data[0]["geom"]) );
+//                filtro = wkt.write();
+
+                var filtro = data[0]["filtro"];
+                ///// PARTE 4,CON LA GEOM DE LA COMARCA HACEMOS UN INTERSECTS Y UTILIZAMOS LA MISMA FUNCION QUE LA DE CALCULAR ESPECIES POR SELECCION
+                // mostramos las layers(cuadriculas,citacions,rius,etc) que hay en la zona marcada
+                wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom,"+filtro+")"});
+//                wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom,"+filtro+")"});
+//                wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom,"+filtro+")"});
+//                wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom,"+filtro+")"});
+                mymap.addLayer(wmsLayer_presencia_10000);
+//                $.ajax({
+//                    url:"/especies_seleccion/",
+//                    data:{"pol":filtro},
+//                    success: function (data, status, xhr) {
+//                        //console.log(data);
+//                        rellenar_table_especies_seleccion(data);
+//                        cargando_datos_mapa(1);
+//                    },
+//                    error: function (xhr, status, error) {
+//                        alert("error");
+//                        cargando_datos_mapa(2);
+//                    }
+//                });
+                rellenar_table_especies_seleccion(data[0]["geom"]);
+                cargando_datos_mapa(1);
+            },
+            error: function (xhr, status, error) {
+                alert("error");
+                cargando_datos_mapa(2);
+            }
+        });
+    }
+}
+
 
 function limpiar_mapa(){
     editableLayers.clearLayers(wmsLayer_presencia_10000);

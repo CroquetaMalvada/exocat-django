@@ -52,6 +52,9 @@ var taula_especies_map;
 var taula_especies_info_localitzacio;
 var taula_especies_info_masses;
 var taula_resum_localitats_especie;
+var taula_documentacio_especie;
+var taula_actuacions_especie;
+
 $(document).ready(function(){
 
     // Si se esta cargando especies:
@@ -120,7 +123,7 @@ $(document).ready(function(){
                             extend: 'print',
                             header: true,
                             footer: true,
-                            title: function(){return "Informació de l'area geogràfica"},
+                            title: function(){return "Informació de area geogràfica"},
                             text: '<span aria-hidden="true"><i class="fa fa-print fa-lg"></i> Imprimir</span>',
                             autoPrint: true,
                             exportOptions: {
@@ -128,21 +131,21 @@ $(document).ready(function(){
                             }
                     },{
                         extend: 'excel',
-                        filename: function(){return  "Informació de l'area geogràfica"},
+                        filename: function(){return  "Informació de area geogràfica"},
                         text: '<span aria-hidden="true"><i class="fa fa-file-excel-o fa-lg"></i> Excel</span>',
                         exportOptions: {
                             columns: ':visible',
                         }
                     },{
                         extend: 'pdf',
-                        title: function(){return  "Informació de l'area geogràfica"},
+                        title: function(){return  "Informació de area geogràfica"},
                         text: '<span aria-hidden="true"><i class="fa fa-file-pdf-o fa-lg"></i> PDF</span>',
                         exportOptions: {
                             columns: [0,1,2,3,4,5],
                         }
                     },{
                         extend: 'csv',
-                        filename: function(){return  "Informació de l'area geogràfica"},
+                        filename: function(){return  "Informació de area geogràfica"},
                         text: '<span aria-hidden="true"><i class="fa fa-table fa-lg"></i> CSV</span>',
                         exportOptions: {
                             columns: [0,1,2,3,4,5],
@@ -194,6 +197,39 @@ $(document).ready(function(){
                     language: opciones_idioma,
                     info:false
         });
+        ////////////////////////
+        /// DOCUMENTACIO ESPECIE
+        taula_documentacio_especie = $("#table_documentacio_especie").DataTable({
+                    columnDefs:[
+                        { "width": "5%", "targets": [1] }
+                    ],
+                    order: [[ 0, "asc" ]],
+                    scrollY:        '50vh',
+                    scrollCollapse: true,
+                    searching:false,
+                    autowidth:      true,
+                    overflow:       "auto",
+                    paging: false,
+                    language: opciones_idioma,
+        });
+
+        ////////////////////////
+
+        /// ACTUACIONS DE CONTROL
+        taula_actuacions_especie = $("#table_actuacions_especie").DataTable({
+                    columnDefs:[
+                        { "width": "5%", "targets": [1] }
+                    ],
+                    order: [[ 0, "asc" ]],
+                    scrollY:        '50vh',
+                    scrollCollapse: true,
+                    searching:false,
+                    autowidth:      true,
+                    overflow:       "auto",
+                    paging: false,
+                    language: opciones_idioma,
+        });
+
         ////////////////////////
 
 //        taula_especies_info_localitzacio = $("#taula_localitzacio_info_especie").DataTable({
@@ -247,6 +283,10 @@ $(document).ready(function(){
 
         });
 
+        // ajustar columnas al cargar un tab
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust().draw();
+        })
 });
 
 function cargando_datos_mapa(tipo){
@@ -281,6 +321,7 @@ function rellenar_table_especies_click(data){ // esta funcion se llama en funcio
 }
 function rellenar_table_especies_seleccion(data){ // esta funcion se llama en funciones_leaflet.js
     taula_especies_map.clear();
+
     $(data).each(function(){
 //                console.log(this);
         var total=this.nutm1000+this.nutm10000+this.ncitacions+this.nmassesaigua
@@ -311,4 +352,32 @@ function rellenar_table_resum_localitats_especie(data){ // esta funcion se llama
 //
 //    });
 }
+
+function rellenar_table_documentacio_especie(data){ // esta funcion se llama en info_espcie,js
+
+    $(data).each(function(){
+//                console.log(this);
+        taula_documentacio_especie.row.add([
+            this.titol,
+            '<a class="btn btn-info mostrar_info_especie" target="_blank" title="Obrir arxiu" href="'+this.fitxer+'"><i class="fa fa-file fa-lg"></i></a>'
+        ]);
+    });
+    taula_documentacio_especie.draw();
+}
+
+
+function rellenar_table_actuacions_especie(data){ // esta funcion se llama en info_espcie,js
+
+    $(data).each(function(){
+//                console.log(this);
+        taula_actuacions_especie.row.add([
+            this.titol,
+            '<a class="btn btn-info mostrar_info_especie" target="_blank" title="Obrir arxiu" href="'+this.fitxer+'"><i class="fa fa-file fa-lg"></i></a>'
+        ]);
+    });
+    taula_actuacions_especie.draw();
+}
+//function ajustar_columnas_actual_tab(){
+//    $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust().draw();
+//}
 

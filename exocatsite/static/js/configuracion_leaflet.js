@@ -5,6 +5,7 @@ var wmsLayer_presencia_10000=false;
 var wmsLayer_presencia_1000=false;
 var wmsLayer_citacions=false;
 var wmsLayer_presencia_ma=false;
+var wmsLayer_comarques=false;
 //mapa info especie
 var mapainfo_wmsLayer_presencia_10000=false;
 var mapainfo_wmsLayer_presencia_1000=false;
@@ -14,6 +15,7 @@ var mapainfo_wmsLayer_presencia_ma=false;
 var editableLayers=false;
 
 var modo_info_clicar=false;
+var modo_info_comarques=false;
 
 $(document).ready(function(){
     // Google layers
@@ -26,9 +28,9 @@ $(document).ready(function(){
 
 
     var options = {
-		container_width 	: "300px",
-		container_maxHeight : "350px",
-		group_maxHeight     : "80px",
+		container_width 	: "350px",
+		container_maxHeight : "500px",
+		group_maxHeight     : "100px",
 		exclusive       	: false
 	};
 
@@ -64,6 +66,13 @@ $(document).ready(function(){
             transparent: 'true',
             format: 'image/png',
         //        opacity: 0.5
+        });
+
+        wmsLayer_comarques = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:comarques_4326',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
         });
 
         mymap = L.map('map').setView([41.666141,1.761932], 8); //posicion central y zoom por defecto
@@ -103,6 +112,7 @@ $(document).ready(function(){
                                 "Presència 1000m" : wmsLayer_presencia_1000,
                                 "Citacions" : wmsLayer_citacions,
                                 "Masses d'aigua" : wmsLayer_presencia_ma,
+                                //"Comarques": wmsLayer_comarques
                             }
                          }
                          /*, {
@@ -121,6 +131,8 @@ $(document).ready(function(){
                             }
                          }*/
         ];
+
+
     //////////////
 	var control = L.Control.styledLayerControl(baseMaps, overlays, options);
     mymap.addControl(control);
@@ -335,7 +347,7 @@ mymap.on('click', function(evt){
 //            });
 
 //OJO DESCOMENTAR ESTO SI NO SE LOGRA OBTENER LOS VALROES AL CLICAR!!!!
-            obtener_especies_pos(evt.latlng,1);
+            obtener_especies_pos(evt.latlng);
 //            var layers_in_control = [];
 //            layers_in_control.push(wmsLayer_presencia_10000);
 ////            layers_in_control.push(wmsLayer_presencia_1000);
@@ -347,6 +359,10 @@ mymap.on('click', function(evt){
 //                var querylayers = param_layers.join(',');
 //                getFeatureInfo(evt,querylayers);
 //            }
+        }else if(modo_info_comarques){
+            limpiar_mapa();
+            activar_modo_clicar_comarques();
+            obtener_especies_comarca(evt.latlng);
         }
 //    }
 
@@ -424,7 +440,30 @@ mymap.on(L.Draw.Event.CREATED, function (e) {
 
 
 /// CUADRO PARA HABILITAR EL CLICAR (el ! del href sirve como preventdefault para evitar el scroll de la pagina al clicar el enlace)
-$(".leaflet-draw-toolbar:first").append('<a href="#!" id="boton_info_clicar" onclick="activar_modo_clicar();" style="background-image:none;" title="Obtenir info al clicar"><i class="fa fa-crosshairs fa-lg"></i></a>');//<span class="sr-only">Draw a rectangle</span><
+$(".leaflet-draw-toolbar:first").append('<a href="#!" id="boton_info_clicar" onclick="" style="background-image:none;" title="Obtenir info al clicar"><i class="fa fa-crosshairs fa-lg"></i></a>');//<span class="sr-only">Draw a rectangle</span><
+
+/// CUADRO PARA HABILITAR EL CLICAR COMARCAS
+$(".leaflet-draw-toolbar:first").append('<a href="#!" id="boton_info_comarques" onclick="" style="background-image:none;" title="Obtenir info sobre una comarca"><i class="fa fa-globe fa-lg"></i></a>');
+
+/// CUANDO SE CLICAN LAS OPCIONES
+$(".leaflet-draw-toolbar:first a").on("click",function(evt){
+    // si ya esta en modo clicar o comarcas,desactivalos
+    limpiar_mapa();
+    mymap.addLayer(wmsLayer_presencia_10000);
+    if(modo_info_clicar)
+        activar_modo_clicar();
+    if(modo_info_comarques)
+        activar_modo_clicar_comarques();
+
+
+    // y ahora comprueba si hay que activarlos
+    if($(this).attr("id")=="boton_info_clicar"){
+        activar_modo_clicar();
+    }else if($(this).attr("id")=="boton_info_comarques"){
+        activar_modo_clicar_comarques();
+    }
+
+});
 /// MOVER EL PANEL A LA IZQUIERDA
 mover_panel(drawControl.getContainer());
 
@@ -439,13 +478,33 @@ function activar_modo_clicar(){
     if(modo_info_clicar){
         $("#boton_info_clicar").css("background-color","");
         modo_info_clicar=false;
+//        mymap.removeLayer(wmsLayer_presencia_10000);
+  //      mymap.removeLayer(wmsLayer_comarques);
         $('.leaflet-container').css( 'cursor', '' );
     }else{
         //mostramos todos los cuadros(haciendo un intersects con un cuadro enorme)
+//        mymap.addLayer(wmsLayer_presencia_10000);
         wmsLayer_presencia_10000.setParams({cql_filter:'INTERSECTS(geom_4326,POLYGON((-1.590088 39.736762,-1.590088 43.409038,4.749023 43.409038,4.749023 39.736762,-1.590088 39.736762)))'}) //obtenemos todas las utm de 10km
-
         $("#boton_info_clicar").css("background-color","lightgreen");
         modo_info_clicar=true;
+        $(".leaflet-container").css( 'cursor', 'crosshair' );
+    }
+}
+
+function activar_modo_clicar_comarques(){
+    if(modo_info_comarques){
+        $("#boton_info_comarques").css("background-color","");
+        modo_info_comarques=false;
+        mymap.removeLayer(wmsLayer_comarques);
+
+        $('.leaflet-container').css( 'cursor', '' );
+    }else{
+        //mostramos todas las comarcas
+        //wmsLayer_presencia_10000.setParams({cql_filter:'INTERSECTS(geom_4326,POLYGON((-1.590088 39.736762,-1.590088 43.409038,4.749023 43.409038,4.749023 39.736762,-1.590088 39.736762)))'}) //obtenemos todas las utm de 10km
+        mymap.addLayer(wmsLayer_comarques);
+        mymap.removeLayer(wmsLayer_presencia_10000);
+        $("#boton_info_comarques").css("background-color","lightgreen");
+        modo_info_comarques=true;
         $(".leaflet-container").css( 'cursor', 'crosshair' );
     }
 }
