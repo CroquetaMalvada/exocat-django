@@ -36,6 +36,20 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
                 }
             });
             /////
+            //// ICONOS PARA EXPORTAR LAS LAYERS
+            $("#exportar_presencia_10000").empty();
+            $("#exportar_presencia_1000").empty();
+            $("#exportar_presencia_citacions").empty();
+            $("#exportar_presencia_masses").empty();
+            var icons_pres_10000="   [WFS - <a href='http://montesdata.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_p&outputFormat=SHAPE-ZIP&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-map fa-lg'></i></a>]   [WMS - <a href='http://montesdata.creaf.cat/geoserver/wms?service=WMS&version=1.1.0&request=GetMap&layers=SIPAN:PRESENCIA_SP_10000_p&styles=&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27&bbox=246809.50679615702,4429945.3655678565,531814.7343779552,4804968.5619192235&width=389&height=512&srs=EPSG:23031&format=application/vnd.google-earth.kml+xml' title='Exportar WMS' id='exportar_wms_presencia_10000'><i class='fa fa-globe fa-lg'></i></a>]"
+            var icons_pres_1000="   [WFS - <a href='http://montesdata.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_1000_p&outputFormat=SHAPE-ZIP&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-map fa-lg'></i></a>]   [WMS - <a href='http://montesdata.creaf.cat/geoserver/wms?service=WMS&version=1.1.0&request=GetMap&layers=SIPAN:PRESENCIA_SP_1000_p&styles=&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27&bbox=246809.50679615702,4429945.3655678565,531814.7343779552,4804968.5619192235&width=389&height=512&srs=EPSG:23031&format=application/vnd.google-earth.kml+xml' title='Exportar WMS' id='exportar_wms_presencia_10000'><i class='fa fa-globe fa-lg'></i></a>]"
+            var icons_pres_citacions="   [WFS - <a href='http://montesdata.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:citacions&outputFormat=SHAPE-ZIP&CQL_FILTER=idspinvasora%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-map fa-lg'></i></a>]   [WMS - <a href='http://montesdata.creaf.cat/geoserver/wms?service=WMS&version=1.1.0&request=GetMap&layers=SIPAN:citacions&styles=&CQL_FILTER=idspinvasora%3D%27"+data['id']+"%27&bbox=246809.50679615702,4429945.3655678565,531814.7343779552,4804968.5619192235&width=389&height=512&srs=EPSG:23031&format=application/vnd.google-earth.kml+xml' title='Exportar WMS' id='exportar_wms_presencia_10000'><i class='fa fa-globe fa-lg'></i></a>]"
+            var icons_pres_masses="   [WFS - <a href='http://montesdata.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:presencia_massa_aigua&outputFormat=SHAPE-ZIP&CQL_FILTER=idtaxon%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-map fa-lg'></i></a>]   [WMS - <a href='http://montesdata.creaf.cat/geoserver/wms?service=WMS&version=1.1.0&request=GetMap&layers=SIPAN:presencia_massa_aigua&styles=&CQL_FILTER=idtaxon%3D%27"+data['id']+"%27&bbox=246809.50679615702,4429945.3655678565,531814.7343779552,4804968.5619192235&width=389&height=512&srs=EPSG:23031&format=application/vnd.google-earth.kml+xml' title='Exportar WMS' id='exportar_wms_presencia_10000'><i class='fa fa-globe fa-lg'></i></a>]"
+            $("#exportar_presencia_10000").append(icons_pres_10000);
+            $("#exportar_presencia_1000").append(icons_pres_1000);
+            $("#exportar_presencia_citacions").append(icons_pres_citacions);
+            $("#exportar_presencia_masses").append(icons_pres_masses);
+
 
             //imagen principal
             $("#info_imatge").attr("src","http://montesdata.creaf.cat/Exocat/grafics_temp/"+data['id']+"_port.jpg");
@@ -107,7 +121,6 @@ $(document).ready(function(){
 
 //dialoginfo.dialog("open");
 
-
 });
 
 function resetear_nav(){
@@ -115,4 +128,170 @@ $(".nav-link").removeClass("active");
 $(".tab-pane").removeClass("active");
 $("#navlink_dades_basiques").tab("show")
 //$("#div_dades_basiques").addClass("active")
+}
+
+function preparar_informe(){
+    var html_boton=$("#boton_informe").html();
+    $("#boton_informe").html("<img src='"+$("#filtrar_loading").attr("src")+"'> Generant...");
+
+
+    //Primero obtenemos las imagenes necesarias
+    var url_image="";
+    var url_mapa="";
+    $('#mapa_de_especie').tab('show');
+    leafletImage(map_info_especie, function(err, canvas) {
+        // now you have canvas
+        // example thing to do with that canvas:
+//        var img = document.createElement('img');
+//        var dimensions = map_info_especie.getSize();
+//        img.width = dimensions.x;
+//        img.height = dimensions.y;
+//        window.open(canvas.toDataURL());
+//        img.src = canvas.toDataURL();
+//        window.open(canvas.toDataURL("image/png"));
+        $("#boton_informe").html(html_boton);
+        generar_informe("",canvas.toDataURL("image/png"));
+//        document.getElementById('images').innerHTML = '';
+//        document.getElementById('images').appendChild(img);
+    });
+//    html2canvas(document.getElementById("map_info")).then(function(canvas){//la imagen predeterminada de la especie
+//        url_mapa=canvas.toDataURL("image/png");
+//        alert(url_mapa);
+//        generar_informe(url_image,url_mapa);
+//    });
+    //generar_informe(url_image);
+    //DESCOMENTAR ESTO CUANDO LAS IMAGENES ESTEN DISPONIBLES EN EL SERVIDOR!
+//    html2canvas(document.getElementById("info_imatge")).then(function(canvas){//la imagen predeterminada de la especie
+//        url_image=canvas.toDataURL();
+//        generar_informe(url_image);
+//    });
+}
+
+//y una vez tenemos las imagenes,creamos el informe
+function generar_informe(url_image,url_mapa){
+    var cabecera_pdf={text:'Fitxa espècie invasora: '+$("#info_genere").html()+' '+$("#info_especie").html(),style:"titulo"};
+    var datos_basicos=[];
+    $(".dada_especie").each(function(){
+        if($(this).html()!=""){
+            datos_basicos.push({text:$(this).prev().text()+$(this).text()});
+            datos_basicos.push({canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]});
+            datos_basicos.push({text:" "});
+            //{canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
+        }
+    });
+
+    var all_pdf = {
+        header:cabecera_pdf,
+        content: [
+            {text:"[IMAGEN DISPONIBLE CUANDO EL SERVIDOR TENGA LAS IMAGENES EN LOCAL]",alignment: 'center'},
+            {text:" "},
+            {text: "Dades bàsiques",style:"header"},
+            {text:" "},
+            //{image:url_image,width:250,alignment: 'center'},
+            {
+                columns:[
+                    [
+                        datos_basicos,
+                        //{canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
+                        'OBSERVACIONS: '+$("#info_observacions").html(),
+                    ]
+//                    ,[
+//                        {image:url_image},
+//                        {canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
+//                        'OBSERVACIONS: '+$("#info_observacions").html(),
+//                        'GÈNERE: '+$("#info_genere").html(),
+//                        {canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
+//
+//                    ]
+                ]
+            },
+            {text:" "},
+            {text: "Mapa",style:"header"},
+            {text:" "},
+            {text:" "},
+            {
+                columns:[
+                    {
+                        width: "*",
+                        text: "Resum localitats"
+                    },{
+                        width: "*",
+                        text: "Mapa"
+                    }
+                ]
+            },
+            {text:" "},
+            {
+                columns:[
+                    {
+                        width: "*",
+                        table: {
+//                            headerRows: 1,
+//                            widths: [ '*', 'auto', 100, '*' ],
+                            body: [
+                              [ 'Espècie', $("#info_genere").html()+' '+$("#info_especie").html() ],
+                              [ 'Nº UTMs 10km', $("#td_n_utms_10").text()],
+                              [ 'Nº UTMs 1km', $("#td_n_utms_1").text()],
+                              [ 'Nº Citacions puntuals', $("#td_n_citacions").text()],
+                              [ "Nº Masses d'aigua", $("#td_n_masses").text()],
+                              [ { text: 'Localitats Totals:', bold: true }, $("#td_n_localitats_totals").text() ]
+                            ]
+                        }
+                    },{
+//                       stack: [/// esto sirve para que se pueda hacer un width con *
+//                            {
+//                                image: url_mapa,
+//                            }
+//                       ],
+                        image: url_mapa,
+                        width: 300,
+                        height: 200
+
+                    }
+
+//                    ,[
+//                        {image:url_image},
+//                        {canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
+//                        'OBSERVACIONS: '+$("#info_observacions").html(),
+//                        'GÈNERE: '+$("#info_genere").html(),
+//                        {canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
+//
+//                    ]
+                ]
+            }
+
+        ],
+        styles: {
+            header: {
+            fontSize: 22,
+            bold: true
+            },
+            titulo: {
+            italic: true,
+            alignment: 'center'
+            }
+        }
+    };
+
+    pdfMake.createPdf(all_pdf).download('Fitxa '+$("#info_genere").html()+' '+$("#info_especie").html()+'.pdf');
+//
+//    var doc = new jsPDF()
+//
+//    doc.addHTML($("#div_dades_basiques").html());
+//    doc.save('a4.pdf')
+
+//    var contenido_pdf=html2canvas(document.getElementById("div_dades_basiques")).then(function(canvas){
+//            var all_pdf = {
+//                header:cabecera_pdf,
+//                content: [{image:canvas.toDataURL(),width:"auto"}]
+//            };
+//            pdfMake.createPdf(all_pdf).download('optionalName.pdf');
+//    });
+
+
+//var all_pdf = {
+//    header:cabecera_pdf,
+//    content: contenido_pdf
+//};
+//pdfMake.createPdf(all_pdf).download('optionalName.pdf');
 }

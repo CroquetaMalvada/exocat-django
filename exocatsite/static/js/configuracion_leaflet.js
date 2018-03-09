@@ -1,5 +1,6 @@
 var mymap;
 var map_info_especie;
+//var map_info_especie_box;
 ///mapa grande
 var wmsLayer_presencia_10000=false;
 var wmsLayer_presencia_1000=false;
@@ -170,7 +171,8 @@ $(document).ready(function(){
             format: 'image/png',
         //        opacity: 0.5
         });
-        map_info_especie = L.map('map_info').setView([41.666141,1.761932], 8);
+        map_info_especie = L.map('map_info',{preferCanvas:true}).setView([41.666141,1.761932], 8);
+//        map_info_especie_box = L.mapbox.map('map_info').setView([41.666141,1.761932], 8);
         ////config para el modulo styledlayercontrol:
         var mapainfo_baseMaps = [
                         /*{
@@ -198,15 +200,16 @@ $(document).ready(function(){
                         }*/
         ];
 
+        //////
         var mapainfo_overlays = [
                          {
                             groupName : "Presencia espècie",
                             expanded  : true,
                             layers    : {
-                                "Presència 10000m" : mapainfo_wmsLayer_presencia_10000,
-                                "Presència 1000m" : mapainfo_wmsLayer_presencia_1000,
-                                "Citacions" : mapainfo_wmsLayer_citacions,
-                                "Masses d'aigua" : mapainfo_wmsLayer_presencia_ma,
+                                "Presència 10000m <a id='exportar_presencia_10000'/>" : mapainfo_wmsLayer_presencia_10000,
+                                "Presència 1000m <a id='exportar_presencia_1000'/>" : mapainfo_wmsLayer_presencia_1000,
+                                "Citacions <a id='exportar_presencia_citacions'/>" : mapainfo_wmsLayer_citacions,
+                                "Masses d'aigua <a id='exportar_presencia_masses'/>" : mapainfo_wmsLayer_presencia_ma,
                             }
                          }
                          /*, {

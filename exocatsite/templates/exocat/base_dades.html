@@ -15,10 +15,10 @@
     <link href="{% static 'css/font-awesome-4.7.0/css/font-awesome.min.css' %}" rel="stylesheet">
 
     <!--LEAFLET-->
-    <link href="{% static 'Leaflet.StyledLayerControl-master/css/styledLayerControl.css' %}" rel="stylesheet">
+    <link href="{% static 'leaflet/Leaflet.StyledLayerControl-master/css/styledLayerControl.css' %}" rel="stylesheet">
 
     <!--LEAFLET DRAW-->
-    <link href="{% static 'leaflet-draw/leaflet.draw.css' %}" rel="stylesheet">
+    <link href="{% static 'leaflet/leaflet-draw/leaflet.draw.css' %}" rel="stylesheet">
 
 
     <script src="{% static 'jquery/jquery-3.2.1.min.js' %}" ></script>
@@ -26,8 +26,11 @@
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}" ></script>
     <script src="{% static 'datatables/datatables.min.js' %}" ></script>
     <script src="{% static 'js-cookie-master/src/js.cookie.js' %}"></script>
-    <script src="{% static 'js/jquery-confirm.js' %}"></script>
     <script src="{% static 'jquery-ui/jquery-ui.min.js' %}" ></script>
+    <script src="{% static 'js/jquery-confirm.js' %}"></script>
+
+    <script src="{% static 'js/html2canvas.min.js' %}"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.debug.js"></script>-->
 
     <script type="text/javascript" src="{% static 'js-externos/jszip.min.js' %}"></script> <!--Estos tres sirven para que funcione el html5 export html5.min.js-->
     <script type="text/javascript" src="{% static 'js-externos/pdfmake.min.js' %}"></script><!-->
@@ -36,51 +39,62 @@
     <script type="text/javascript" src="{% static 'js-externos/buttons.print.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js-externos/numeric-comma.js' %}"></script>
 
+
+
     <!--<script src="{% static 'datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js' %}" ></script>-->
     <!--<script src="{% static 'datatables/DataTables-1.10.16/js/jquery.dataTables.min.js' %}" ></script>-->
     <!--<script src="{% static 'datatables/DataTables-1.10.16/js/dataTables.jqueryui.min.js' %}" ></script>-->
 
     <!--LEAFLET-->
-     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
-     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
-     <script src="{% static 'Leaflet.StyledLayerControl-master/src/styledLayerControl.js' %}" ></script>
+    <link href="{% static 'leaflet/leaflet/leaflet.css' %}" rel="stylesheet">
+    <script src="{% static 'leaflet/leaflet/leaflet.js' %}"></script>
+    <script src="{% static 'leaflet/Leaflet.StyledLayerControl-master/src/styledLayerControl.js' %}" ></script>
+    <!--<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>-->
+     <!--<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>-->
+     <!--<script src="{% static 'Leaflet.StyledLayerControl-master/src/styledLayerControl.js' %}" ></script>-->
 
     <!--LEAFLET DRAW-->
-    <script src="{% static 'leaflet-draw/Leaflet.draw.js' %}"></script>
-    <script src="{% static 'leaflet-draw/Leaflet.Draw.Event.js' %}"></script>
-    <script src="{% static 'leaflet-draw/Toolbar.js' %}"></script>
-    <script src="{% static 'leaflet-draw/Tooltip.js' %}"></script>
-    <script src="{% static 'leaflet-draw/ext/GeometryUtil.js' %}"></script>
-    <script src="{% static 'leaflet-draw/ext/LatLngUtil.js' %}"></script>
-    <script src="{% static 'leaflet-draw/ext/LineUtil.Intersect.js' %}"></script>
-    <script src="{% static 'leaflet-draw/ext/Polygon.Intersect.js' %}"></script>
-    <script src="{% static 'leaflet-draw/ext/Polyline.Intersect.js' %}"></script>
-    <script src="{% static 'leaflet-draw/ext/TouchEvents.js' %}"></script>
-    <script src="{% static 'leaflet-draw/draw/DrawToolbar.js' %}"></script>
-    <script src="{% static 'leaflet-draw/draw/handler/Draw.Feature.js' %}"></script>
-    <script src="{% static 'leaflet-draw/draw/handler/Draw.SimpleShape.js' %}"></script>
-    <script src="{% static 'leaflet-draw/draw/handler/Draw.Polyline.js' %}"></script>
-    <script src="{% static 'leaflet-draw/draw/handler/Draw.Marker.js' %}"></script>
-    <script src="{% static 'leaflet-draw/draw/handler/Draw.Circle.js' %}"></script>
-    <script src="{% static 'leaflet-draw/draw/handler/Draw.CircleMarker.js' %}"></script>
-    <script src="{% static 'leaflet-draw/draw/handler/Draw.Polygon.js' %}"></script>
-    <script src="{% static 'leaflet-draw/draw/handler/Draw.Rectangle.js' %}"></script>
-    <script src="{% static 'leaflet-draw/edit/EditToolbar.js' %}"></script>
-    <script src="{% static 'leaflet-draw/edit/handler/EditToolbar.Edit.js' %}"></script>
-    <script src="{% static 'leaflet-draw/edit/handler/EditToolbar.Delete.js' %}"></script>
-    <script src="{% static 'leaflet-draw/Control.Draw.js' %}"></script>
-    <script src="{% static 'leaflet-draw/edit/handler/Edit.Poly.js' %}"></script>
-    <script src="{% static 'leaflet-draw/edit/handler/Edit.SimpleShape.js' %}"></script>
-    <script src="{% static 'leaflet-draw/edit/handler/Edit.Rectangle.js' %}"></script>
-    <script src="{% static 'leaflet-draw/edit/handler/Edit.Marker.js' %}"></script>
-    <script src="{% static 'leaflet-draw/edit/handler/Edit.CircleMarker.js' %}"></script>
-    <script src="{% static 'leaflet-draw/edit/handler/Edit.Circle.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/Leaflet.draw.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/Leaflet.Draw.Event.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/Toolbar.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/Tooltip.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/ext/GeometryUtil.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/ext/LatLngUtil.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/ext/LineUtil.Intersect.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/ext/Polygon.Intersect.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/ext/Polyline.Intersect.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/ext/TouchEvents.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/draw/DrawToolbar.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/draw/handler/Draw.Feature.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/draw/handler/Draw.SimpleShape.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/draw/handler/Draw.Polyline.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/draw/handler/Draw.Marker.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/draw/handler/Draw.Circle.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/draw/handler/Draw.CircleMarker.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/draw/handler/Draw.Polygon.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/draw/handler/Draw.Rectangle.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/edit/EditToolbar.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/edit/handler/EditToolbar.Edit.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/edit/handler/EditToolbar.Delete.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/Control.Draw.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/edit/handler/Edit.Poly.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/edit/handler/Edit.SimpleShape.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/edit/handler/Edit.Rectangle.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/edit/handler/Edit.Marker.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/edit/handler/Edit.CircleMarker.js' %}"></script>
+    <script src="{% static 'leaflet/leaflet-draw/edit/handler/Edit.Circle.js' %}"></script>
     <!--------------->
 
+    <!--LEAFLET IMAGE-->
+    <script src="{% static 'leaflet/leaflet-image/leaflet-image.js' %}"></script>
+
     <script src="{% static 'js/leaflet.ajax.min.js' %}"></script>
+
     <!--WICKET (PASAR DE GEOJSON A WKT)-->
     <script src="{% static 'wicket/wicket.js' %}"></script>
     <!----->
+
+
 
     <script src="{% static 'js/token_ajax.js' %}" ></script>
     <script src="{% static 'js/ajax_selects.js' %}" ></script>
@@ -89,6 +103,10 @@
     <script src="{% static 'js/configuracion_leaflet.js' %}" ></script>
     <script src="{% static 'js/funciones_leaflet.js' %}" ></script>
     <script src="{% static 'js/funciones_cabecera.js' %}" ></script>
+
+
+
+
 
     <!--<link href="{% static 'css/dataTables.bootstrap.min.css' %}" rel="stylesheet">-->
 
@@ -497,6 +515,7 @@
                 <li>    Xavier Buqueras - Paratge Natural d'Interès Nacional de Poblet</li>
                 <li>    Xavier Capalleres - Centre de Recuperació de Tortugues de l'Albera</li>
                 <li>    Xavier Espadaler - Centre de Recerca Ecològica i Aplicacions Forestals (CREAF)</li>
+                <li>    Xavier Ferrer - UB - Dept. Biologia Animal (Vertebrats)</li>
                 <li>    Xavier Font - UB - Dept. Botànica</li>
                 <li>    Xavier Llombart i Pubill - Consell Comarcal de La Cerdanya</li>
                 <li>    Xavier Rivera - Societat Catalana d'Herpetologia</li>
@@ -569,8 +588,8 @@ z-index:1001;
           <li class="nav-item">
             <a class="nav-link" data-toggle="tab" href="#div_actuacions_especie" role="tab">Actuacions de control</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" title="Descarregar fitxa en PDF"><i class="fa fa-file-pdf-o fa-lg"></i>Fitxa</a>
+          <li class="nav-item" id="boton_informe">
+            <a class="nav-link" href="#" title="Descarregar fitxa en PDF" onclick="preparar_informe();"><i class="fa fa-file-pdf-o fa-lg"></i>Fitxa</a>
           </li>
         </ul>
             <!--<ul class="nav nav-tabs">-->
@@ -648,23 +667,23 @@ z-index:1001;
                </tr>
                <tr>
                    <td>Nº UTMs 10km</td>
-                   <td></td>
+                   <td id="td_n_utms_10"></td>
                </tr>
                <tr>
                    <td>Nº UTMs 1km</td>
-                   <td></td>
+                   <td id="td_n_utms_1"></td>
                </tr>
                <tr>
                    <td>Nº Citacions puntuals</td>
-                   <td></td>
+                   <td id="td_n_citacions"></td>
                </tr>
                <tr>
                    <td>Nº Masses d'aigua</td>
-                   <td></td>
+                   <td id="td_n_masses"></td>
                </tr>
                <tr>
                    <td><b>Localitats Totals:</b></td>
-                   <td></td>
+                   <td id="td_n_localitats_totals"></td>
                </tr>
                </tbody>
 
