@@ -1,0 +1,337 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Formulari de fitxa</title>
+
+    <!--CSS-->
+    <link href="{% static 'jquery-ui/jquery-ui.min.css' %}" rel="stylesheet">
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet"><!--Esta url es diferente porque bootstrap esta colocado en la carpeta bootstrap del static-->
+    <link href="{% static 'datatables/datatables.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/font-awesome-4.7.0/css/font-awesome.min.css' %}" rel="stylesheet">
+
+    <!--JS-->
+    <script src="{% static 'jquery/jquery-3.2.1.min.js' %}" ></script>
+    <script src="{% static 'tether/tether.min.js' %}" ></script>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}" ></script>
+    <script src="{% static 'datatables/datatables.min.js' %}" ></script>
+    <script src="{% static 'js-cookie-master/src/js.cookie.js' %}"></script>
+    <script src="{% static 'jquery-ui/jquery-ui.min.js' %}" ></script>
+    <script src="{% static 'js/jquery-confirm.js' %}"></script>
+
+    <!--Jquery file upload-->
+    <script type="text/javascript" src="{% static 'js-externos/jquery_file_upload/js/vendor/jquery.ui.widget.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js-externos/jquery_file_upload/js/jquery.iframe-transport.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js-externos/jquery_file_upload/js/jquery.fileupload.js' %}"></script>
+
+    <script src="{% static 'js/upload_imatges.js' %}"></script>
+
+
+    <script src="{% static 'js/html2canvas.min.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'js-externos/jszip.min.js' %}"></script> <!--Estos tres sirven para que funcione el html5 export html5.min.js-->
+    <script type="text/javascript" src="{% static 'js-externos/pdfmake.min.js' %}"></script><!-->
+    <script type="text/javascript" src="{% static 'js-externos/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js-externos/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js-externos/buttons.print.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js-externos/numeric-comma.js' %}"></script>
+
+    <script src="{% static 'js/token_ajax.js' %}" ></script>
+    <script src="{% static 'js/funciones_formularis.js' %}" ></script>
+
+</head>
+<body>
+<div class="container-fluid">
+    <h1 align="center">FITXA DE COMUNICACIÓ DE NOVES LOCALITATS D'ESPÈCIES</h1>
+    <div class="col-md-8 offset-md-2 border border-secondary">
+        <form action="/formularis_localitats_especie/" id="formulari_localitats_especie" method="post">
+            {% csrf_token %}
+            <b>(*)Camps Obligatoris</b>
+            <!--<div class="row">-->
+            <h4>Espècie i data</h4>
+            <div class="row">
+                <div class="input-group col-md-6">
+                    <span class="input-group-addon"><b>*Espècie</b></span>
+                    <select id="id_idspinvasora" name="idspinvasora" class="form-control">
+                        {% for especie in especies %}
+                        <option value="{{ especie.id }}">
+                            {{especie.idtaxon__genere}} {{especie.idtaxon__especie}}
+                        </option>
+                        {% endfor %}
+                        <option value="00000">
+                            ---Altres---
+                        </option>
+                        {{ form.idspinvasora.errors }}
+                    </select>
+                </div>
+                <div class="input-group col-md-6">
+                    <span class="input-group-addon"><b>*Data</b></span>
+                    {{ form.data}}
+                    {{ form.data.errors}}
+                </div>
+            </div>
+            <div class="row" id="div_nom_especie">
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Nom</span>
+                        {{ form.especie}}
+                        {{ form.especie.errors}}
+                    </div>
+            </div>
+            <br>
+            <h4>Localització</h4>
+            <div class="row">
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Comarca</span>
+                        {{ form.comarca}}
+                        {{ form.comarca.errors}}
+                    </div>
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Municipi</span>
+                        {{ form.municipi}}
+                        {{ form.municipi.errors}}
+                    </div>
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Finca</span>
+                        {{ form.finca}}
+                        {{ form.finca.errors}}
+                    </div>
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Paratge</span>
+                        {{ form.paratge}}
+                        {{ form.paratge.errors}}
+                    </div>
+            </div>
+            <br>
+            <h4>* Coordenades:</h4>
+
+            <input type="radio" id="coordenada_1" name="tipus_coordenades" checked value="1"/> ETRS89
+            <div class="row">
+                <div class="input-group col-md-4">
+                        <span class="input-group-addon">X</span>
+                        {{ form.utmx}}
+                        {{ form.utmx.errors}}
+                </div>
+                <div class="input-group col-md-4">
+                        <span class="input-group-addon">Y</span>
+                        {{ form.utmy}}
+                        {{ form.utmy.errors}}
+                </div>
+                <div class="input-group col-md-4">
+                        <span class="input-group-addon">Z</span>
+                        {{ form.utmz}}
+                        {{ form.utmz.errors}}
+                </div>
+            </div>
+            <br>
+            <input type="radio" id="coordenada_2" name="tipus_coordenades" value="2" unchecked/> UTM 10KM
+            <div class="row">
+                <div class="input-group col-md-6">
+                        <span class="input-group-addon"> UTM 10KM</span>
+                        {{ form.utm_10}}
+                        {{ form.utm_10.errors}}
+                </div>
+            </div>
+            <br>
+            <input type="radio" id="coordenada_3" name="tipus_coordenades" value="3" unchecked/> UTM 1KM
+            <div class="row">
+                <div class="input-group col-md-6">
+                        <span class="input-group-addon">UTM 1KM</span>
+                        {{ form.utm_1}}
+                        {{ form.utm_1.errors}}
+                </div>
+            </div>
+            <br>
+            <h4>Propietari</h4>
+            <div class="row">
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Nom</span>
+                        {{ form.propietari_nom}}
+                        {{ form.propietari_nom.errors}}
+                    </div>
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Adreça</span>
+                        {{ form.adreca}}
+                        {{ form.adreca.errors}}
+                    </div>
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Població</span>
+                        {{ form.poblacio}}
+                        {{ form.poblacio.errors}}
+                    </div>
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Telèfon</span>
+                        {{ form.telefon}}
+                        {{ form.telefon.errors}}
+                    </div>
+            </div>
+            <h4>Qualificació del terreny</h4>
+            <br>
+            <div class="row">
+                <div class="input-group col-md-6">
+                    {{ form.qual_terreny}}
+                    {{ form.qual_terreny.errors}}
+                </div>
+            </div>
+            <br>
+            <h4>Espai Natural Protegit</h4>
+
+            <script>
+                espai_natural_protegit = "{{ form.espai_natural_protegit.value }}";
+                espai_natural_nom = "{{ form.espai_nom.value }}";
+            </script>
+
+            <div class="row">
+                    <div class="input-group col-md-2">
+                        <input type="radio" id="id_espai_natural_protegit_0" name="espai_natural_protegit" value="no"/> No
+                    </div>
+                    <div class="input-group col-md-10">
+                        <input type="radio" id="id_espai_natural_protegit_1" name="espai_natural_protegit" value="si"/> Si
+                    </div>
+                <div class="input-group col-md-12" id="contenedor_si_espai_natural">
+                    <ul>
+                        <li><input type="radio" name="tipus_espai_natural_protegit" value="ENPE" />ENPE</li>
+                        <li><input type="radio" name="tipus_espai_natural_protegit" value="PEIN" />PEIN</li>
+                        <li><input type="radio" name="tipus_espai_natural_protegit" value="XN2000" />XN2000</li>
+                        <li><input type="radio" id="tipus_espai_natural_altres" name="tipus_espai_natural_protegit" value="altres" />Altres</li>
+                    </ul>
+                </div>
+                <div class="input-group col-md-6" id="contenedor_si_espai_natural_altres">
+                    <span class="input-group-addon">Nom/identificació</span>
+                    {{ form.espai_nom}}
+                    {{ form.espai_nom.errors}}
+                </div>
+            </div>
+            <br>
+            <h4>Superfície ocupada</h4>
+            <div class="row">
+                <div class="input-group col-md-6">
+                    <span class="input-group-addon">m²</span>
+                    {{ form.superficie_ocupada}}
+                    {{ form.superficie_ocupada.errors}}
+                </div>
+            </div>
+            <br>
+            <h4>Abundància (nombre de peus/individus)</h4>
+            <div class="row">
+                <div class="input-group col-md-6">
+                    {{ form.presencia}}
+                    {{ form.presencia.errors}}
+                </div>
+            </div>
+            <br>
+            <h4>Estat d'invasió</h4>
+            <div class="row">
+                <div class="input-group col-md-6">
+                    <!--<span class="input-group-addon">m²</span>-->
+                    {{ form.estat_invasio}}
+                    {{ form.estat_invasio.errors}}
+                </div>
+            </div>
+            <br>
+            <h4>Observacions</h4>
+            <div class="row">
+                <div class="input-group col-md-12">
+                    <!--<span class="input-group-addon">m²</span>-->
+                    {{ form.observacions}}
+                    {{ form.observacions.errors}}
+                </div>
+            </div>
+            <br>
+            <h4>Imatges i mapes</h4>
+            <!--<div class="row">-->
+                <!--<div class="input-group col-md-12">-->
+
+                    <b>Cal adjuntar:</b>
+                    <ul>
+                        <li>Reportatge fotogràfic, amb 4 vistes:</li>
+                        <ul>
+                            <li>Vista panoràmica de la zona.</li>
+                            <li>Detall de l'espècie.</li>
+                            <li>Detall característic de la localitat.</li>
+                            <li>Detall característic de la localitat.</li>
+                        </ul>
+                    </ul>
+                    <ul>
+                        <li>Plànol:</li>
+                        <ul>
+                            <li>Mapa topogràfic a 1:25.000, on estigui marcat amb un cercle la situació.</li>
+                            <li>Ortofotomapa a 1:5.000 de la possible localitat de l'espècie.</li>
+                        </ul>
+                    </ul>
+                    <button type="button" class="btn btn-primary js-upload-photos">
+                      <span class="glyphicon glyphicon-cloud-upload"></span> Penjar Imatges
+                    </button><br>
+
+                    <input id="fileupload" type="file" name="fitxer" multiple
+                           style="display: none;"
+                           data-url="/upload_imatge_citacions_especie/"
+                           data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+
+
+                    <input id="ids_imatges" name="ids_imatges" hidden value="{{ ids_imatges }}"/>
+                    <table id="gallery" class="table table-bordered">
+                      <thead>
+                        <!--<tr>-->
+                          <!--<th>Imatge</th>-->
+                        <!--</tr>-->
+                      </thead>
+                      <tbody>
+                        {% for imatge in imatges %}
+                          <tr>
+                            <td><a href="{{ imatge.fitxer.url }}">{{ imatge.fitxer.name }}</a></td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                <!--</div>-->
+                <!--<div class="input-group col-md-6">-->
+                    <!--<span class="input-group-addon">Imatges</span>-->
+                    <!--{{ form.imatges}}-->
+                    <!--{{ form.imatges.errors}}-->
+                <!--</div>-->
+                <!--<div class="input-group col-md-6">-->
+                    <!--<span class="input-group-addon">Mapes</span>-->
+                    <!--{{ form.mapes}}-->
+                    <!--{{ form.mapes.errors}}-->
+                <!--</div>-->
+            <!--</div>-->
+            <br>
+            <h4>Dades de contacte</h4>
+            <div class="row">
+                <div class="input-group col-md-6">
+                    <span class="input-group-addon">Correu</span>
+                    {{ form.contacte}}
+                    {{ form.contacte.errors}}
+                </div>
+                <div class="input-group col-md-6">
+                    <span class="input-group-addon"><b>*NIP</b></span>
+                    {{ form.NIP}}
+                    {{ form.NIP.errors}}
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="input-group col-md-12">
+                    <input type="checkbox" id="autoritzacio" name="autoritzacio" unchecked/> <b> * Autoritzo a EXOCAT a fer servir les meves dades i imatges.</b>
+                </div>
+            {{ form.non_field_errors }}
+            </div>
+            <br>
+            <div class="row">
+                <div class="input-group col-md-6 offset-md-3">
+                    <input type="submit" value="Enviar" id="boton_enviar" disabled/>
+                </div>
+            </div>
+            <br><br>
+            <!--</div>-->
+            <!--{{ form }}-->
+            <!--<h2>Camps Opcionals</h2>-->
+            <!--<input type="submit" value="Submit" />-->
+        </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

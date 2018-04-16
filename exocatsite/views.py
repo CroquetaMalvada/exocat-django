@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.views import View
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -10,8 +12,9 @@ from django.db.models import Q
 from exocatsite.models import *#Grup,Grupespecie,Viaentrada,Viaentradaespecie,Estatus,Especieinvasora,Taxon,Nomvulgar,Nomvulgartaxon,Habitat,Habitatespecie,Regionativa,Zonageografica,Imatges,Imatge
 from django.contrib.gis.geos import GEOSGeometry
 import json, urllib
+from forms import *
 
-# Create your views here.
+# Base de dades per consultar especies
 def view_base_dades(request):
     context = {'especies_invasores': "", 'titulo': "ESPECIES INVASORES"}
     return render(request, 'exocat/base_dades.html', context)
@@ -344,68 +347,8 @@ def json_info_especie(request):
     for actuacio in Actuacio.objects.filter(idespecieinvasora=info["id"]).values("iddoc__titol","iddoc__nomoriginal").distinct("iddoc__titol"):
         actuacions.append({"titol":actuacio["iddoc__titol"],"fitxer":actuacio["iddoc__nomoriginal"]})
 
-    # try:
-    #     titolimatge=Especieinvasora.objects.get(id=info["id"]).idimatgeprincipal
-    # except:
-    #     titolimatge=""
-
-    # #variedad(se junta con subvariedad)
-    # varietat=""
-    # if especie.idtaxon.varietat is not None:
-    #     varietat = varietat+str(especie.idtaxon.varietat)
-    # if especie.idtaxon.subvarietat is not None:
-    #     varietat = varietat+" - "+str(especie.idtaxon.subvarietat)
-    #
-    # # #nombres vulgares *descartado por ahora
-    # # nomsvulgars=""
-    # # # for nomv in Nomvulgartaxon.objects.filter(idtaxon=especie.idtaxon):
-    # # #     nomsvulgars=nomsvulgars+nomv.idnomvulgar.nomvulgar+","
-    # #
-    # # #habitat !Ojo de momento esta tabla esta vacia en la bdd
-    # # # habitat=Habitatespecie.objects.get(idspinvasora=especie.id).idspinvasora.habitat
-    #
-    # #Estatus Catalunya
-    # estatuscat= especie.idestatuscatalunya.nom
-    #
-    # #Region nativa
-    # try:# hacemos try porque hay algunos en los que es nulo(?) y peta
-    #     regionativa=Regionativa.objects.get(idespecieinvasora=especie.id).idzonageografica.nom
-    # except:
-    #     regionativa=""#"Desconeguda"
-    #
-    # # Via de entrada
-    # viaentrada=''
-    # for via in Viaentradaespecie.objects.filter(idespecieinvasora=especie.id):
-    #     if viaentrada=='':
-    #         viaentrada= viaentrada+str(via.idviaentrada.viaentrada)
-    #     else:
-    #         viaentrada = viaentrada+', '+ str(via.idviaentrada.viaentrada)
-    #
-    # # Estatus Historic
-    # try:
-    #     estatushistoric = especie.idestatushistoric.nom
-    # except:
-    #     estatushistoric = ""
-    #
-    # # Presente en el 'Catálogo espanol de especies exoticas invasoras'
-    # present=especie.present_catalogo
     resultado=json.dumps({'id':info["id"],'genere':genere,'especie':especie,'subespecie':subespecie,'varietat':varietat,'subvarietat':subvarietat,'nomsvulgars':nomsvulgars,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge,'nutm1000':nutm1000,'nutm10000':nutm10000,'ncitacions':ncitacions,'nmassesaigua':nmassesaigua,'documentacio':documentacio,'actuacions':actuacions})
     return HttpResponse(resultado, content_type='application/json;')
-
-#ESPECIES DE X COORDENADAS
-# def json_especies_de_coordenadas(request):
-#     lat=request.GET["lat"]
-#     long=request.GET["long"]
-#
-#     # Create the cursor
-#     cursor = connection.cursor()
-#
-#
-#     # Execute the SQL
-#     cursor.execute('SELECT * FROM exocat.sipan_mexocat.presencia_sp')
-#     result = cursor.fetchall()
-#
-#     return result
 
 
 #ESPECIES EN UN CUADRO DE 10KM(EN REALIDAD SE OBTIENE UN RECUADRO DE UN CLICK)
@@ -542,3 +485,152 @@ def json_especies_de_seleccion(request,multipoligono=False):
     else:
         resultado = json.dumps(resultado)
         return HttpResponse(resultado, content_type='application/json;')
+
+# FORMULARI CITACIONS DE ESPECIES
+
+# def form_citacions_especies(request):
+#     form = CitacionsEspeciesForm(request.POST)
+#     if form.is_valid():
+#         form.save()
+#         lista = request.POST[""]
+
+# Formulario de citacions/noves localitats de especies
+def view_formularis_localitats_especie(request):
+    ids_imatges=""
+    if request.method == 'POST':
+        form = CitacionsEspeciesForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+            # redirect to a new URL:
+            camps_obligatoris = ['idspinvasora','data','NIP']
+            formulario_clean  = form.cleaned_data
+
+            if formulario_clean["idspinvasora"] == "00000":
+                camps_obligatoris.append("especie")
+
+            # Segun el tipo de corrdenadas que nos de el usuario,haremos obligatorios ciertos inputs
+            if request.POST["tipus_coordenades"] == "1":
+                camps_obligatoris.append("utmx")
+                camps_obligatoris.append("utmy")
+                camps_obligatoris.append("utmz")
+            else:
+                if request.POST["tipus_coordenades"] == "2":
+                    camps_obligatoris.append("utm_10")
+                else:
+                    if request.POST["tipus_coordenades"] == "3":
+                        camps_obligatoris.append("utm_1")
+            #
+            # Verificamos que el usuario haya dado las imagenes necesarias
+            if request.POST["ids_imatges"] != "":
+                ids_imatges = request.POST["ids_imatges"]
+                imatges = request.POST["ids_imatges"].split(",")
+                if len(imatges) < 7:
+                    errorcount = "Faltan "+str(7-len(imatges))+" imatges."
+                    form.add_error(None,errorcount)
+            else:
+                form.add_error(None,"No has penjat cap imatge.")
+
+            # if request.POST["espai_natural_protegit"] == "si":
+            #     if request.POST["tipus_espai_natural_protegit"] != "altres":
+            #         form.add({"espai_natural_protegit":request.POST["tipus_espai_natural_protegit"]})
+            if request.POST["autoritzacio"] != "on":
+                form.add_error(None,"No has acceptat les condicions.")
+
+            for key in camps_obligatoris:
+                if not formulario_clean[key] or formulario_clean[key] == '':
+                    form.add_error(key,"Aquest camp està buit")
+
+            if form.is_valid(): # Validamos otra vez el formulario para saber si antes tenia errores
+                if formulario_clean["idspinvasora"] == "00000":
+                    form.validat = "No"
+                else: #OJO! PONER VALIDACIONES PARA COMPROVAR SI LO ENVIA UN USUARIO CON PERMISOS!!!!
+                    form.validat = "Si"
+                new_form = form.save()
+                for imatge in imatges:
+                    if imatge != "":
+                        img = ImatgesCitacions.objects.get(id=imatge)
+                        img.id_citacio_especie = new_form
+                        img.save()
+
+
+
+
+            # raise form.ValidationError("You didn't fill in the {} form".format(key))
+            #jemplo de envio de correo
+            # subject = form.cleaned_data['subject']
+            # message = form.cleaned_data['message']
+            # sender = form.cleaned_data['sender']
+            # cc_myself = form.cleaned_data['cc_myself']
+            #
+            # recipients = ['info@example.com']
+            # if cc_myself:
+            #     recipients.append(sender)
+            #
+            # send_mail(subject, message, sender, recipients)
+            # return HttpResponseRedirect('/thanks/')
+    else:
+        form = CitacionsEspeciesForm
+
+    especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id", "idtaxon__genere", "idtaxon__especie")
+    context={'form':form,'especies':especies,'ids_imatges':ids_imatges}
+    return render(request,'exocat/formularis_localitats_especie.html',context)
+
+# Formulario de ACA para las citacions
+def view_formularis_aca(request):
+    if request.method == 'POST':
+        form = CitacionsACAForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+            # redirect to a new URL:
+            return HttpResponseRedirect('/thanks/')
+    else:
+        form = CitacionsACAForm()
+    context={'form':form}
+    return render(request,'exocat/formularis_aca.html',context)
+
+
+class view_upload_imatge_citacions_especie(View):
+
+    def get(self, request):
+        lista = []
+        imatges = request.GET["ids_imatges"].split(",")
+        for imatge in imatges:
+            if imatge != "":
+                img = ImatgesCitacions.objects.get(id=imatge)
+                lista.append({'name': img.fitxer.name, 'url': img.fitxer.url, 'id': img.id})
+        return JsonResponse(lista,safe=False)
+        # return render(self.request, 'exocat/formularis_localitats_especie.html', {'imatges':lista})
+
+    def post(self, request):
+        form = ImatgesCitacionsEspecieForm(self.request.POST, self.request.FILES)
+        tipo_ext = ['image']
+        # 2.5MB - 2621440
+        # 5MB - 5242880
+        # 10MB - 10485760
+        # 20MB - 20971520
+        # 50MB - 5242880
+        # 100MB 104857600
+        # 250MB - 214958080
+        # 500MB - 429916160
+        max_file_size = 5242880
+
+        data = {}
+        if form.is_valid():
+            imagen = form.cleaned_data["fitxer"]
+            # comprobar extension:
+            if (imagen.content_type.split('/')[0] not in tipo_ext):
+                data = {"is_valid": False, 'errormessage': 'Error: El fitxer ha de ser una imatge.'}
+            # comprobar tamaño:
+            else:
+                if (imagen._size > max_file_size):
+                    data = {"is_valid": False, 'errormessage': 'Error: El tamany del fixter ha de ser menor a 5MB.'}
+                else:
+                    imatge = form.save()
+                    data = {'is_valid':True, 'name': imatge.fitxer.name , 'url': imatge.fitxer.url, 'id':imatge.id }
+        else:
+            data = {"is_valid":False, 'errormessage':'Error al pujar la imatge.'}
+        return JsonResponse(data)

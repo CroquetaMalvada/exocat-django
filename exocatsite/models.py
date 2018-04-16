@@ -234,6 +234,29 @@ class MassesAigua(models.Model):
         managed = False
         db_table = 'masses_aigua'
 
+class ActualitzacioDades08072015(models.Model):
+    id = models.AutoField(primary_key=True)
+    codi_aca = models.CharField(max_length=200, blank=True, null=True)
+    utmx_etrs89 = models.CharField(max_length=200, blank=True, null=True)
+    utmy_etrs89 = models.CharField(max_length=200, blank=True, null=True)
+    localitzacio = models.CharField(max_length=200, blank=True, null=True)
+    codi_sp = models.CharField(max_length=200, blank=True, null=True)
+    data_cita = models.CharField(max_length=200, blank=True, null=True)
+    autor_cita = models.CharField(max_length=200, blank=True, null=True)
+    font_cita = models.CharField(max_length=200, blank=True, null=True)
+    observacions = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'actualitzacio_dades_08_07_2015'
+
+    def codi_nom(self):
+        if MassesAigua.objects.filter(codi_aca=self.codi_aca):
+            return "{0} - {1}".format(self.codi_aca,MassesAigua.objects.filter(codi_aca=self.codi_aca).first().only("codi_aca"))
+        else:
+            return self.codi_aca
+
+
 class Nomvulgar(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
     nomvulgar = models.CharField(max_length=100)
@@ -358,3 +381,65 @@ class Zonageografica(models.Model):
     class Meta:
         managed = False
         db_table = 'zonageografica'
+
+class CitacionsEspecie(models.Model):
+    id = models.AutoField(primary_key=True)
+    especie = models.CharField(max_length=255, blank=True, null=True)
+    # idspinvasora = models.ForeignKey(Especieinvasora, null=True) # FOREIGN
+    idspinvasora = models.CharField(max_length=255, blank=True, null=True)
+    data = models.CharField(max_length=100, blank=True, null=True)
+
+    comarca = models.CharField(max_length=100, blank=True, null=True)
+    municipi = models.CharField(max_length=255, blank=True, null=True)
+    localitat = models.CharField(max_length=255, blank=True, null=True)
+    finca = models.CharField(max_length=255, blank=True, null=True)
+    paratge = models.CharField(max_length=255, blank=True, null=True)
+    utmx = models.FloatField(blank=True, null=True)
+    utmy = models.FloatField(blank=True, null=True)
+    utmz = models.FloatField(blank=True, null=True)
+    utm_10 = models.CharField(max_length=4, blank=True, null=True)
+    utm_1 = models.CharField(max_length=6, blank=True, null=True)
+
+    propietari_nom = models.CharField(max_length=255, blank=True, null=True)
+    adreca = models.CharField(max_length=255, blank=True, null=True)
+    poblacio = models.CharField(max_length=255, blank=True, null=True)
+    telefon = models.CharField(max_length=255, blank=True, null=True)
+
+    qual_terreny = models.CharField(max_length=255, blank=True, null=True)
+
+    espai_natural_protegit = models.CharField(max_length=255, blank=True, null=True)
+    espai_nom = models.CharField(max_length=255, blank=True, null=True)
+
+    superficie_ocupada = models.CharField(max_length=100, blank=True, null=True)
+
+    presencia = models.CharField(max_length=255, blank=True, null=True)
+
+    estat_invasio = models.CharField(max_length=255, blank=True, null=True) # foreign de estatus?
+
+    observacions = models.CharField(max_length=4000, blank=True, null=True)
+
+    grup = models.CharField(max_length=255, blank=True, null=True)
+
+    # imatges = models.FileField(upload_to='imatges',blank=True,null=True)
+
+    # imatge_panoramica = models.ForeignKey('Imatges', models.DO_NOTHING, related_name='citacio_imatge_panoramica', blank=True, null=True)
+    # imatge_detall_espcie = models.ForeignKey('Imatges', models.DO_NOTHING, related_name='citacio_imatge_detall_especie', blank=True, null=True)
+    # imatge_detall_localitat_1 = models.ForeignKey('Imatges', models.DO_NOTHING, related_name='citacio_imatge_detall_localitat_1',blank=True, null=True)
+    # imatge_detall_localitat_2 = models.ForeignKey('Imatges', models.DO_NOTHING,related_name='citacio_imatge_detall_localitat_2', blank=True,null=True)
+
+    contacte = models.EmailField(blank=True,null=True)
+    NIP = models.CharField(max_length=255, blank=True, null=True)
+    validat = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'citacions_especie'
+
+class ImatgesCitacions(models.Model):
+    fitxer = models.FileField(upload_to='imatges',blank=True,null=True)
+    id_citacio_especie = models.ForeignKey(CitacionsEspecie, related_name='imatges_citacio_especie', blank=True, null=True)
+    tipus = models.CharField(max_length=255, blank=True, null=True)
+    data_pujada = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        managed = True
+        db_table = 'imatges_citacions_especie'

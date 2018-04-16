@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.generic import TemplateView
@@ -22,6 +23,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^base_dades/',views.view_base_dades,name="base dades"),
+    url(r'^formularis_localitats_especie/',views.view_formularis_localitats_especie,name="formularis localitats especie"),
+    url(r'^formularis_aca/',views.view_formularis_aca,name="formularis aca"),
     url(r'^mapa/',views.view_mapa,name="mapa"),
     # AJAX
     url('^ajax_grups_select/', views.json_select_groups),
@@ -37,4 +40,10 @@ urlpatterns = [
     url('^especies_de_comarca/', views.json_especies_de_comarca),
     url('^especies_seleccion/', views.json_especies_de_seleccion),
 
+    #UPLOAD
+    url(r'^upload_imatge_citacions_especie/$', views.view_upload_imatge_citacions_especie.as_view(), name='Pujar_imatge_citacions_especie'),
+
 ]
+# solo para desarrollo
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
