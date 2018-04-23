@@ -72,6 +72,8 @@ $(document).ready(function(){
                 });
             }
         });
+    }else{
+        mostrar_ocultar_dades_opcionals();
     }
 
 
@@ -157,4 +159,13 @@ function check_espai_natural_altres(check){
         $("#id_espai_nom").val($(check).val());
         $("#contenedor_si_espai_natural_altres").hide();
     }
+}
+function mostrar_ocultar_dades_opcionals(){
+    if($("#div_dades_opcionals").is(":visible")){
+        $("#div_dades_opcionals").hide();
+    }else{
+        $("#div_dades_opcionals").show();
+    }
+
+
 }
