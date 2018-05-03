@@ -68,7 +68,10 @@ def json_taula_especies(request):
         especiestr=especie["idtaxon__especie"]
         subespeciestr = especie["idtaxon__subespecie"]
         if especiestr is not None:
-            genere=genere+" "+str(especiestr)
+            try:
+                genere=genere+" "+str(especiestr)
+            except:
+                genere=""
         if subespeciestr is not None:
             genere = genere + " [subespecie: "+str(subespeciestr)+" ]"
 

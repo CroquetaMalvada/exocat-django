@@ -22,21 +22,21 @@ class Extensions(models.Model):
         managed = False
         db_table = 'extensions'
 
-class Imatges(models.Model): # Ojo que este en realidad se relaciona con la especie a traves del model "Imatge"
-    idimatge = models.CharField(primary_key=True, max_length=100)
-    titol = models.CharField(max_length=4000, blank=True, null=True)
-    observacions = models.CharField(max_length=500, blank=True, null=True)
-    nomoriginal = models.CharField(max_length=255, blank=True, null=True)
-    thumbnail = models.BinaryField(blank=True, null=True)
-    fitxer = models.BinaryField(blank=True, null=True)
-    visualitzable = models.CharField(max_length=1, blank=True, null=True)
-    tag = models.CharField(max_length=255, blank=True, null=True)
-
-    #FOREIGN KEYS
-    idextensio = models.ForeignKey(Extensions, models.DO_NOTHING,related_name="id_imatge_extensio", db_column='idextensio', blank=True, null=True)
-    class Meta:
-        managed = False
-        db_table = 'imatges'
+# class Imatges(models.Model): # Ojo que este en realidad se relaciona con la especie a traves del model "Imatge"
+#     idimatge = models.CharField(primary_key=True, max_length=100)
+#     titol = models.CharField(max_length=4000, blank=True, null=True)
+#     observacions = models.CharField(max_length=500, blank=True, null=True)
+#     nomoriginal = models.CharField(max_length=255, blank=True, null=True)
+#     thumbnail = models.BinaryField(blank=True, null=True)
+#     fitxer = models.BinaryField(blank=True, null=True)
+#     visualitzable = models.CharField(max_length=1, blank=True, null=True)
+#     tag = models.CharField(max_length=255, blank=True, null=True)
+#
+#     #FOREIGN KEYS
+#     idextensio = models.ForeignKey(Extensions, models.DO_NOTHING,related_name="id_imatge_extensio", db_column='idextensio', blank=True, null=True)
+#     class Meta:
+#         managed = False
+#         db_table = 'imatges'
 
 class Citacions(models.Model):
     especie = models.CharField(max_length=255, blank=True, null=True)
@@ -130,16 +130,16 @@ class Especieinvasora(models.Model):
         managed = False
         db_table = 'especieinvasora'
 
-class Imatge(models.Model): #
-    id = models.CharField(primary_key=True, max_length=100)
-    tag = models.CharField(max_length=255, blank=True, null=True)
-
-    #FOREIGN KEYS
-    idespecieinvasora = models.ForeignKey(Especieinvasora, models.DO_NOTHING,related_name="id_especie_imatge", db_column='idespecieinvasora', blank=True, null=True)
-    idimatge = models.ForeignKey('Imatges', models.DO_NOTHING,related_name="id_imatge_imatge", db_column='idimatge', blank=True, null=True)
-    class Meta:
-        managed = False
-        db_table = 'imatge'
+# class Imatge(models.Model): #
+#     id = models.CharField(primary_key=True, max_length=100)
+#     tag = models.CharField(max_length=255, blank=True, null=True)
+#
+#     #FOREIGN KEYS
+#     idespecieinvasora = models.ForeignKey(Especieinvasora, models.DO_NOTHING,related_name="id_especie_imatge", db_column='idespecieinvasora', blank=True, null=True)
+#     idimatge = models.ForeignKey('Imatges', models.DO_NOTHING,related_name="id_imatge_imatge", db_column='idimatge', blank=True, null=True)
+#     class Meta:
+#         managed = False
+#         db_table = 'imatge'
 
 class Estatus(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
@@ -382,6 +382,40 @@ class Zonageografica(models.Model):
         managed = False
         db_table = 'zonageografica'
 
+
+# ------------------------------------------------- MODIFICADO
+
+
+class Imatges(models.Model):
+    idimatge = models.CharField(primary_key=True, max_length=100)
+    titol = models.CharField(max_length=4000, blank=True, null=True)
+    observacions = models.CharField(max_length=500, blank=True, null=True)
+    nomoriginal = models.CharField(max_length=255, blank=True, null=True)
+    # thumbnail = models.BinaryField(blank=True, null=True)
+    # fitxer = models.BinaryField(blank=True, null=True)
+    fitxer = models.FileField(upload_to='imatges_especies', blank=True, null=True)
+    visualitzable = models.CharField(max_length=1, blank=True, null=True)
+    tag = models.CharField(max_length=255, blank=True, null=True)
+
+    # FOREIGN KEYS
+    idextensio = models.ForeignKey(Extensions, models.DO_NOTHING, db_column='idextensio', blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'imatges'
+
+class Imatge(models.Model):
+    id = models.CharField(primary_key=True, max_length=100)
+    tag = models.CharField(max_length=255, blank=True, null=True)
+
+    # FOREIGN KEYS
+    idespecieinvasora = models.ForeignKey(Especieinvasora, models.DO_NOTHING, db_column='idespecieinvasora', blank=True, null=True)
+    idimatge = models.ForeignKey('Imatges', models.DO_NOTHING, db_column='idimatge', blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'imatge'
+
 class CitacionsEspecie(models.Model):
     id = models.AutoField(primary_key=True)
     especie = models.CharField(max_length=255, blank=True, null=True)
@@ -436,7 +470,7 @@ class CitacionsEspecie(models.Model):
         db_table = 'citacions_especie'
 
 class ImatgesCitacions(models.Model):
-    fitxer = models.FileField(upload_to='imatges',blank=True,null=True)
+    fitxer = models.FileField(upload_to='imatges_citacions_especies',blank=True,null=True)
     id_citacio_especie = models.ForeignKey(CitacionsEspecie, related_name='imatges_citacio_especie', blank=True, null=True)
     tipus = models.CharField(max_length=255, blank=True, null=True)
     data_pujada = models.DateTimeField(auto_now_add=True)

@@ -53,7 +53,8 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
 
 
             //imagen principal
-            $("#info_imatge").attr("src","http://montesdata.creaf.cat/Exocat/grafics_temp/"+data['id']+"_port.jpg");
+            //$("#info_imatge").attr("src","http://montesdata.creaf.cat/Exocat/grafics_temp/"+data['id']+"_port.jpg");
+            $("#info_imatge").attr("src","/media/imatges_especies/"+data['imatges'][0]["id"]+".jpg");
             $("#info_imatge").attr("title",data['titolimatge']);
 
 
@@ -74,7 +75,8 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
                 var titulo = String(this["titol"]);
                 titulo=titulo.replace(/"/g,"'"); //quitamos todas las comillas dobles para evitar problemas
 
-                var html='<div class="carousel-item"><img style="padding:10%"title="'+titulo+'" class="d-block img-fluid" width="100%" src="http://montesdata.creaf.cat/Exocat/media/visualitzarfoto.htm?id='+this["id"]+'" alt="http://montesdata.creaf.cat/Exocat/media/visualitzarfoto.htm?id='+this["id"]+'" /><div class="carousel-caption d-none d-md-block"><p><a class="btn btn-success" href="http://montesdata.creaf.cat/Exocat/media/visualitzarfoto.htm?id='+this["id"]+'"><i class="fa fa-search-plus"></i> Ampliar</a></p></div</div>';
+                //var html='<div class="carousel-item"><img style="padding:10%"title="'+titulo+'" class="d-block img-fluid" width="100%" src="http://montesdata.creaf.cat/Exocat/media/visualitzarfoto.htm?id='+this["id"]+'" alt="http://montesdata.creaf.cat/Exocat/media/visualitzarfoto.htm?id='+this["id"]+'" /><div class="carousel-caption d-none d-md-block"><p><a class="btn btn-success" href="http://montesdata.creaf.cat/Exocat/media/visualitzarfoto.htm?id='+this["id"]+'"><i class="fa fa-search-plus"></i> Ampliar</a></p></div</div>';
+                var html='<div class="carousel-item"><img style="padding:10%"title="'+titulo+'" class="d-block img-fluid" width="100%" src="/media/imatges_especies/'+this["id"]+'.'+this["extensio"]+'"/><div class="carousel-caption d-none d-md-block"><p><a class="btn btn-success" href="/media/imatges_especies/'+this["id"]+'.'+this["extensio"]+'"><i class="fa fa-search-plus"></i> Ampliar</a></p></div</div>';
                 $("#carousel_contenido").append(html);
             });
 
