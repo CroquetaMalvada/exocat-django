@@ -10,6 +10,8 @@ from django.http import HttpResponseRedirect
 from django.db import connection
 from django.db.models import Q
 from exocatsite.models import *#Grup,Grupespecie,Viaentrada,Viaentradaespecie,Estatus,Especieinvasora,Taxon,Nomvulgar,Nomvulgartaxon,Habitat,Habitatespecie,Regionativa,Zonageografica,Imatges,Imatge
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib.gis.geos import GEOSGeometry
 import json, urllib
 from forms import *
@@ -498,6 +500,7 @@ def json_especies_de_seleccion(request,multipoligono=False):
 #         lista = request.POST[""]
 
 # Formulario de citacions/noves localitats de especies
+@login_required(login_url='/login/')
 def view_formularis_localitats_especie(request):
     ids_imatges=""
     if request.method == 'POST':
@@ -581,6 +584,7 @@ def view_formularis_localitats_especie(request):
     return render(request,'exocat/formularis_localitats_especie.html',context)
 
 # Formulario de ACA para las citacions
+@login_required(login_url='/login/')
 def view_formularis_aca(request):
     if request.method == 'POST':
         form = CitacionsACAForm(request.POST)
@@ -595,7 +599,7 @@ def view_formularis_aca(request):
     context={'form':form}
     return render(request,'exocat/formularis_aca.html',context)
 
-
+@login_required(login_url='/login/')
 class view_upload_imatge_citacions_especie(View):
 
     def get(self, request):

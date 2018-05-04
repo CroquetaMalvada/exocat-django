@@ -16,11 +16,14 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from exocatsite import views
 from django.conf.urls.static import static
 
 urlpatterns = [
+    url(r'^login/$', auth_views.login, name='login'),
+    url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^admin/', admin.site.urls),
     url(r'^base_dades/',views.view_base_dades,name="base dades"),
     url(r'^formularis_localitats_especie/',views.view_formularis_localitats_especie,name="formularis localitats especie"),
@@ -41,7 +44,7 @@ urlpatterns = [
     url('^especies_seleccion/', views.json_especies_de_seleccion),
 
     #UPLOAD
-    url(r'^upload_imatge_citacions_especie/$', views.view_upload_imatge_citacions_especie.as_view(), name='Pujar_imatge_citacions_especie'),
+    url(r'^upload_imatge_citacions_especie/$', views.view_upload_imatge_citacions_especie, name='Pujar_imatge_citacions_especie'),
 
 ]
 # solo para desarrollo
