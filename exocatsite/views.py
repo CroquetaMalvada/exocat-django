@@ -604,9 +604,10 @@ def view_formularis_aca(request):
     return render(request,'exocat/formularis_aca.html',context)
 
 @login_required(login_url='/login/')
-class view_upload_imatge_citacions_especie(View):
+def view_upload_imatge_citacions_especie(request):
 
-    def get(self, request):
+    if request.GET:
+    # def get(self, request):
         lista = []
         imatges = request.GET["ids_imatges"].split(",")
         for imatge in imatges:
@@ -616,8 +617,9 @@ class view_upload_imatge_citacions_especie(View):
         return JsonResponse(lista,safe=False)
         # return render(self.request, 'exocat/formularis_localitats_especie.html', {'imatges':lista})
 
-    def post(self, request):
-        form = ImatgesCitacionsEspecieForm(self.request.POST, self.request.FILES)
+    if request.POST:
+    # def post(self, request):
+        form = ImatgesCitacionsEspecieForm(request.POST, request.FILES)
         tipo_ext = ['image']
         # 2.5MB - 2621440
         # 5MB - 5242880

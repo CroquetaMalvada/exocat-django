@@ -44,7 +44,7 @@ urlpatterns = [
     url('^especies_seleccion/', views.json_especies_de_seleccion),
 
     #UPLOAD
-    url(r'^upload_imatge_citacions_especie/$', views.view_upload_imatge_citacions_especie, name='Pujar_imatge_citacions_especie'),
+    url('^upload_imatge_citacions_especie/$', views.view_upload_imatge_citacions_especie),
 
 ]
 # solo para desarrollo
