@@ -63,7 +63,7 @@ def json_select_regionativa(request):
 def json_taula_especies(request):
     especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie")
     resultado=[]
-    for especie in especies:
+    for especie in especies[int(request.POST["start"]):(int(request.POST["start"])+int(request.POST["length"]))]:
         # nombre de la especie(se juntan el genere con especie y subespecie)
         id=str(especie["id"])
         genere=str(especie["idtaxon__genere"])
@@ -72,7 +72,7 @@ def json_taula_especies(request):
         if especiestr is not None:
             try:
                 genere=genere+" "+str(especiestr)
-            except:
+            except:# Ojo poner breakpoint por si especie aparece en blanco
                 genere=""
         if subespeciestr is not None:
             genere = genere + " [subespecie: "+str(subespeciestr)+" ]"
@@ -126,7 +126,7 @@ def json_taula_especies(request):
         #resultado.append({'id':str(especie.id),'especie': genere,'grup':grup, 'varietat':varietat, 'regionativa':regionativa, 'estatuscat':estatuscat,'viaentrada':viaentrada, 'estatushistoric':estatushistoric, 'present':present}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
         #resultado.append({'id':"",'especie':"",'grup':"", 'varietat':"", 'regionativa':"", 'estatuscat':"",'viaentrada':"", 'estatushistoric':"", 'present':""}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
 
-    resultado=json.dumps(resultado)
+    resultado=json.dumps({"data":resultado,"recordsTotal":len(especies),"recordsFiltered":len(especies)})
     return HttpResponse(resultado, content_type='application/json;')
 
 #ESPECIES FILTRADAS
@@ -216,7 +216,7 @@ def json_taula_especies_filtres(request):
 
     # FINALMENTE DEVOLVEMOS CADA ESPECIE QUE HAYA PASADO LOS FILTROS:
     resultado=[]
-    for especie in especies:
+    for especie in especies[int(request.POST["start"]):(int(request.POST["start"])+int(request.POST["length"]))]:
         # nombre de la especie(se juntan el genere con especie y subespecie)
         id=str(especie["id"])
         genere=str(especie["idtaxon__genere"])
@@ -235,7 +235,7 @@ def json_taula_especies_filtres(request):
         #resultado.append({'id':str(especie.id),'especie': genere,'grup':grup, 'varietat':varietat, 'regionativa':regionativa, 'estatuscat':estatuscat,'viaentrada':viaentrada, 'estatushistoric':estatushistoric, 'present':present}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
         #resultado.append({'id':"",'especie':"",'grup':"", 'varietat':"", 'regionativa':"", 'estatuscat':"",'viaentrada':"", 'estatushistoric':"", 'present':""}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
 
-    resultado=json.dumps(resultado)
+    resultado = json.dumps({"data": resultado, "recordsTotal": len(especies), "recordsFiltered": len(especies)})
     return HttpResponse(resultado, content_type='application/json;')
 
 # INFO DE UNA ESPECIE
@@ -275,24 +275,28 @@ def json_info_especie(request):
         id_exoaqua=id_exoaqua[0]["id_exoaqua"] # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
         id_massesaigua= MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).values("id_localitzacio")
 
-        for id_massa in id_massesaigua:
-            try:
-                massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
-                nom=massa.nom
-            except:
-                nom="# Sense Dades #"
-            try:
-                massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
-                tipus=massa.id_categor
-            except:
-                tipus="# Sense Dades #"
-            try:
-                massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
-                conca=ConquesPrincipals.objects.filter(id=massa.idconca).values("nom_conca").first()
-            except:
-                conca="# Sense Dades #"
+        # !!!! OJO DESCOMENTAR ESTO CUANDO HAGA FALTA VER LA INFO DE LAS MASSES,Y RECOMENDABLE QUE SE EJECUTE MANUALMENTE YA QUE PUEDE TARTAR EN ESPECIES COMO EL VISON
+        # !!!
+        # for id_massa in id_massesaigua:
+        #     try:
+        #         massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+        #         nom=massa.nom
+        #     except:
+        #         nom="# Sense Dades #"
+        #     try:
+        #         massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+        #         tipus=massa.id_categor
+        #     except:
+        #         tipus="# Sense Dades #"
+        #     try:
+        #         massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+        #         conca=ConquesPrincipals.objects.filter(id=massa.idconca).values("nom_conca").first()
+        #     except:
+        #         conca="# Sense Dades #"
+        #
+        #     massesaigua.append({"nom":nom,"tipus":tipus,"conca":conca})
+        # !!!
 
-            massesaigua.append({"nom":nom,"tipus":tipus,"conca":conca})
         nmassesaigua= MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).count()#Ojo mirar bien esto!!!
 
     #

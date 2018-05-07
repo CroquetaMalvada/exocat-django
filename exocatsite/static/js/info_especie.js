@@ -137,6 +137,13 @@ function preparar_informe(){
     //Primero obtenemos las imagenes necesarias
     var url_image="";
     var url_mapa="";
+    url_image=$("#info_imatge").prop("src");// OJO importante usar prop para obtener la absoluta
+
+    getBase64FromImageUrl($("#info_imatge").prop("src"),function(data){ //Obtenemos la url en base64 para la imagen y así pasarla en el pdf
+        //console.log(data);
+        url_image = data;
+    });
+
     $('#mapa_de_especie').tab('show');
     leafletImage(map_info_especie, function(err, canvas) {
         // now you have canvas
@@ -149,7 +156,7 @@ function preparar_informe(){
 //        img.src = canvas.toDataURL();
 //        window.open(canvas.toDataURL("image/png"));
         $("#boton_informe").html(html_boton);
-        generar_informe("",canvas.toDataURL("image/png"));
+        generar_informe(url_image,canvas.toDataURL("image/png"));
 //        document.getElementById('images').innerHTML = '';
 //        document.getElementById('images').appendChild(img);
     });
@@ -178,11 +185,23 @@ function generar_informe(url_image,url_mapa){
             //{canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
         }
     });
-
+    //alert(url_image);
     var all_pdf = {
         header:cabecera_pdf,
         content: [
-            {text:"[IMAGEN DISPONIBLE CUANDO EL SERVIDOR TENGA LAS IMAGENES EN LOCAL]",alignment: 'center'},
+            //{text:"[IMAGEN DISPONIBLE CUANDO EL SERVIDOR TENGA LAS IMAGENES EN LOCAL]",alignment: 'center'},
+            {
+//                       stack: [/// esto sirve para que se pueda hacer un width con *
+//                            {
+//                                image: url_mapa,
+//                            }
+//                       ],
+                        image: url_image,
+                        width: 200,
+                        height: 100,
+                        style:"titulo"
+
+            },
             {text:" "},
             {text: "Dades bàsiques",style:"header"},
             {text:" "},
@@ -294,3 +313,51 @@ function generar_informe(url_image,url_mapa){
 //};
 //pdfMake.createPdf(all_pdf).download('optionalName.pdf');
 }
+
+
+function getBase64FromImageUrl(url, callback) {
+    var img = new Image();
+
+    img.onload = function () {
+        var canvas = document.createElement("canvas");
+        canvas.width =this.width;
+        canvas.height =this.height;
+
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(this, 0, 0);
+
+        var dataURL = canvas.toDataURL("image/png");
+        callback(dataURL);
+    };
+
+    img.onerror = function() {
+      console.warn('error loading' + url);
+    };
+
+    img.src = url;
+}
+
+//function getBase64FromImageUrl(url) {
+//
+//
+//    var img = new Image();
+//
+//    img.setAttribute('crossOrigin', 'anonymous');
+//
+//    img.onload = function () {
+//        var canvas = document.createElement("canvas");
+//        canvas.width =img.width;
+//        canvas.height =img.height;
+//
+//        var ctx = canvas.getContext("2d");
+//        ctx.drawImage(img, 0, 0);
+//
+//        var dataURL = canvas.toDataURL("image/png");
+//
+//        alert(dataURL.replace(/^data:image\/(png|jpg);base64,/, ""));
+//        return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+//    };
+//
+////    img.src = url;
+////    return url;
+//}

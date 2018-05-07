@@ -61,13 +61,13 @@ $(document).ready(function(){
 
 
     taula_especies = $("#taula_especies").DataTable({
-//                    processing:true,
-//                    serverSide:true,
+                    processing:true,
+                    serverSide:true,
 //                    ajax: '/ajax_taula_especies/',
 //                    deferLoading: 10,
                     ajax: {
                         url: '/ajax_taula_especies/',
-                        dataSrc: '',
+                        dataSrc: 'data',
                         type:"POST",
                         data:function(d){
                             d.especie=$("#especie").val();
@@ -277,6 +277,7 @@ $(document).ready(function(){
 
         // FILTROS PARA LA TABLA!
         $("#form_filtres").submit(function(event){
+            taula_especies.page( 'first' );
             event.preventDefault();
             taula_especies.ajax.url("/ajax_taula_especies_filtres/");
             taula_especies.ajax.reload(null,false);
