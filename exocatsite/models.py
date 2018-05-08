@@ -382,17 +382,13 @@ class Zonageografica(models.Model):
         managed = False
         db_table = 'zonageografica'
 
-
-# ------------------------------------------------- MODIFICADO
-
-
 class Imatges(models.Model):
     idimatge = models.CharField(primary_key=True, max_length=100)
     titol = models.CharField(max_length=4000, blank=True, null=True)
     observacions = models.CharField(max_length=500, blank=True, null=True)
     nomoriginal = models.CharField(max_length=255, blank=True, null=True)
-    # thumbnail = models.BinaryField(blank=True, null=True)
-    # fitxer = models.BinaryField(blank=True, null=True)
+    thumbnail = models.BinaryField(blank=True, null=True)
+    fitxer = models.BinaryField(blank=True, null=True)
     fitxer = models.FileField(upload_to='imatges_especies', blank=True, null=True)
     visualitzable = models.CharField(max_length=1, blank=True, null=True)
     tag = models.CharField(max_length=255, blank=True, null=True)
@@ -401,7 +397,7 @@ class Imatges(models.Model):
     idextensio = models.ForeignKey(Extensions, models.DO_NOTHING, db_column='idextensio', blank=True, null=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'imatges'
 
 class Imatge(models.Model):
@@ -409,12 +405,16 @@ class Imatge(models.Model):
     tag = models.CharField(max_length=255, blank=True, null=True)
 
     # FOREIGN KEYS
-    idespecieinvasora = models.ForeignKey(Especieinvasora, models.DO_NOTHING, db_column='idespecieinvasora', blank=True, null=True)
+    idespecieinvasora = models.ForeignKey(Especieinvasora, models.DO_NOTHING, db_column='idespecieinvasora',
+                                          blank=True, null=True)
     idimatge = models.ForeignKey('Imatges', models.DO_NOTHING, db_column='idimatge', blank=True, null=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'imatge'
+
+# ------------------------------------------------- MODIFICADO
+
 
 class CitacionsEspecie(models.Model):
     id = models.AutoField(primary_key=True)
@@ -464,6 +464,8 @@ class CitacionsEspecie(models.Model):
     contacte = models.EmailField(blank=True,null=True)
     NIP = models.CharField(max_length=255, blank=True, null=True)
     validat = models.CharField(max_length=255, blank=True, null=True)
+
+    usuari = models.CharField(max_length=255, blank=True, null=True)  # usuario que ha creado el formulario
 
     class Meta:
         managed = True

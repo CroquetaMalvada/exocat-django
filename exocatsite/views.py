@@ -507,7 +507,10 @@ def json_especies_de_seleccion(request,multipoligono=False):
 @login_required(login_url='/login/')
 def view_formularis_localitats_especie(request):
     ids_imatges=""
+    usuari=""
     if request.method == 'POST':
+        if request.user.groups.filter(name="Admins"):
+            usuari = request.user.username
         form = CitacionsEspeciesForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
@@ -553,10 +556,16 @@ def view_formularis_localitats_especie(request):
                     form.add_error(key,"Aquest camp està buit")
 
             if form.is_valid(): # Validamos otra vez el formulario para saber si antes tenia errores
+                form = form.save(commit=False) # Ojo esto es importante para modificar los campos del forma antes de guardar
                 if formulario_clean["idspinvasora"] == "00000":
-                    form.validat = "No"
-                else: #OJO! PONER VALIDACIONES PARA COMPROVAR SI LO ENVIA UN USUARIO CON PERMISOS!!!!
-                    form.validat = "Si"
+                    form.validat = "NO"
+                else:
+                    if request.user.groups.filter(name="Admins"):
+                        form.validat = "SI"
+                    else:
+                        form.validat = "NO"
+
+                form.usuari=usuari
                 new_form = form.save()
                 for imatge in imatges:
                     if imatge != "":

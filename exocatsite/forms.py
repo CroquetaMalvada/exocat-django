@@ -58,6 +58,7 @@ class CitacionsEspeciesForm(forms.ModelForm):
             'grup',
             'contacte',
             'NIP',
+            'usuari',
             # 'imatges',
             # 'mapas'
         ]
