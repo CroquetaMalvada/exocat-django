@@ -1,6 +1,7 @@
 exocat/settings_local.py
 exocat/settings_local*
 exocat/settings/local.pyc
+/media/
 /static/
 *pyc
 *.egg-info
