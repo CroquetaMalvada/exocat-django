@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^base_dades/',views.view_base_dades,name="base dades"),
     url(r'^formularis_localitats_especie/',views.view_formularis_localitats_especie,name="formularis localitats especie"),
     url(r'^formularis_aca/',views.view_formularis_aca,name="formularis aca"),
+    url(r'^formularis/',views.view_formularis_usuari,name="formularis usuari"),
     url(r'^mapa/',views.view_mapa,name="mapa"),
     # AJAX
     url('^ajax_grups_select/', views.json_select_groups),
@@ -42,6 +43,8 @@ urlpatterns = [
     url('^especies_de_cuadro/', views.json_especies_de_cuadro),
     url('^especies_de_comarca/', views.json_especies_de_comarca),
     url('^especies_seleccion/', views.json_especies_de_seleccion),
+    #AJAX PARA FORMULARIOS
+    url('^ajax_formularis_usuari/', views.json_taula_formularis_usuari),
 
     #UPLOAD
     url('^upload_imatge_citacions_especie/$', views.view_upload_imatge_citacions_especie),

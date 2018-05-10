@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test, per
 from django.contrib.gis.geos import GEOSGeometry
 import json, urllib
 from forms import *
-
+from models import *
 # Base de dades per consultar especies
 def view_base_dades(request):
     context = {'especies_invasores': "", 'titulo': "ESPECIES INVASORES"}
@@ -503,6 +503,20 @@ def json_especies_de_seleccion(request,multipoligono=False):
 #         form.save()
 #         lista = request.POST[""]
 
+# FORMULARIOS DEL USUARIO
+@login_required(login_url='/login/')
+def view_formularis_usuari(request):
+    formularios = []
+    if request.user.groups.filter(name="Admins"):
+        for form in CitacionsEspecie.objects.all():
+            formularios.append(form)
+    else:
+        for form in CitacionsEspecie.objects.filter(usuari=request.user.username):
+            formularios.append(form)
+
+    context = {'formularis': formularios, 'titulo': "FORMULARIS USUARI", 'usuari': request.user.username}
+    return render(request, 'exocat/formularis.html', context)
+
 # Formulario de citacions/noves localitats de especies
 @login_required(login_url='/login/')
 def view_formularis_localitats_especie(request):
@@ -656,3 +670,24 @@ def view_upload_imatge_citacions_especie(request):
         else:
             data = {"is_valid":False, 'errormessage':'Error al pujar la imatge.'}
         return JsonResponse(data)
+
+@login_required(login_url='/login/')
+def json_taula_formularis_usuari(request):
+    formularios=[]
+    nom_especie = ""
+    if request.user.is_authenticated():
+        for form in CitacionsEspecie.objects.filter(usuari=request.user.username).values("id","especie","idspinvasora","usuari","validat"):
+            try:
+                if form["idspinvasora"]=="00000":
+                    nom_especie=form["especie"]
+                else:
+                    #especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id", "idtaxon__genere", "idtaxon__especie")
+                    especie=Especieinvasora.objects.filter(id=form["idspinvasora"]).values("id", "idtaxon__genere", "idtaxon__especie")
+                    nom_especie=especie[0]["idtaxon__genere"]+" "+especie[0]["idtaxon__especie"]
+            except:
+                nom_especie=""
+
+            formularios.append({"id":form["id"],"especie":nom_especie,"usuari":form["usuari"],"validat":form["validat"]})
+
+    resultado = json.dumps(formularios)
+    return HttpResponse(resultado, content_type='application/json;')

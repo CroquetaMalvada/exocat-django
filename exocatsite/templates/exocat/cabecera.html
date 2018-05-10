@@ -1,53 +1,23 @@
 {% load static %}
 <header>
-    <div class="col-md-6 offset-md-3" background="{% static 'imagenes/img_header.jpg' %}">
-        <img src="{% static 'imagenes/img_header.jpg' %}" width="100%">
+<nav class="navbar navbar-inverse navbar-fixed-top col-md-12" style="background-color:#868e96">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand btn-lg">{{ usuari }}</a>
+        </div>
+    <!--<div class="col-md-12" >-->
+        <div class="btn-group">
+            <!--href="/base_dades" -->
+            <!--href="/mapa"-->
+            {% if user.is_authenticated %}
+              <a href="/formularis/" class="btn btn-secondary btn-lg" role="button" >Administrar formularis</a>
+              {% for group in user.groups.all %}
+                {% if group.name == 'Admins' %}
+                <a href="/validar_formularis/" class="btn btn-secondary btn-lg" role="button" >Validar formularis</a>
+                {% endif %}
+              {% endfor %}
+              <a href="/logout/" role="button" class="btn btn-secondary btn-lg">Tancar Sessió</a>
+            {% endif %}
+        </div>
     </div>
-
-    <div class="col-md-6 offset-md-3" style="background-color:#868e96">
-
-    <div class="btn-group">
-        <!--href="/base_dades" -->
-        <!--href="/mapa"-->
-          <a href="#" id="cabecera_llistat_especies" class="btn btn-secondary btn-lg opcion_cabecera" role="button" style="border-right: 3px solid #ccc;">Espècies</a>
-          <a href="#" id="cabecera_mapa" class="btn btn-secondary btn-lg opcion_cabecera" role="button" style="border-right: 3px solid #ccc;">Àrees geogràfiques</a>
-          <a href="#" id="cabecera_colaboradors" role="button" class="btn btn-secondary btn-lg opcion_cabecera" style="border-right: 3px solid #ccc;">Col·laboradors</a>
-          <a href="#" id="cabecera_coordinacio" role="button" class="btn btn-secondary btn-lg opcion_cabecera" style="border-right: 2px solid #ccc;">Coordinació i contacte</a>
-
-    </div>
-
-<!--<nav class="navbar navbar-inverse navbar-fixed-top row">-->
-    <!--<div class="container-fluid">-->
-        <!--<div class="navbar-header">-->
-
-            <!--&lt;!&ndash;<p class="navbar-brand" style="margin-left:0px;"></p>&ndash;&gt;-->
-        <!--</div>-->
-
-        <!--<ul class="nav navbar-nav navbar-left">-->
-
-            <!--<li>-->
-                <!--<a href="/base_dades">-->
-                    <!--<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Llistat d'espècies-->
-                <!--</a>-->
-            <!--</li>-->
-
-
-            <!--<li>-->
-                <!--<a href="http://montesdata.creaf.cat/Exocat/exocat/llistacolaboradors.htm">-->
-                    <!--<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Llista de Col·laboradors-->
-                <!--</a>-->
-            <!--</li>-->
-
-            <!--<li>-->
-                <!--<a href="http://montesdata.creaf.cat/Exocat/exocat/coordinacio.htm">-->
-                    <!--<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Coordinació i contacte-->
-                <!--</a>-->
-            <!--</li>-->
-
-
-
-        <!--</ul>-->
-    <!--</div>-->
-
-<!--</nav>-->
 </header>
