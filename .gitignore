@@ -7,4 +7,4 @@ exocat/settings/local.pyc
 .idea/*
 *.sublime-project
 *.sublime-workspace
-*.sublime*
+*.sublime*exocat/settings.py
