@@ -45,12 +45,14 @@ $(document).ready(function(){
                         {'data': 'especie'},
                         {'data': 'usuari'},
                         {'data': 'validat'},
+                        {'data': 'data_creacio'},
+                        {'data': 'data_modificacio'},
                         {'data':{'id':'id'},"render": function(data){return '<a class="btn btn-info editar_formulari" value="'+data["id"]+'" title="Info" href="#"><i class="fa fa-edit fa-lg"></i></a>';}}
 //                        {'data':{'id':'id'},"render": function(data){return '<form action="/formularis_localitats_especie/" method="get"><input value="'+data["id"]+'" hidden/><button class="btn btn-info" title="EDITAR FORMULARI"><i class="fa fa-eye fa-lg"></i></form>';}}
                     ],
                     columnDefs:[
 //                        {"visible":false,"targets":[0]},
-                        { "width": "5%", "targets": [0,3] }
+                        { "width": "5%", "targets": [0,5] }
                     ],
                     order: [[ 1, "asc" ]],
                     scrollY:        '80vh',

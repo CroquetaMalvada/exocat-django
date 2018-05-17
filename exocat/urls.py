@@ -22,8 +22,9 @@ from exocatsite import views
 from django.conf.urls.static import static
 
 urlpatterns = [
+    url(r'^$', views.index, name='index'),
     url(r'^login/$', auth_views.login, name='login'),
-    url(r'^logout/$', auth_views.logout, name='logout'),
+    url(r'^logout/$', auth_views.logout, {'next_page': '/base_dades/'},name='logout'),
     url(r'^admin/', admin.site.urls),
     url(r'^base_dades/',views.view_base_dades,name="base dades"),
     url(r'^formularis_localitats_especie/',views.view_formularis_localitats_especie,name="formularis localitats especie"),

@@ -14,22 +14,22 @@
           <a href="#" id="cabecera_colaboradors" role="button" class="btn btn-secondary btn-lg opcion_cabecera" style="border-right: 3px solid #ccc;">Col·laboradors</a>
           <a href="#" id="cabecera_coordinacio" role="button" class="btn btn-secondary btn-lg opcion_cabecera" style="border-right: 2px solid #ccc;">Coordinació i contacte</a>
           {% if user.is_authenticated %}
-          <a class="dropdown">
+          <!--<a class="dropdown">-->
 
-                <a href="#" class="dropdown-toggle btn btn-secondary btn-lg" data-toggle="dropdown" role="button" aria-haspopup="true"
-                   aria-expanded="true">
-                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span>{{ user.username }}
-                    <span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                    <!--<li class="dropdown-header">Opcions:</li>-->
-                    <!--<li class="divider"></li>-->
-                    <!--<li><a href="/welcome/">Idioma</a></li>-->
-                    <li><a href="/formularis/">Tornar al menú</a></li>
-                    <li class="divider"><hr></li>
-                    <li><a href="/logout/">Tancar Sessió</a></li>
-                </ul>
-          </a>
+                <!--<a href="#" class="dropdown-toggle btn btn-secondary btn-lg" data-toggle="dropdown" role="button" aria-haspopup="true"-->
+                   <!--aria-expanded="true">-->
+                    <!--<span class="glyphicon glyphicon-user" aria-hidden="true"></span>{{ user.username }}-->
+                    <!--<span class="caret"></span>-->
+                <!--</a>-->
+                <!--<ul class="dropdown-menu">-->
+                    <!--&lt;!&ndash;<li class="dropdown-header">Opcions:</li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li class="divider"></li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li><a href="/welcome/">Idioma</a></li>&ndash;&gt;-->
+                    <!--<li><a href="/formularis/">Tornar al menú</a></li>-->
+                    <!--<li class="divider"><hr></li>-->
+                    <!--<li><a href="/logout/">Tancar Sessió</a></li>-->
+                <!--</ul>-->
+          <!--</a>-->
           {% else %}
             <a href="/login/" role="button" class="btn btn-secondary btn-lg opcion_cabecera">Iniciar Sessió</a>
           {% endif %}
@@ -52,13 +52,13 @@
 
 
             <!--<li>-->
-                <!--<a href="http://montesdata.creaf.cat/Exocat/exocat/llistacolaboradors.htm">-->
+                <!--<a href="http://exocat2.creaf.cat:8080/Exocat/exocat/llistacolaboradors.htm">-->
                     <!--<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Llista de Col·laboradors-->
                 <!--</a>-->
             <!--</li>-->
 
             <!--<li>-->
-                <!--<a href="http://montesdata.creaf.cat/Exocat/exocat/coordinacio.htm">-->
+                <!--<a href="http://exocat2.creaf.cat:8080/Exocat/exocat/coordinacio.htm">-->
                     <!--<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Coordinació i contacte-->
                 <!--</a>-->
             <!--</li>-->

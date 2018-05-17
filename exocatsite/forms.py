@@ -31,6 +31,7 @@ class CitacionsEspeciesForm(forms.ModelForm):
         model = CitacionsEspecie
         # choices_especies = [(especie.id, especie.idtaxon__genere) for especie in Especieinvasora.objects.all().order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie")]
         fields = [
+            #'id',
             'especie',
             'idspinvasora',
             'data',

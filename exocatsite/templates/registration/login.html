@@ -1,17 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+{% load static %}
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Iniciar Sessió</title>
+    {% block head %} {% include "exocat/head.html" %} {% endblock %}
 </head>
 <body>
-{% block content %}
-  <h2>Login</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-  </form>
-{% endblock %}
+<header>
+    <div class="col-md-6 offset-md-3" background="{% static 'imagenes/img_header.jpg' %}">
+        <img src="{% static 'imagenes/img_header.jpg' %}" width="100%">
+    </div>
+</header>
+<br>
+<div class="container-fluid">
+    <div class="col-md-6 offset-md-3" align="center">
+        <h1 align="center">INICIAR SESSIÓ</h1>
+        <br>
+        {% block content %}
+          <form method="post">
+            {% csrf_token %}
+              <div>
+            Usuari {{ form.username }}
+                  </div>
+            <br>
+              <div>
+            Password {{ form.password }}
+                  </div>
+              <br>
+            <button type="submit">Entrar</button>
+          </form>
+        {% endblock %}
+        <br>
+    </div>
+</div>
 </body>
 </html>

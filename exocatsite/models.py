@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from django.contrib.gis.db import models
 #from django.db import models
+import migrations
 
 class Actuacio(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
@@ -466,6 +467,8 @@ class CitacionsEspecie(models.Model):
     validat = models.CharField(max_length=255, blank=True, null=True)
 
     usuari = models.CharField(max_length=255, blank=True, null=True)  # usuario que ha creado el formulario
+    data_creacio = models.CharField(max_length=100, blank=True, null=True)
+    data_modificacio = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         managed = True

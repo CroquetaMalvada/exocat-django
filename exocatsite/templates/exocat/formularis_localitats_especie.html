@@ -43,10 +43,20 @@
 
 </head>
 <body>
+{% block cabecera %} {% include "exocat/cabecera.html" %} {% endblock %}
+<br>
 <div class="container-fluid">
     <h1 align="center">FITXA DE COMUNICACIÓ DE NOVES LOCALITATS D'ESPÈCIES</h1>
+    <br>
     <div class="col-md-8 offset-md-2 border border-secondary">
         <form action="/formularis_localitats_especie/" id="formulari_localitats_especie" method="post">
+            {% if nuevo == "0" %}
+                <script>
+                nuevo=0;
+                cargar_especie="{{ form.idspinvasora.value }}";
+                </script>
+                <input name="id_form" value="{{ id_form }}" hidden />
+            {% endif %}
             {% csrf_token %}
             <h2><b>Camps Obligatoris</b></h2>
             <hr>

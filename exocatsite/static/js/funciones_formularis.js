@@ -1,5 +1,7 @@
 var espai_natural_protegit="no";
 var espai_natural_nom="";
+var nuevo=1;
+var cargar_especie="";
 
 $(document).ready(function(){
 
@@ -29,8 +31,16 @@ $(document).ready(function(){
     });
 
     //
+    if(nuevo==0){
+        $("#id_idspinvasora").val(cargar_especie);
+        $("#id_espai_nom").val(espai_natural_nom);
+        check_select_especie();
+        check_coordenades();
+    }else{
+        cargar_default();
+    }
 
-    cargar_default();
+    //
     $("#autoritzacio").change(function(){
         if($(this).is(":checked")){
             $("#boton_enviar").attr("disabled",false);
@@ -55,6 +65,8 @@ $(document).ready(function(){
         $("#id_espai_natural_protegit_0").click();
     }
 
+    $("#id_espai_nom").val(espai_natural_nom);
+
 
     // CARGAR IMAGENES
     if($("#ids_imatges").val()!=""){
@@ -65,7 +77,7 @@ $(document).ready(function(){
             success: function(data) {
                 console.log(data);
                 $.each(data,function(){
-                    $("#ids_imatges").val($("#ids_imatges").val()+this.id+",");
+                    //$("#ids_imatges").val($("#ids_imatges").val()+this.id+",");
                     $("#gallery tbody").prepend(
                       "<tr><td><img width='100' src='" + this.url + "'></img>  "+this.name+"</td></tr>"
                     );

@@ -95,7 +95,6 @@
     <!----->
 
 
-
     <script src="{% static 'js/token_ajax.js' %}" ></script>
     <script src="{% static 'js/ajax_selects.js' %}" ></script>
     <script src="{% static 'js/datatables_basedades.js' %}" ></script>
@@ -108,10 +107,11 @@
 </head>
 
 <body>
-<!--*Esta versión de prueba Exocat utiliza la base de datos de maunaloa,por lo que hay datos entre los mapas de geoserver y de la aplicación que no coincidan hasta que esta se conecte a la bdd de montesdata.-->
-<!--<br>Especies como Pisu_sati no tienen presencia en la de maunaloa por lo que hay errores al clicar en las casillas donde está-->
+{% if user.is_authenticated %}
+{% block cabecera %} {% include "exocat/cabecera.html" %} {% endblock %}
+{% endif %}
 <div class="container-fluid">
-{% block cabecera %} {% include "exocat/cabecera_base_dades.html" %} {% endblock %}
+{% block cabecera2 %} {% include "exocat/cabecera_base_dades.html" %} {% endblock %}
 <br>
     <div id="llistat_especies_div" class="container-fluid contenido">
         <div class="col-md-6 offset-md-3 border border-secondary">
@@ -140,11 +140,13 @@
                     <!--</div>-->
                     <div class="input-group col-md-6">
                         <span class="input-group-addon">Regió nativa</span>
-                        <select class="form-control" name="regionativa" id="regionativa"></select>
+                        <input class="form-control" name="regionativa" id="regionativa" />
+                        <!--<select class="form-control" name="regionativa" id="regionativa"></select>-->
                     </div>
                     <div class="input-group col-md-6">
                         <span class="input-group-addon">Via d'entrada</span>
-                        <select class="form-control" name="viaentrada" id="viaentrada"></select>
+                        <input class="form-control" name="viaentrada" id="viaentrada" />
+                        <!--<select class="form-control" name="viaentrada" id="viaentrada"></select>-->
                     </div>
                 </div>
                 <br>
@@ -173,14 +175,14 @@
                             <option value="N">No</option>
                         </select>
                     </div>
-                    <div class="input-group col-md-4">
-                        <span class="input-group-addon">(!)Present al reglament Europeu'</span>
-                        <select class="form-control" name="present_reglament_eur" id="present_reglament_eur">
-                            <option value="">-</option>
-                            <option value="S">Si</option>
-                            <option value="N">No</option>
-                        </select>
-                    </div>
+                    <!--<div class="input-group col-md-4">-->
+                        <!--<span class="input-group-addon">(!)Present al reglament Europeu'</span>-->
+                        <!--<select class="form-control" name="present_reglament_eur" id="present_reglament_eur">-->
+                            <!--<option value="">-</option>-->
+                            <!--<option value="S">Si</option>-->
+                            <!--<option value="N">No</option>-->
+                        <!--</select>-->
+                    <!--</div>-->
                 </div>
                 <br>
                     <!--<div class="input-group col-md-4">-->
@@ -457,7 +459,7 @@
                 <p><span class="camp_dades_fitxa">Adreça</span><span class="valor_dades_fitxa">Campus UAB. Edifici C. 08193 Bellaterra (Barcelona)</span></p>
                 <p><span class="camp_dades_fitxa">Telèfon</span><span class="valor_dades_fitxa">+34 93 581 1312</span></p>
                 <p><span class="camp_dades_fitxa">Fax</span><span class="valor_dades_fitxa">+34 93 581 4151</span></p>
-                <p><span class="camp_dades_fitxa"></span><span class="valor_dades_fitxa"><a target="_blank" href="http://www.creaf.cat"><img alt="CREAF" src="http://montesdata.creaf.cat/Exocat/grafics/creaf.png"></a></span></p>
+                <p><span class="camp_dades_fitxa"></span><span class="valor_dades_fitxa"><a target="_blank" href="http://www.creaf.cat"><img alt="CREAF" src="http://exocat2.creaf.cat:8080/Exocat/grafics/creaf.png"></a></span></p>
             </div>
         </div>
     </div>
@@ -696,7 +698,7 @@ z-index:1001;
                 </div>
                 <!--<div class="row" align="center">-->
                     <!--<img id="info_imatge" src="" width="100%"/>-->
-                    <!--&lt;!&ndash;http://montesdata.creaf.cat/Exocat/grafics_temp/Abie_pins_port.jpg&ndash;&gt;-->
+                    <!--&lt;!&ndash;http://exocat2.creaf.cat:8080/Exocat/grafics_temp/Abie_pins_port.jpg&ndash;&gt;-->
                 <!--</div>-->
                 <br>
                 <div class="row">

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views import View
 from django.http import Http404
@@ -13,9 +13,16 @@ from exocatsite.models import *#Grup,Grupespecie,Viaentrada,Viaentradaespecie,Es
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib.gis.geos import GEOSGeometry
-import json, urllib
+import json, urllib, datetime
 from forms import *
 from models import *
+
+
+#Pagina a cargar cuando se entra en la raiz
+def index(request):
+    return HttpResponseRedirect('/base_dades/')
+
+
 # Base de dades per consultar especies
 def view_base_dades(request):
     context = {'especies_invasores': "", 'titulo': "ESPECIES INVASORES"}
@@ -52,7 +59,7 @@ def json_select_estatus(request):
     return HttpResponse(resultado, content_type='application/json;')
 
 def json_select_regionativa(request):
-    regions= Zonageografica.objects.all().order_by("nom")
+    regions= Zonageografica.objects.all().order_by("nom") #.distinct("nom")
     resultado=[]
     for regio in regions:
         resultado.append({'id':str(regio.id),'nom': regio.nom})
@@ -66,16 +73,16 @@ def json_taula_especies(request):
     for especie in especies[int(request.POST["start"]):(int(request.POST["start"])+int(request.POST["length"]))]:
         # nombre de la especie(se juntan el genere con especie y subespecie)
         id=str(especie["id"])
-        genere=str(especie["idtaxon__genere"])
+        genere=especie["idtaxon__genere"]
         especiestr=especie["idtaxon__especie"]
         subespeciestr = especie["idtaxon__subespecie"]
         if especiestr is not None:
             try:
-                genere=genere+" "+str(especiestr)
+                genere=genere+" "+especiestr
             except:# Ojo poner breakpoint por si especie aparece en blanco
                 genere=""
         if subespeciestr is not None:
-            genere = genere + " [subespecie: "+str(subespeciestr)+" ]"
+            genere = genere + " [subespecie: "+subespeciestr+" ]"
 
         #grupo
         grup=Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
@@ -160,15 +167,16 @@ def json_taula_especies_filtres(request):
         else:
             return Q(id__isnull=False)
 
-    def filtro_regiones():
+    def filtro_regiones(): #OJO para utilizar el unaccent he tenido que instalarlo en la migration extensiones.py y django.contrib.postgres en el INSTALLEDAPPS
         if campos["regionativa"] is not "":
-            return Q(id__in=Regionativa.objects.filter(idzonageografica=campos["regionativa"]).values("idespecieinvasora"))
+            return Q(id__in=Regionativa.objects.filter(idzonageografica__nom__unaccent__icontains=campos["regionativa"]).values("idespecieinvasora"))
+            # return Q(id__in=Regionativa.objects.filter(idzonageografica=campos["regionativa"]).values("idespecieinvasora"))
         else:
             return Q(id__isnull=False)
 
     def filtro_vias_entrada():
         if campos["viaentrada"] is not "":
-            return Q(id__in=Viaentradaespecie.objects.filter(idviaentrada=campos["viaentrada"]).values("idespecieinvasora"))
+            return Q(id__in=Viaentradaespecie.objects.filter(idviaentrada__viaentrada__unaccent__icontains=campos["viaentrada"]).values("idespecieinvasora"))
         else:
             return Q(id__isnull=False)
 
@@ -218,14 +226,14 @@ def json_taula_especies_filtres(request):
     resultado=[]
     for especie in especies[int(request.POST["start"]):(int(request.POST["start"])+int(request.POST["length"]))]:
         # nombre de la especie(se juntan el genere con especie y subespecie)
-        id=str(especie["id"])
-        genere=str(especie["idtaxon__genere"])
+        id=especie["id"]
+        genere=especie["idtaxon__genere"]
         especiestr=especie["idtaxon__especie"]
         subespeciestr = especie["idtaxon__subespecie"]
         if especiestr is not None:
-            genere=genere+" "+str(especiestr)
+            genere=genere+" "+especiestr
         if subespeciestr is not None:
-            genere = genere + " [subespecie: "+str(subespeciestr)+" ]"
+            genere = genere + " [subespecie: "+subespeciestr+" ]"
 
         #grupo
         grup=Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
@@ -324,12 +332,12 @@ def json_info_especie(request):
         estatuscatalunya =""
 
 
-    viesentrada=""
+    viesentrada=u""
     for via in Viaentradaespecie.objects.filter(idespecieinvasora=info["id"]):
         if viesentrada=='':
-            viesentrada= viesentrada+str(via.idviaentrada.viaentrada)
+            viesentrada= viesentrada+via.idviaentrada.viaentrada
         else:
-            viesentrada = viesentrada+', '+ str(via.idviaentrada.viaentrada)
+            viesentrada = viesentrada+', '+ via.idviaentrada.viaentrada
 
     presentcatalog=Especieinvasora.objects.get(id=info["id"]).present_catalogo
     if presentcatalog=="S":
@@ -359,6 +367,43 @@ def json_info_especie(request):
     resultado=json.dumps({'id':info["id"],'genere':genere,'especie':especie,'subespecie':subespecie,'varietat':varietat,'subvarietat':subvarietat,'nomsvulgars':nomsvulgars,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge,'nutm1000':nutm1000,'nutm10000':nutm10000,'ncitacions':ncitacions,'nmassesaigua':nmassesaigua,'documentacio':documentacio,'actuacions':actuacions})
     return HttpResponse(resultado, content_type='application/json;')
 
+#
+# #ESPECIES EN UN CUADRO DE 10KM(EN REALIDAD SE OBTIENE UN RECUADRO DE UN CLICK)
+# def json_especies_de_cuadro(request):
+#     url=request.GET["url"]
+#     response=urllib.urlopen(url)
+#     data = json.loads(response.read())
+#     resultado=[]
+#     for especie in data["features"]:
+#         id=especie["properties"]["IDSPINVASORA"]
+#         id_taxon=Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
+#         # calcular el numero de masas de agua y el numero de utms de una especie
+#         id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+#         massesaigua = []
+#         nmassesaigua = 0
+#
+#         nutm1000 = 0
+#         nutm10000 = 0
+#         utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
+#         for utm in utms:
+#             if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
+#                 nutm1000 = nutm1000 + 1
+#             if utm["idquadricula__resolution"] == 1000:
+#                 nutm10000 = nutm10000 + 1
+#
+#         if id_exoaqua:  # si existe una relacion de exoaqua-exocat de dicha especie
+#             id_exoaqua = id_exoaqua[0]["id_exoaqua"]  # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
+#             nmassesaigua = MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).count()  # Ojo mirar bien esto!!!
+#
+#         #
+#         ncitacions=Citacions.objects.filter(idspinvasora=id).count()
+#
+#         dades=PresenciaSp.objects.filter(idspinvasora=id).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
+#         nom=dades[0]["idspinvasora__idtaxon__genere"]+" "+dades[0]["idspinvasora__idtaxon__especie"]
+#         resultado.append({"nom":nom,"id":dades[0]["idspinvasora"],"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
+#
+#     resultado = json.dumps(resultado)
+#     return HttpResponse(resultado, content_type='application/json;')
 
 #ESPECIES EN UN CUADRO DE 10KM(EN REALIDAD SE OBTIENE UN RECUADRO DE UN CLICK)
 def json_especies_de_cuadro(request):
@@ -391,44 +436,7 @@ def json_especies_de_cuadro(request):
         ncitacions=Citacions.objects.filter(idspinvasora=id).count()
 
         dades=PresenciaSp.objects.filter(idspinvasora=id).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
-        nom=str(dades[0]["idspinvasora__idtaxon__genere"])+" "+str(dades[0]["idspinvasora__idtaxon__especie"])
-        resultado.append({"nom":nom,"id":dades[0]["idspinvasora"],"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
-
-    resultado = json.dumps(resultado)
-    return HttpResponse(resultado, content_type='application/json;')
-
-#ESPECIES EN UN CUADRO DE 10KM(EN REALIDAD SE OBTIENE UN RECUADRO DE UN CLICK)
-def json_especies_de_cuadro(request):
-    url=request.GET["url"]
-    response=urllib.urlopen(url)
-    data = json.loads(response.read())
-    resultado=[]
-    for especie in data["features"]:
-        id=especie["properties"]["IDSPINVASORA"]
-        id_taxon=Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
-        # calcular el numero de masas de agua y el numero de utms de una especie
-        id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
-        massesaigua = []
-        nmassesaigua = 0
-
-        nutm1000 = 0
-        nutm10000 = 0
-        utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
-        for utm in utms:
-            if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
-                nutm1000 = nutm1000 + 1
-            if utm["idquadricula__resolution"] == 1000:
-                nutm10000 = nutm10000 + 1
-
-        if id_exoaqua:  # si existe una relacion de exoaqua-exocat de dicha especie
-            id_exoaqua = id_exoaqua[0]["id_exoaqua"]  # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
-            nmassesaigua = MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).count()  # Ojo mirar bien esto!!!
-
-        #
-        ncitacions=Citacions.objects.filter(idspinvasora=id).count()
-
-        dades=PresenciaSp.objects.filter(idspinvasora=id).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
-        nom=str(dades[0]["idspinvasora__idtaxon__genere"])+" "+str(dades[0]["idspinvasora__idtaxon__especie"])
+        nom=dades[0]["idspinvasora__idtaxon__genere"]+" "+dades[0]["idspinvasora__idtaxon__especie"]
         resultado.append({"nom":nom,"id":dades[0]["idspinvasora"],"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
 
     resultado = json.dumps(resultado)
@@ -521,13 +529,38 @@ def view_formularis_usuari(request):
 @login_required(login_url='/login/')
 def view_formularis_localitats_especie(request):
     ids_imatges=""
-    usuari=""
+    id_form=""
+    usuari = request.user.username
+    nuevo="1"
+    admin=False
     if request.method == 'POST':
         if request.user.groups.filter(name="Admins"):
-            usuari = request.user.username
-        form = CitacionsEspeciesForm(request.POST)
-        # check whether it's valid:
-        if form.is_valid():
+            admin=True
+
+        try:
+            id_form=request.POST["id_form"]
+            instance = get_object_or_404(CitacionsEspecie, id=id_form)
+            # form = CitacionsEspeciesForm(instance=instance)
+            for img in ImatgesCitacions.objects.filter(id_citacio_especie=request.POST["id_form"]).values("id"):
+                ids_imatges=ids_imatges+str(img["id"])+","
+        except:
+            instance = None
+            #nuevo = "1"
+            #form = CitacionsEspeciesForm
+
+        # QUE TIPO DE FORMULARIO ES:
+        if instance is None:# Si se guarda por primera vez el form
+            form = CitacionsEspeciesForm(request.POST)
+        else:
+            if "cargar_form" in request.POST: # Si solo se carga el form
+                form = CitacionsEspeciesForm(instance=instance)
+                nuevo="0"
+            else:#Si se modifica un form ya existente
+                form = CitacionsEspeciesForm(request.POST, instance=instance)
+                nuevo="0"
+        ###
+
+        if form.is_valid() and "cargar_form" not in request.POST: # Si se envia un id_form quiere decir que se esta cargando un proyecto,no hay que guardarlo
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
@@ -580,12 +613,20 @@ def view_formularis_localitats_especie(request):
                         form.validat = "NO"
 
                 form.usuari=usuari
+                #
+                if nuevo=="1":
+                    form.data_creacio=datetime.date.today().strftime('%d-%m-%Y')
+                form.data_modificacio=datetime.date.today().strftime('%d-%m-%Y')
+                #
                 new_form = form.save()
                 for imatge in imatges:
                     if imatge != "":
                         img = ImatgesCitacions.objects.get(id=imatge)
-                        img.id_citacio_especie = new_form
+                        img.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
                         img.save()
+                # nuevo="0"
+
+                return HttpResponseRedirect('/formularis/')
 
 
 
@@ -607,7 +648,7 @@ def view_formularis_localitats_especie(request):
         form = CitacionsEspeciesForm
 
     especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id", "idtaxon__genere", "idtaxon__especie")
-    context={'form':form,'especies':especies,'ids_imatges':ids_imatges}
+    context={'form':form,'especies':especies,'ids_imatges':ids_imatges,'nuevo':nuevo,'id_form':id_form}
     return render(request,'exocat/formularis_localitats_especie.html',context)
 
 # Formulario de ACA para las citacions
@@ -676,7 +717,13 @@ def json_taula_formularis_usuari(request):
     formularios=[]
     nom_especie = ""
     if request.user.is_authenticated():
-        for form in CitacionsEspecie.objects.filter(usuari=request.user.username).values("id","especie","idspinvasora","usuari","validat"):
+        formscitacions=[]
+        if request.user.groups.filter(name="Admins"):
+            formscitacions=CitacionsEspecie.objects.all().values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio")
+        else:
+            formscitacions = CitacionsEspecie.objects.filter(usuari=request.user.username).values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio")
+
+        for form in formscitacions:
             try:
                 if form["idspinvasora"]=="00000":
                     nom_especie=form["especie"]
@@ -687,7 +734,7 @@ def json_taula_formularis_usuari(request):
             except:
                 nom_especie=""
 
-            formularios.append({"id":form["id"],"especie":nom_especie,"usuari":form["usuari"],"validat":form["validat"]})
+            formularios.append({"id":form["id"],"especie":nom_especie,"usuari":form["usuari"],"validat":form["validat"],"data_creacio":form["data_creacio"],"data_modificacio":form["data_modificacio"]})
 
     resultado = json.dumps(formularios)
     return HttpResponse(resultado, content_type='application/json;')

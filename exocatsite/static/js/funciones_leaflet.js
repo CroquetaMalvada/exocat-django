@@ -22,7 +22,7 @@ mapainfo_wmsLayer_presencia_ma.setParams({cql_filter:"idtaxon='"+id+"'"});
 //    if(wmsLayer_presencia_10000!=false)
 //        mymap.removeLayer(wmsLayer_presencia_10000);
 //
-//    wmsLayer_presencia_10000 = L.tileLayer.wms('http://montesdata.creaf.cat/geoserver/wms?', {
+//    wmsLayer_presencia_10000 = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
 //        layers: 'SIPAN:PRESENCIA_SP_10000',
 //        transparent: 'true',
 //        format: 'image/png',
@@ -114,11 +114,11 @@ function obtener_especies_pos(latlng){// OBTENER ESPECIES DEL CLICK(aqui se usa 
         params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
         params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
 
-        wms_url = "http://montesdata.creaf.cat/geoserver/wms";
+        wms_url = "http://exocat2.creaf.cat/geoserver/wms";
         url = wms_url + L.Util.getParamString(params, wms_url, true);
 //        }else if(tipo==2){// si es una comarca
 ////            var bbox=a1,b1,a2,b2;
-//            //url = "http://montesdata.creaf.cat/geoserver/wfs?outputFormat=application/json&service=wfs&version=2.0.0&request=GetFeature&typeNames=SIPAN:PRESENCIA_SP_10000_p&srsName=EPSG:23031&41.812744811244976,1.1476136371493342,42.21678824705352,1.7848206683993342";
+//            //url = "http://exocat2.creaf.cat/geoserver/wfs?outputFormat=application/json&service=wfs&version=2.0.0&request=GetFeature&typeNames=SIPAN:PRESENCIA_SP_10000_p&srsName=EPSG:23031&41.812744811244976,1.1476136371493342,42.21678824705352,1.7848206683993342";
 //        }
 
         ////////// PARTE 3,USAMOS LA URL PARA HACER UNA PETICION AJAX
@@ -197,7 +197,7 @@ function obtener_especies_comarca(latlng){// OBTENER ESPECIES DE COMARCA( se usa
         params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
         params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
 
-        wms_url = "http://montesdata.creaf.cat/geoserver/wms";
+        wms_url = "http://exocat2.creaf.cat/geoserver/wms";
         url = wms_url + L.Util.getParamString(params, wms_url, true);
         ////////// PARTE 3,USAMOS LA URL PARA HACER UNA PETICION AJAX(esta nos dara la geom de la comarca
         $.ajax({

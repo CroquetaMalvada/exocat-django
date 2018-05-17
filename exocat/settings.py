@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     #'django.contrib.humanize',
     'exocatsite',
 ]
@@ -114,6 +115,7 @@ USE_TZ = True
 
 DEFAULT_CHARSET = "utf-8"
 
+# DATE_FORMAT = "d-m-Y"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
