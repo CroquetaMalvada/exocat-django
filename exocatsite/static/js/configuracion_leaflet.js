@@ -18,6 +18,8 @@ var editableLayers=false;
 var modo_info_clicar=false;
 var modo_info_comarques=false;
 
+var drawControl;
+
 $(document).ready(function(){
     // Google layers
 	/*var g_roadmap   = new L.Google('ROADMAP');
@@ -419,7 +421,7 @@ var draw_options = {
 };
 
 
-var drawControl = new L.Control.Draw(draw_options);
+drawControl = new L.Control.Draw(draw_options);
 mymap.addControl(drawControl);
 
 mymap.on(L.Draw.Event.CREATED, function (e) {
@@ -441,15 +443,14 @@ mymap.on(L.Draw.Event.CREATED, function (e) {
 });
 //////////////////////////////////
 
-
 /// CUADRO PARA HABILITAR EL CLICAR (el ! del href sirve como preventdefault para evitar el scroll de la pagina al clicar el enlace)
-$(".leaflet-draw-toolbar:first").append('<a href="#!" id="boton_info_clicar" onclick="" style="background-image:none;" title="Obtenir info al clicar"><i class="fa fa-crosshairs fa-lg"></i></a>');//<span class="sr-only">Draw a rectangle</span><
-
-/// CUADRO PARA HABILITAR EL CLICAR COMARCAS
-$(".leaflet-draw-toolbar:first").append('<a href="#!" id="boton_info_comarques" onclick="" style="background-image:none;" title="Obtenir info sobre una comarca"><i class="fa fa-globe fa-lg"></i></a>');
+//$(".leaflet-draw-toolbar:first").append('<a href="#!" id="boton_info_clicar" onclick="" style="background-image:none;" title="Obtenir info al clicar"><i class="fa fa-crosshairs fa-lg"></i></a>');//<span class="sr-only">Draw a rectangle</span><
+//
+///// CUADRO PARA HABILITAR EL CLICAR COMARCAS
+//$(".leaflet-draw-toolbar:first").append('<a href="#!" id="boton_info_comarques" onclick="" style="background-image:none;" title="Obtenir info sobre una comarca"><i class="fa fa-globe fa-lg"></i></a>');
 
 /// CUANDO SE CLICAN LAS OPCIONES
-$(".leaflet-draw-toolbar:first a").on("click",function(evt){
+$(".boton_herramientas").on("click",function(evt){
     // si ya esta en modo clicar o comarcas,desactivalos
     limpiar_mapa();
     mymap.addLayer(wmsLayer_presencia_10000);
@@ -460,7 +461,12 @@ $(".leaflet-draw-toolbar:first a").on("click",function(evt){
 
 
     // y ahora comprueba si hay que activarlos
-    if($(this).attr("id")=="boton_info_clicar"){
+    if($(this).attr("id")=="boton_info_rectangulo"){
+        new L.Draw.Rectangle(mymap, drawControl.options.rectangle).enable();
+    }else if($(this).attr("id")=="boton_info_poligono"){
+        new L.Draw.Polygon(mymap, drawControl.options.polygon).enable();
+        //new L.Draw.Circle(map, drawControl.options.circle).enable()
+    }else if($(this).attr("id")=="boton_info_clicar"){
         activar_modo_clicar();
     }else if($(this).attr("id")=="boton_info_comarques"){
         activar_modo_clicar_comarques();
@@ -468,9 +474,18 @@ $(".leaflet-draw-toolbar:first a").on("click",function(evt){
 
 });
 /// MOVER EL PANEL A LA IZQUIERDA
-mover_panel(drawControl.getContainer());
+//mover_panel(drawControl.getContainer());
 
+// ASIGNAR IDS A LAS 2 PRIMERAS HERRAMIENTAS
+//$(".leaflet-draw-draw-polygon:first").attr("id","boton_info_poligono");
+//$(".leaflet-draw-draw-rectangle:first").attr("id","boton_info_rectangulo");
+//
+//// PONER TEXTO EN LAS HERRAMIENTAS
+////$("<span>Hola!</span>").insertAfter($("#boton_info_poligono"));
+//$("#boton_info_poligono").innerHTML="Hola!";
 
+//ocultar panel por defecto
+$(".leaflet-draw-section:first").attr("hidden","true");
 });
 
 function mover_panel(objeto_html){//movemos el panel de control de leaflet al div cerca del mapa

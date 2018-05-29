@@ -21,6 +21,7 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
             $('#info_estatuscatalunya').html(data['estatuscatalunya']);
             $('#info_viesentrada').html(data['viesentrada']);
             $('#info_presentcatalog').html(data['presentcatalog']);
+            $('#info_presenteuropeu').html(data['presentreglamenteur']);
             $('#info_observacions').html(data['observacions']);
             $('#info_titolimatge').html(data['titolimatge']);
 

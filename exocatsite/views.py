@@ -192,6 +192,12 @@ def json_taula_especies_filtres(request):
         else:
             return Q(id__isnull=False)
 
+    def filtro_reglamento_eur():
+        if campos["present_reglament_eur"] is not "":
+            return Q(reglament_ue=campos["present_reglament_eur"])
+        else:
+            return Q(id__isnull=False)
+
 
     # APLICAMOS LOS FILTROS:
 
@@ -218,7 +224,10 @@ def json_taula_especies_filtres(request):
         filtro_estatus_historico(),
 
         # para el present al catalogo
-        filtro_catalogo()
+        filtro_catalogo(),
+
+        # para el present al reglamento europeo
+        filtro_reglamento_eur(),
 
     ).order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie")
 
@@ -345,6 +354,12 @@ def json_info_especie(request):
     else:
         presentcatalog="No"
 
+    presentreglamenteur=Especieinvasora.objects.get(id=info["id"]).reglament_ue
+    if presentreglamenteur=="S":
+        presentreglamenteur="Si"
+    else:
+        presentreglamenteur="No"
+
     observacions=Especieinvasora.objects.get(id=info["id"]).observacions
 
     titolimatge=Imatge.objects.filter(idespecieinvasora=info["id"]).values("idimatge__titol")
@@ -364,7 +379,7 @@ def json_info_especie(request):
     for actuacio in Actuacio.objects.filter(idespecieinvasora=info["id"]).values("iddoc__titol","iddoc__nomoriginal").distinct("iddoc__titol"):
         actuacions.append({"titol":actuacio["iddoc__titol"],"fitxer":actuacio["iddoc__nomoriginal"]})
 
-    resultado=json.dumps({'id':info["id"],'genere':genere,'especie':especie,'subespecie':subespecie,'varietat':varietat,'subvarietat':subvarietat,'nomsvulgars':nomsvulgars,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge,'nutm1000':nutm1000,'nutm10000':nutm10000,'ncitacions':ncitacions,'nmassesaigua':nmassesaigua,'documentacio':documentacio,'actuacions':actuacions})
+    resultado=json.dumps({'id':info["id"],'genere':genere,'especie':especie,'subespecie':subespecie,'varietat':varietat,'subvarietat':subvarietat,'nomsvulgars':nomsvulgars,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'presentreglamenteur':presentreglamenteur,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge,'nutm1000':nutm1000,'nutm10000':nutm10000,'ncitacions':ncitacions,'nmassesaigua':nmassesaigua,'documentacio':documentacio,'actuacions':actuacions})
     return HttpResponse(resultado, content_type='application/json;')
 
 #
@@ -474,6 +489,7 @@ def json_especies_de_seleccion(request,multipoligono=False):
     for especie in especies:
         id=especie["idspinvasora"]
         id_taxon = Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
+        grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
         # calcular el numero de masas de agua y el numero de utms de una especie
         id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
         massesaigua = []
@@ -496,7 +512,7 @@ def json_especies_de_seleccion(request,multipoligono=False):
 
         ncitacions = Citacions.objects.filter(idspinvasora=id).count()
 
-        resultado.append({"nom":especie["idspinvasora__idtaxon__genere"]+" "+especie["idspinvasora__idtaxon__especie"],"id":id,"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
+        resultado.append({"nom":especie["idspinvasora__idtaxon__genere"]+" "+especie["idspinvasora__idtaxon__especie"],"id":id,"grup":grup,"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
     if multipoligono:
         return resultado
     else:

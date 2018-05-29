@@ -118,6 +118,7 @@ class Especieinvasora(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
     observacions = models.CharField(max_length=4000, blank=True, null=True)
     present_catalogo = models.CharField(max_length=1, blank=True, null=True)
+    reglament_ue = models.CharField(max_length=1, blank=True, null=True) # anadido en la bdd el 29-05-1028
 
     # FOREIGN KEYS *Ojo importante el related name!
 

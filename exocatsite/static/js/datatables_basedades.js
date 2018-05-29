@@ -78,6 +78,7 @@ $(document).ready(function(){
                             d.viaentrada=$("#viaentrada").val();
                             d.estatushistoric=$("#estatushistoric").val();
                             d.present_catalog=$("#present_catalog").val();
+                            d.present_reglament_eur=$("#present_reglament_eur").val();
 //                            d.=$("#").val();
                         }
                     },
@@ -310,6 +311,7 @@ function rellenar_table_especies_click(data){ // esta funcion se llama en funcio
         var total=this.nutm10000+this.nutm1000+this.ncitacions+this.nmassesaigua
         taula_especies_map.row.add([
             this.nom,
+            this.grup,
             this.nutm10000,
             this.nutm1000,
             this.ncitacions,
@@ -329,6 +331,7 @@ function rellenar_table_especies_seleccion(data){ // esta funcion se llama en fu
 
         taula_especies_map.row.add([
             this.nom,
+            this.grup,
             this.nutm1000,
             this.nutm10000,
             this.ncitacions,
@@ -343,6 +346,7 @@ function rellenar_table_especies_seleccion(data){ // esta funcion se llama en fu
 function rellenar_table_resum_localitats_especie(data){ // esta funcion se llama en info_especie.js
     //taula_resum_localitats_especie.columns(0).clear();
     taula_resum_localitats_especie.cell(0,1).data(data["genere"]+" "+data["especie"]);
+    //taula_resum_localitats_especie.cell(1,1).data(data["grup"]);
     taula_resum_localitats_especie.cell(1,1).data(data["nutm10000"]);
     taula_resum_localitats_especie.cell(2,1).data(data["nutm1000"]);
     taula_resum_localitats_especie.cell(3,1).data(data["ncitacions"]);
