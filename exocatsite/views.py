@@ -282,9 +282,9 @@ def json_info_especie(request):
     utms= PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
     for utm in utms:
         if utm["idquadricula__resolution"]==10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
-            nutm1000=nutm1000+1
+            nutm10000=nutm10000+1
         if utm["idquadricula__resolution"]==1000:
-            nutm10000 = nutm10000 + 1
+            nutm1000 = nutm1000 + 1
 
 
 
@@ -431,6 +431,7 @@ def json_especies_de_cuadro(request):
         id_taxon=Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
         # calcular el numero de masas de agua y el numero de utms de una especie
         id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+        grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
         massesaigua = []
         nmassesaigua = 0
 
@@ -439,9 +440,9 @@ def json_especies_de_cuadro(request):
         utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
         for utm in utms:
             if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
-                nutm1000 = nutm1000 + 1
-            if utm["idquadricula__resolution"] == 1000:
                 nutm10000 = nutm10000 + 1
+            if utm["idquadricula__resolution"] == 1000:
+                nutm1000 = nutm1000 + 1
 
         if id_exoaqua:  # si existe una relacion de exoaqua-exocat de dicha especie
             id_exoaqua = id_exoaqua[0]["id_exoaqua"]  # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
@@ -452,7 +453,7 @@ def json_especies_de_cuadro(request):
 
         dades=PresenciaSp.objects.filter(idspinvasora=id).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
         nom=dades[0]["idspinvasora__idtaxon__genere"]+" "+dades[0]["idspinvasora__idtaxon__especie"]
-        resultado.append({"nom":nom,"id":dades[0]["idspinvasora"],"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
+        resultado.append({"nom":nom,"id":dades[0]["idspinvasora"],"grup":grup,"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
 
     resultado = json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json;')
@@ -500,9 +501,9 @@ def json_especies_de_seleccion(request,multipoligono=False):
         utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
         for utm in utms:
             if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
-                nutm1000 = nutm1000 + 1
-            if utm["idquadricula__resolution"] == 1000:
                 nutm10000 = nutm10000 + 1
+            if utm["idquadricula__resolution"] == 1000:
+                nutm1000 = nutm1000 + 1
 
         if id_exoaqua:  # si existe una relacion de exoaqua-exocat de dicha especie
             id_exoaqua = id_exoaqua[0]["id_exoaqua"]  # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
@@ -544,7 +545,9 @@ def view_formularis_usuari(request):
 # Formulario de citacions/noves localitats de especies
 @login_required(login_url='/login/')
 def view_formularis_localitats_especie(request):
+    id_imatge_principal=""
     ids_imatges=""
+    imatges=[]
     id_form=""
     usuari = request.user.username
     nuevo="1"
@@ -557,7 +560,8 @@ def view_formularis_localitats_especie(request):
             id_form=request.POST["id_form"]
             instance = get_object_or_404(CitacionsEspecie, id=id_form)
             # form = CitacionsEspeciesForm(instance=instance)
-            for img in ImatgesCitacions.objects.filter(id_citacio_especie=request.POST["id_form"]).values("id"):
+            id_imatge_principal = ImatgesCitacions.objects.get(id_citacio_especie=request.POST["id_form"],tipus="principal").id
+            for img in ImatgesCitacions.objects.filter(id_citacio_especie=request.POST["id_form"],tipus="secundari").values("id"):
                 ids_imatges=ids_imatges+str(img["id"])+","
         except:
             instance = None
@@ -580,7 +584,7 @@ def view_formularis_localitats_especie(request):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            camps_obligatoris = ['idspinvasora','data','NIP']
+            camps_obligatoris = ['idspinvasora','data'] # 'NIP'
             formulario_clean  = form.cleaned_data
 
             if formulario_clean["idspinvasora"] == "00000":
@@ -598,15 +602,22 @@ def view_formularis_localitats_especie(request):
                     if request.POST["tipus_coordenades"] == "3":
                         camps_obligatoris.append("utm_1")
             #
-            # Verificamos que el usuario haya dado las imagenes necesarias
+            # Verificamos que el usuario haya dado la imagen principal por lo menos
+            if request.POST["id_imatge_principal"] != "":
+                id_imatge_principal = request.POST["id_imatge_principal"]
+            else:
+                form.add_error(None,"No has penjat la foto identificativa.")
+
+
+            # Ahora verificamos que no haya subido secundarias de mas
             if request.POST["ids_imatges"] != "":
                 ids_imatges = request.POST["ids_imatges"]
                 imatges = request.POST["ids_imatges"].split(",")
-                if len(imatges) < 7:
-                    errorcount = "Faltan "+str(7-len(imatges))+" imatges."
+                if len(imatges) > 6:
+                    errorcount = "No pots pujar mes de 6 imatges opcionals." #Faltan "+str(7-len(imatges))+" imatges.
                     form.add_error(None,errorcount)
-            else:
-                form.add_error(None,"No has penjat cap imatge.")
+            # else:
+            #     form.add_error(None,"No has penjat cap imatge.")
 
             # if request.POST["espai_natural_protegit"] == "si":
             #     if request.POST["tipus_espai_natural_protegit"] != "altres":
@@ -635,11 +646,18 @@ def view_formularis_localitats_especie(request):
                 form.data_modificacio=datetime.date.today().strftime('%d-%m-%Y')
                 #
                 new_form = form.save()
-                for imatge in imatges:
-                    if imatge != "":
-                        img = ImatgesCitacions.objects.get(id=imatge)
-                        img.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
-                        img.save()
+                if nuevo=="0":#Si no es nuevo hay que substituir la imagen
+                    ImatgesCitacions.objects.get(id_citacio_especie=id_form, tipus="principal").delete()
+                img_principal = ImatgesCitacions.objects.get(id=id_imatge_principal)
+                img_principal.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
+                img_principal.save()
+
+                if len(imatges)>0:
+                    for imatge in imatges:
+                        if imatge != "":
+                            img = ImatgesCitacions.objects.get(id=imatge)
+                            img.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
+                            img.save()
                 # nuevo="0"
 
                 return HttpResponseRedirect('/formularis/')
@@ -664,7 +682,7 @@ def view_formularis_localitats_especie(request):
         form = CitacionsEspeciesForm
 
     especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id", "idtaxon__genere", "idtaxon__especie")
-    context={'form':form,'especies':especies,'ids_imatges':ids_imatges,'nuevo':nuevo,'id_form':id_form}
+    context={'form':form,'especies':especies,'id_imatge_principal':id_imatge_principal,'ids_imatges':ids_imatges,'nuevo':nuevo,'id_form':id_form}
     return render(request,'exocat/formularis_localitats_especie.html',context)
 
 # Formulario de ACA para las citacions
@@ -688,13 +706,20 @@ def view_upload_imatge_citacions_especie(request):
 
     if request.GET:
     # def get(self, request):
-        lista = []
-        imatges = request.GET["ids_imatges"].split(",")
-        for imatge in imatges:
-            if imatge != "":
-                img = ImatgesCitacions.objects.get(id=imatge)
-                lista.append({'name': img.fitxer.name, 'url': img.fitxer.url, 'id': img.id})
-        return JsonResponse(lista,safe=False)
+        resultado = []
+        if request.GET.get("id_imatge_principal") is not None: # si es la principal
+            img = ImatgesCitacions.objects.get(id=request.GET["id_imatge_principal"])
+            resultado={'name': img.fitxer.name, 'url': img.fitxer.url, 'id': img.id}
+
+        else:
+            imatges = request.GET["ids_imatges"].split(",")
+            for imatge in imatges:
+                if imatge != "":
+                    img = ImatgesCitacions.objects.get(id=imatge)
+                    resultado.append({'name': img.fitxer.name, 'url': img.fitxer.url, 'id': img.id})
+
+
+        return JsonResponse(resultado,safe=False)
         # return render(self.request, 'exocat/formularis_localitats_especie.html', {'imatges':lista})
 
     if request.POST:

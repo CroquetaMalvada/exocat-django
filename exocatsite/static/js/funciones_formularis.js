@@ -1,6 +1,7 @@
 var espai_natural_protegit="no";
 var espai_natural_nom="";
 var nuevo=1;
+var id_form;
 var cargar_especie="";
 
 $(document).ready(function(){
@@ -68,27 +69,43 @@ $(document).ready(function(){
     $("#id_espai_nom").val(espai_natural_nom);
 
 
-    // CARGAR IMAGENES
-    if($("#ids_imatges").val()!=""){
-        $.ajax({
-            type: "GET",
-            data: {"ids_imatges":$("#ids_imatges").attr("value")},
-            url: "/upload_imatge_citacions_especie/",
-            success: function(data) {
-                console.log(data);
-                $.each(data,function(){
-                    //$("#ids_imatges").val($("#ids_imatges").val()+this.id+",");
-                    $("#gallery tbody").prepend(
-                      "<tr><td><img width='100' src='" + this.url + "'></img>  "+this.name+"</td></tr>"
-                    );
+    ///////////// CARGAR IMAGENES
+    // CARGAR IMAGEN PRINCIPAL
+    $.ajax({
+        type: "GET",
+        data: {"id_imatge_principal":$("#id_imatge_principal").attr("value")},
+        url: "/upload_imatge_citacions_especie/",
+        success: function(data) {
+            $("#foto_principal_gallery").append(
+              "<img width='200' src='" + data.url + "'></img>  <br>"+data.name
+            );
+        },
+        complete:function(){
+            // CARGAR IMAGENES SECUNDARIAS
+            if($("#ids_imatges").val()!=""){
+                $.ajax({
+                    type: "GET",
+                    data: {"ids_imatges":$("#ids_imatges").attr("value")},
+                    url: "/upload_imatge_citacions_especie/",
+                    success: function(data) {
+                        //console.log(data);
+                        $.each(data,function(){
+                            //$("#ids_imatges").val($("#ids_imatges").val()+this.id+",");
+                            $("#gallery tbody").prepend(
+                              "<tr><td><img width='100' src='" + this.url + "'></img>  "+this.name+"</td></tr>"
+                            );
+                        });
+                    }
                 });
+            }else{
+                mostrar_ocultar_dades_opcionals();
             }
-        });
-    }else{
-        mostrar_ocultar_dades_opcionals();
-    }
+        }
+    });
 
 
+    //crear tooltips
+    $(".boton_tooltip").tooltip();
 //    Cookies.set('proyectos',proyectos, { expires: 1 });
 });
 

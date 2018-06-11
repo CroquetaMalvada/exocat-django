@@ -41,6 +41,13 @@
     <script src="{% static 'js/token_ajax.js' %}" ></script>
     <script src="{% static 'js/funciones_formularis.js' %}" ></script>
 
+
+    <style>
+        div.ui-tooltip{
+            max-width: 400px;
+        }
+    </style>
+
 </head>
 <body>
 {% block cabecera %} {% include "exocat/cabecera.html" %} {% endblock %}
@@ -53,6 +60,7 @@
             {% if nuevo == "0" %}
                 <script>
                 nuevo=0;
+                id_form="{{ id_form }}";
                 cargar_especie="{{ form.idspinvasora.value }}";
                 </script>
                 <input name="id_form" value="{{ id_form }}" hidden />
@@ -62,7 +70,7 @@
             <hr>
             <!--<b>(*)Camps Obligatoris</b>-->
             <!--<div class="row">-->
-            <h4>Espècie i data</h4>
+            <h4>Espècie i data de localització</h4>
             <div class="row">
                 <div class="input-group col-md-6">
                     <span class="input-group-addon"><b>Espècie</b></span>
@@ -131,79 +139,14 @@
                 </div>
             </div>
             <br>
-            <h4>Imatges i mapes</h4>
-            <!--<div class="row">-->
-                <!--<div class="input-group col-md-12">-->
+            <h4>Foto identificativa</h4>
+            <div id="foto_principal_gallery" class="col-md-12" align="center">
 
-                    <b>Cal adjuntar:</b>
-                    <ul>
-                        <li>Reportatge fotogràfic, amb 4 vistes:</li>
-                        <ul>
-                            <li>Vista panoràmica de la zona.</li>
-                            <li>Detall de l'espècie.</li>
-                            <li>Detall característic de la localitat.</li>
-                            <li>Detall característic de la localitat.</li>
-                        </ul>
-                    </ul>
-                    <ul>
-                        <li>Plànol:</li>
-                        <ul>
-                            <li>Mapa topogràfic a 1:25.000, on estigui marcat amb un cercle la situació.</li>
-                            <li>Ortofotomapa a 1:5.000 de la possible localitat de l'espècie.</li>
-                        </ul>
-                    </ul>
-                    <button type="button" class="btn btn-primary js-upload-photos">
-                      <span class="glyphicon glyphicon-cloud-upload"></span> Penjar Imatges
-                    </button><br>
-
-                    <input id="fileupload" type="file" name="fitxer" multiple
-                           style="display: none;"
-                           data-url="/upload_imatge_citacions_especie/"
-                           data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
-
-
-                    <input id="ids_imatges" name="ids_imatges" hidden value="{{ ids_imatges }}"/>
-                    <table id="gallery" class="table table-bordered">
-                      <thead>
-                        <!--<tr>-->
-                          <!--<th>Imatge</th>-->
-                        <!--</tr>-->
-                      </thead>
-                      <tbody>
-                        {% for imatge in imatges %}
-                          <tr>
-                            <td><a href="{{ imatge.fitxer.url }}">{{ imatge.fitxer.name }}</a></td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                <!--</div>-->
-                <!--<div class="input-group col-md-6">-->
-                    <!--<span class="input-group-addon">Imatges</span>-->
-                    <!--{{ form.imatges}}-->
-                    <!--{{ form.imatges.errors}}-->
-                <!--</div>-->
-                <!--<div class="input-group col-md-6">-->
-                    <!--<span class="input-group-addon">Mapes</span>-->
-                    <!--{{ form.mapes}}-->
-                    <!--{{ form.mapes.errors}}-->
-                <!--</div>-->
-            <!--</div>-->
-            <br>
-            <h4>Dades de contacte</h4>
-            <div class="row">
-                <div class="input-group col-md-6">
-                    <span class="input-group-addon">Correu</span>
-                    {{ form.contacte}}
-                    {{ form.contacte.errors}}
-                </div>
-                <div class="input-group col-md-6">
-                    <span class="input-group-addon"><b>NIP / Codi de col·laborador</b></span>
-                    {{ form.NIP}}
-                    {{ form.NIP.errors}}
-                </div>
             </div>
+            <input id="foto_principal" type="file" name="fitxer" data-url="/upload_imatge_citacions_especie/" data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}","tipus":"principal"}' method="post">
+
             <br>
+            <input id="id_imatge_principal" name="id_imatge_principal" hidden value="{{ id_imatge_principal }}"/>
             <h2><b>Camps opcionals</b></h2>
             <hr>
             <a href="#a" id="mostrar_dades_opcionals" onclick="mostrar_ocultar_dades_opcionals();">Mostrar / Ocultar</a>
@@ -330,6 +273,86 @@
                         {{ form.observacions.errors}}
                     </div>
                 </div>
+                <br>
+                <h4>Dades de contacte</h4>
+                <div class="row">
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Correu</span>
+                        {{ form.contacte}}
+                        {{ form.contacte.errors}}
+                    </div>
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Codi de col·laborador</span>
+                        {{ form.NIP}}
+                        {{ form.NIP.errors}}
+                        <span class="input-group-addon">
+                            <a type="button" class="btn btn-secondary boton_tooltip" data-toggle="tooltip" data-container="body" data-placement="top" title="Clica per contactar amb especiesinvasores.tes@gencat.cat i obtenir el codi de col·laborador." href='mailto:especiesinvasores.tes@gencat.cat'>
+                                ?
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <br>
+                <h4>Altres imatges i mapes</h4>
+            <!--<div class="row">-->
+                <!--<div class="input-group col-md-12">-->
+
+                    <b>Exemple d'imatges i mapes que adjuntar(màxim 6 imatges):</b>
+                    <ul>
+                        <li>Reportatge fotogràfic, amb 4 vistes:</li>
+                        <ul>
+                            <li>Vista panoràmica de la zona.</li>
+                            <li>Detall de l'espècie.</li>
+                            <li>Detall característic de la localitat.</li>
+                            <li>Detall característic de la localitat.</li>
+                        </ul>
+                    </ul>
+                    <ul>
+                        <li>Plànol:</li>
+                        <ul>
+                            <li>Mapa topogràfic a 1:25.000, on estigui marcat amb un cercle la situació.</li>
+                            <li>Ortofotomapa a 1:5.000 de la possible localitat de l'espècie.</li>
+                        </ul>
+                    </ul>
+                    <button type="button" class="btn btn-primary js-upload-photos">
+                      <span class="glyphicon glyphicon-cloud-upload"></span> Penjar Imatges
+                    </button><br>
+
+                    <input id="fileupload" type="file" name="fitxer" multiple
+                           style="display: none;"
+                           data-url="/upload_imatge_citacions_especie/"
+                           data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}","tipus":"secundaria"}'>
+
+
+                    <input id="ids_imatges" name="ids_imatges" hidden value="{{ ids_imatges }}"/>
+                    <table id="gallery" class="table table-bordered">
+                      <thead>
+                        <!--<tr>-->
+                          <!--<th>Imatge</th>-->
+                        <!--</tr>-->
+                      </thead>
+                      <tbody>
+                        {% for imatge in imatges %}
+                          <tr>
+                            <td><a href="{{ imatge.fitxer.url }}">{{ imatge.fitxer.name }}</a></td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                <!--</div>-->
+                <!--<div class="input-group col-md-6">-->
+                    <!--<span class="input-group-addon">Imatges</span>-->
+                    <!--{{ form.imatges}}-->
+                    <!--{{ form.imatges.errors}}-->
+                <!--</div>-->
+                <!--<div class="input-group col-md-6">-->
+                    <!--<span class="input-group-addon">Mapes</span>-->
+                    <!--{{ form.mapes}}-->
+                    <!--{{ form.mapes.errors}}-->
+                <!--</div>-->
+            <!--</div>-->
+                <br>
+                <br>
             </div>
             <br>
             <div class="row">

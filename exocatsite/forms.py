@@ -84,4 +84,4 @@ class CitacionsEspeciesForm(forms.ModelForm):
 class ImatgesCitacionsEspecieForm(forms.ModelForm):
     class Meta:
         model = ImatgesCitacions
-        fields = ('fitxer', )
+        fields = ('fitxer', 'tipus')
