@@ -25,8 +25,8 @@ $(function () {
         $("#id_imatge_principal").val(data.result.id);
         $("#foto_principal_gallery").empty();
         $("#foto_principal_gallery").append(
-          "<img width='200' src='" + data.result.url + "'></img>  <br>"+data.result.name
-        );
+          "<img width='200' src='" + data.result.url + "'></img>  <br>"
+        );//+data.result.name
       }else{
         alert(data.result.errormessage);
       }
@@ -49,8 +49,9 @@ $(function () {
     done: function (e, data) {
       if (data.result.is_valid) { // Si la imagen ha sido validada correctamente:
         $("#ids_imatges").val($("#ids_imatges").val()+data.result.id+",");
+        alert($("#ids_imatges").val());
         $("#gallery tbody").prepend(
-          "<tr><td><img width='100' src='" + data.result.url + "'></img>  "+data.result.name+"</td></tr>"
+          "<tr><td><img width='100' src='" + data.result.url + "'></img> <a class='btn btn-danger eliminar_imatge' id_imatge='" + data.result.id + "' title='Eliminar' href='#'><i class='fa fa-trash  fa-lg'></i></a></td></tr>"
         );
       }else{
         alert(data.result.errormessage);

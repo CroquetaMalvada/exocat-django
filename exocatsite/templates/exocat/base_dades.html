@@ -196,6 +196,10 @@
 
 
                 </div>
+                <br>
+                <div class="row justify-content-center">
+                        <a id="limpiar_filtros" class='btn btn-danger' href='#'><i class='fa fa-eraser fa-lg'></i> Netejar Filtres</a>
+                </div>
             </form>
             <br>
         </div>
@@ -244,11 +248,11 @@
         </div>
        <div class="row">
           <div id="eines_map" class="col-md-2 offset-md-1" align="Left">
-            <h3>Eines:</h3><br>
-           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas" title="Dibuixa un rectangle" id="boton_info_rectangulo" onclick=""><i class="fa fa-square fa-lg"></i>  Espècies en selecció.</a></div><br>
-           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas" title="Dibuixa un polígon" id="boton_info_poligono" onclick=""><i class="fa fa-star fa-lg"></i>  Espècies en polígon.</a></div><br>
-           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas" title="Obtenir info al clicar" id="boton_info_clicar" onclick="" style="background-image:none;"><i class="fa fa-crosshairs fa-lg"></i>  Espècies en un punt.</a></div><br>
-           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas" title="Obtenir info sobre una comarca" id="boton_info_comarques" onclick="" style="background-image:none;"><i class="fa fa-globe fa-lg"></i>  Espècies de comarca.</a></div><br>
+            <h3>Eines de selecció:</h3><br>
+           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Dibuixa un rectangle" id="boton_info_rectangulo" onclick=""><i class="fa fa-square fa-lg"></i>  Rectangle</a></div><br>
+           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Dibuixa un polígon" id="boton_info_poligono" onclick=""><i class="fa fa-star fa-lg"></i>  Polígon</a></div><br>
+           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Obtenir info al clicar" id="boton_info_clicar" onclick="" style="background-image:none;"><i class="fa fa-crosshairs fa-lg"></i>      UTM</a></div><br>
+           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Obtenir info sobre una comarca" id="boton_info_comarques" onclick="" style="background-image:none;"><i class="fa fa-globe fa-lg"></i>  Comarca</a></div><br>
            </div>
            <div id="map" class="col-md-6">
 
@@ -549,7 +553,7 @@ z-index:1001;
                     <p><span><b>NOMS VULGARS: </b></span><span class="dada_especie" id="info_nomsvulgars"></span><hr>
                     <p><span><b>GRUP: </b></span><span class="dada_especie" id="info_grup"></span><hr>
                     <p><span><b>REGIÓ NATIVA: </b></span><span class="dada_especie" id="info_regionativa"></span><hr>
-                    <p><span><b>ESTATUS HISTÒRIC: </b></span><span class="dada_especie" id="info_estatushistoric"></span><hr>
+                    <p><span><b>ESTATUS GENERAL: </b></span><span class="dada_especie" id="info_estatushistoric"></span><hr>
                     <p><span><b>ESTATUS CATALUNYA: </b></span><span class="dada_especie" id="info_estatuscatalunya"></span><hr>
                     <p><span><b>VIES D'ENTRADA: </b></span><span class="dada_especie" id="info_viesentrada"></span><hr>
                     <p><span><b>PRESENT AL 'CATÁLOGO': </b></span><span class="dada_especie" id="info_presentcatalog"></span><hr>
@@ -558,7 +562,7 @@ z-index:1001;
                 <div class="col-md-7">
                     <img id="info_imatge" align="center" src="" title="" width="90%">
                     <hr>
-                    <p><span><b>OBSERVACIONS: </b></span><span id="info_observacions"></span><hr>
+                    <p><span><b>OBSERVACIONS: </b></span><span id="info_observacions" max-length="12"></span><hr>
                     <!--<a class="btn btn-info" id="info_observacions" title="Info" href="#"><i class="fa fa-eye fa-lg"></i></a><hr>-->
                 </div>
             </div>

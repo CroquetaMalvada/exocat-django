@@ -143,6 +143,7 @@
             <div id="foto_principal_gallery" class="col-md-12" align="center">
 
             </div>
+            <br>
             <input id="foto_principal" type="file" name="fitxer" data-url="/upload_imatge_citacions_especie/" data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}","tipus":"principal"}' method="post">
 
             <br>
@@ -354,14 +355,23 @@
                 <br>
                 <br>
             </div>
+            <hr>
             <br>
             <div class="row">
                 <div class="input-group col-md-12">
-                    <input type="checkbox" id="autoritzacio" name="autoritzacio" unchecked/> <b> * Autoritzo a EXOCAT a tenir les meves dades i imatges. Aquestes no s'utilitzarán per a cap fi comerçial ni seràn donades a tercers.</b>
+                    <input type="checkbox" id="autoritzacio" name="autoritzacio" unchecked/> <b> * Autoritzo a EXOCAT a tenir les meves dades i imatges. Aquestes no s'utilitzarán per a cap fi comercial ni seràn donades a tercers.</b>
                 </div>
-            {{ form.non_field_errors }}
+
             </div>
             <br>
+            {% if form.non_field_errors %}
+                <div id="div_errores">
+                    <b class="text-danger">Error al guardar:</b><br>
+                    {{ form.non_field_errors }}
+                    <script>errores = 1;</script>
+                    <br>
+                </div>
+            {% endif %}
             <div class="row">
                 <div class="input-group col-md-6 offset-md-3">
                     <input type="submit" value="Enviar" id="boton_enviar" disabled/>

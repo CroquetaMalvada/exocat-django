@@ -3,6 +3,7 @@ var espai_natural_nom="";
 var nuevo=1;
 var id_form;
 var cargar_especie="";
+var errores = 0;
 
 $(document).ready(function(){
 
@@ -77,8 +78,8 @@ $(document).ready(function(){
         url: "/upload_imatge_citacions_especie/",
         success: function(data) {
             $("#foto_principal_gallery").append(
-              "<img width='200' src='" + data.url + "'></img>  <br>"+data.name
-            );
+              "<img width='200' src='" + data.url + "'></img>  <br>"
+            );// +data.name
         },
         complete:function(){
             // CARGAR IMAGENES SECUNDARIAS
@@ -92,7 +93,7 @@ $(document).ready(function(){
                         $.each(data,function(){
                             //$("#ids_imatges").val($("#ids_imatges").val()+this.id+",");
                             $("#gallery tbody").prepend(
-                              "<tr><td><img width='100' src='" + this.url + "'></img>  "+this.name+"</td></tr>"
+                              "<tr><td><img width='100' src='" + this.url + "'></img><a class='btn btn-danger eliminar_imatge' id_imatge='" + this.id + "' title='Eliminar' href='#'><i class='fa fa-trash fa-lg'></i></a></td></tr>"
                             );
                         });
                     }
@@ -102,11 +103,35 @@ $(document).ready(function(){
             }
         }
     });
-
+    ///// EVITAR QUE SE MODIFIQUE EL ELEMENTO QUE ELIMINA IMAGEN
+    $("#gallery").on("DOMSubtreeModified",".eliminar_imatge",function(){
+        $(this).attr("id_imatge","###");
+    });
+    ///// PARA ELIMINAR IMAGEN
+    $('#gallery').on("click",".eliminar_imatge",function(){
+        var idimagen = $(this).attr("id_imatge");
+        var elementoimagen = $(this).parent("td");
+        $.ajax({
+            type: "POST",
+            data: {"id":idimagen},
+            url: "/delete_imatge_citacions_especie/",
+            success: function(data) {
+                var ids2 = $("#ids_imatges").val();
+                ids2 = ids2.replace(idimagen+",","");
+                $("#ids_imatges").val(ids2);
+                elementoimagen.remove();
+            }
+        });
+    });
 
     //crear tooltips
     $(".boton_tooltip").tooltip();
 //    Cookies.set('proyectos',proyectos, { expires: 1 });
+
+    //si hay errores:
+    if(errores==1){
+        errores_detectados();
+    }
 });
 
 function cargar_default(){
@@ -195,6 +220,12 @@ function mostrar_ocultar_dades_opcionals(){
     }else{
         $("#div_dades_opcionals").show();
     }
+}
 
-
+function errores_detectados(){
+    $('html').animate({
+        scrollTop:$(document).height()
+    }, function(){
+        $("#div_errores").effect( "highlight",{"color":"red"}, "slow" );
+    });
 }

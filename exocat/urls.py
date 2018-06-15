@@ -47,8 +47,13 @@ urlpatterns = [
     #AJAX PARA FORMULARIOS
     url('^ajax_formularis_usuari/', views.json_taula_formularis_usuari),
 
-    #UPLOAD
+    #UPLOAD IMAGEN
     url('^upload_imatge_citacions_especie/$', views.view_upload_imatge_citacions_especie),
+
+    #BORRAR IMAGEN
+    url('^delete_imatge_citacions_especie/$', views.view_delete_imatge_citacions_especie),
+
+
 
 ]
 # solo para desarrollo

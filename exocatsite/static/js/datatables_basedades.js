@@ -288,8 +288,19 @@ $(document).ready(function(){
         // ajustar columnas al cargar un tab
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust().draw();
-        })
+        });
+
+        // Limpiar filtros
+        $("#limpiar_filtros").on("click",function(){
+            limpiar_filtros();
+        });
 });
+
+function limpiar_filtros(){
+    $("#form_filtres .form-control").each(function(){
+    $(this).val($(this).data("original-value"));
+    });
+}
 
 function cargando_datos_mapa(tipo){
     if(tipo==0){//si se ha empezado a cargar
@@ -359,7 +370,7 @@ function rellenar_table_resum_localitats_especie(data){ // esta funcion se llama
 }
 
 function rellenar_table_documentacio_especie(data){ // esta funcion se llama en info_espcie,js
-
+    taula_documentacio_especie.clear();
     $(data).each(function(){
 //                console.log(this);
         taula_documentacio_especie.row.add([
@@ -372,7 +383,7 @@ function rellenar_table_documentacio_especie(data){ // esta funcion se llama en 
 
 
 function rellenar_table_actuacions_especie(data){ // esta funcion se llama en info_espcie,js
-
+    taula_actuacions_especie.clear();
     $(data).each(function(){
 //                console.log(this);
         taula_actuacions_especie.row.add([

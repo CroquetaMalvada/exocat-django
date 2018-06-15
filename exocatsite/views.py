@@ -325,9 +325,15 @@ def json_info_especie(request):
             nomsvulgars=nomsvulgars+nomv.idnomvulgar.nomvulgar+","
 
     grup = Grupespecie.objects.get(idespecieinvasora=info["id"]).idgrup.nom
-    regionativa=""
+    regionativa=u""
     try:# hacemos try porque hay algunos en los que es nulo(?) y peta
-        regionativa=Regionativa.objects.get(idespecieinvasora=especie.info["id"]).idzonageografica.nom
+        for reg in Regionativa.objects.filter(idespecieinvasora=info["id"]):
+            if reg == '':
+                regionativa = regionativa + reg.idzonageografica.nom
+            else:
+                regionativa = regionativa + ', ' + reg.idzonageografica.nom
+
+        # regionativa=Regionativa.objects.get(idespecieinvasora=info["id"]).idzonageografica.nom
     except:
         regionativa=""#"Desconeguda"
 
@@ -560,13 +566,17 @@ def view_formularis_localitats_especie(request):
             id_form=request.POST["id_form"]
             instance = get_object_or_404(CitacionsEspecie, id=id_form)
             # form = CitacionsEspeciesForm(instance=instance)
-            id_imatge_principal = ImatgesCitacions.objects.get(id_citacio_especie=request.POST["id_form"],tipus="principal").id
-            for img in ImatgesCitacions.objects.filter(id_citacio_especie=request.POST["id_form"],tipus="secundari").values("id"):
-                ids_imatges=ids_imatges+str(img["id"])+","
         except:
             instance = None
             #nuevo = "1"
             #form = CitacionsEspeciesForm
+
+        try:
+            id_imatge_principal = ImatgesCitacions.objects.get(id_citacio_especie=request.POST["id_form"],tipus="principal").id
+            for img in ImatgesCitacions.objects.filter(id_citacio_especie=request.POST["id_form"],tipus="secundaria").values("id"):
+                ids_imatges=ids_imatges+str(img["id"])+","
+        except:
+            None
 
         # QUE TIPO DE FORMULARIO ES:
         if instance is None:# Si se guarda por primera vez el form
@@ -613,6 +623,8 @@ def view_formularis_localitats_especie(request):
             if request.POST["ids_imatges"] != "":
                 ids_imatges = request.POST["ids_imatges"]
                 imatges = request.POST["ids_imatges"].split(",")
+                # el ultimo tiene un elemento vacio ya que se pasa una coma suelta
+                del imatges[-1]
                 if len(imatges) > 6:
                     errorcount = "No pots pujar mes de 6 imatges opcionals." #Faltan "+str(7-len(imatges))+" imatges.
                     form.add_error(None,errorcount)
@@ -646,9 +658,10 @@ def view_formularis_localitats_especie(request):
                 form.data_modificacio=datetime.date.today().strftime('%d-%m-%Y')
                 #
                 new_form = form.save()
+                img_principal = ImatgesCitacions.objects.get(id=id_imatge_principal)
                 if nuevo=="0":#Si no es nuevo hay que substituir la imagen
                     ImatgesCitacions.objects.get(id_citacio_especie=id_form, tipus="principal").delete()
-                img_principal = ImatgesCitacions.objects.get(id=id_imatge_principal)
+
                 img_principal.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
                 img_principal.save()
 
@@ -752,6 +765,16 @@ def view_upload_imatge_citacions_especie(request):
         else:
             data = {"is_valid":False, 'errormessage':'Error al pujar la imatge.'}
         return JsonResponse(data)
+
+@login_required(login_url='/login/')
+def view_delete_imatge_citacions_especie(request):
+    try:
+        instancia = ImatgesCitacions.objects.get(id=request.POST["id"])
+        instancia.delete()
+        data = {'is_valid': True}
+        return JsonResponse(data)
+    except:
+        return None
 
 @login_required(login_url='/login/')
 def json_taula_formularis_usuari(request):
