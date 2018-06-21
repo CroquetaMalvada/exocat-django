@@ -119,34 +119,38 @@
             <form id="form_filtres" method="post">
                 {% csrf_token %}
                 <div class="row">
+                    <!--<div class="input-group col-md-4">-->
+                        <!--<span class="input-group-addon">Espècie</span>-->
+                        <!--<input type="text" class="form-control" name="especie" id="especie" />-->
+                    <!--</div>-->
+                    <div class="input-group col-md-4">
+                        <span class="input-group-addon">Gènere</span>
+                        <input type="text" class="form-control" name="genere" id="genere" />
+                    </div>
                     <div class="input-group col-md-4">
                         <span class="input-group-addon">Espècie</span>
                         <input type="text" class="form-control" name="especie" id="especie" />
                     </div>
                     <div class="input-group col-md-4">
+                        <span class="input-group-addon">Subespècie</span>
+                        <input type="text" class="form-control" name="subespecie" id="subespecie" />
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="input-group col-md-4">
                         <span class="input-group-addon">Varietat</span>
-                        <input type="text" class="form-control" name="varietat" id="varietat" />
+                        <select class="form-control" name="varietat" id="varietat"></select>
+                        <!--<input type="text" class="form-control" name="varietat" id="varietat" />-->
                     </div>
                     <div class="input-group col-md-4">
                         <span class="input-group-addon">Grup</span>
                         <select class="form-control" name="grups" id="grups"></select>
                     </div>
-                </div>
-                <br>
-                <div class="row">
-                    <!--<div class="input-group col-md-4">-->
-                        <!--<span class="input-group-addon">Nom vulgar</span>-->
-                        <!--<input type="text" class="form-control" id="nomvulgar" />-->
-                    <!--</div>-->
-                    <div class="input-group col-md-6">
+                    <div class="input-group col-md-4">
                         <span class="input-group-addon">Regió nativa</span>
                         <input class="form-control" name="regionativa" id="regionativa" />
                         <!--<select class="form-control" name="regionativa" id="regionativa"></select>-->
-                    </div>
-                    <div class="input-group col-md-6">
-                        <span class="input-group-addon">Via d'entrada</span>
-                        <input class="form-control" name="viaentrada" id="viaentrada" />
-                        <!--<select class="form-control" name="viaentrada" id="viaentrada"></select>-->
                     </div>
                 </div>
                 <br>
@@ -156,11 +160,16 @@
                         <!--<span class="input-group-addon">Gènere</span>-->
                         <!--<input type="text" class="form-control" id="genere" />-->
                     <!--</div>-->
-                    <div class="input-group col-md-6">
+                    <div class="input-group col-md-4">
+                        <span class="input-group-addon">Via d'entrada</span>
+                        <input class="form-control" name="viaentrada" id="viaentrada" />
+                        <!--<select class="form-control" name="viaentrada" id="viaentrada"></select>-->
+                    </div>
+                    <div class="input-group col-md-4"> <!--OJO QUE AUNQUE PONGA GENERAL ES EL HISTORIC!!!-->
                         <span class="input-group-addon">Estatus general</span>
                         <select class="form-control" name="estatushistoric" id="estatushistoric"></select>
                     </div>
-                    <div class="input-group col-md-6">
+                    <div class="input-group col-md-4">
                         <span class="input-group-addon">Estatus Catalunya</span>
                         <select class="form-control" name="estatuscatalunya" id="estatuscatalunya"></select>
                     </div>
@@ -378,7 +387,7 @@
                 <li>    Josep Ramon Torrentó - Parc Natural de Sant Llorenç, Parc del Garraf, Foix i Olèrdola</li>
                 <li>    Juan Fernàndez - Parc Natural Alt Pirineu</li>
                 <li>    Llorenç Sáez - UAB - Dept. Botànica</li>
-                <li>    Lluís Benejam - UdG - Institut d'Ecologia Aquàtica & Dept. Ciències Ambientals</li>
+                <li>    Lluís Benejam - UVic - UCC</li>
                 <li>    Lluís Zamora-Hernández - UdG - Departament de Ciències Ambientals</li>
                 <li>    M. A. Lopez - Institut de Recerca i Tecnologia Agroalimentària (IRTA) - Unitat de cultius experimentals, Centre Aqüicultura</li>
                 <li>    Manel Pomarol – Servei de Fauna i Flora. Departament de Territori i Sostenibilitat</li>
@@ -561,8 +570,9 @@ z-index:1001;
                 </div>
                 <div class="col-md-7">
                     <img id="info_imatge" align="center" src="" title="" width="90%">
+                    <p id="sense_imatge_principal"></p>
                     <hr>
-                    <p><span><b>OBSERVACIONS: </b></span><span id="info_observacions" max-length="12"></span><hr>
+                    <p id="observaciones_tooltip" title=""><span><b>OBSERVACIONS: </b></span><span class="dada_especie" id="info_observacions" max-length="20"></span><hr>
                     <!--<a class="btn btn-info" id="info_observacions" title="Info" href="#"><i class="fa fa-eye fa-lg"></i></a><hr>-->
                 </div>
             </div>

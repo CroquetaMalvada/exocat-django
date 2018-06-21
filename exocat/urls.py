@@ -31,10 +31,13 @@ urlpatterns = [
     url(r'^formularis_aca/',views.view_formularis_aca,name="formularis aca"),
     url(r'^formularis/',views.view_formularis_usuari,name="formularis usuari"),
     url(r'^mapa/',views.view_mapa,name="mapa"),
-    # AJAX
+    # AJAX SELECTS BASE DE DADES
+    url('^ajax_varietat_select/', views.json_select_varietat),
     url('^ajax_grups_select/', views.json_select_groups),
     url('^ajax_viaentrada_select/', views.json_select_viaentrada),
-    url('^ajax_estatus_select/', views.json_select_estatus),
+    # url('^ajax_estatus_select/', views.json_select_estatus),
+    url('^ajax_estatus_catalunya_select/', views.json_select_estatus_cat),
+    url('^ajax_estatus_historic_select/', views.json_select_estatus_historic),
     url('^ajax_regionativa_select/', views.json_select_regionativa),
     #AJAX DATATABLES
     url('^ajax_taula_especies/', views.json_taula_especies),

@@ -70,7 +70,9 @@ $(document).ready(function(){
                         dataSrc: 'data',
                         type:"POST",
                         data:function(d){
+                            d.genere=$("#genere").val();
                             d.especie=$("#especie").val();
+                            d.subespecie=$("#subespecie").val();
                             d.grups=$("#grups").val();
                             d.estatuscatalunya=$("#estatuscatalunya").val();
                             d.varietat=$("#varietat").val();

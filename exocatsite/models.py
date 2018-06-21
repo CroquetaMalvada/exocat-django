@@ -64,6 +64,7 @@ class Citacions(models.Model):
     ind_ha = models.FloatField(blank=True, null=True)
     ind_capt = models.IntegerField(blank=True, null=True)
     geom = models.TextField(blank=True, null=True)  # This field type is a guess.
+    geom_4326 = models.GeometryField()  # modificado
 
     class Meta:
         managed = False
@@ -123,10 +124,10 @@ class Especieinvasora(models.Model):
     # FOREIGN KEYS *Ojo importante el related name!
 
     idtaxon = models.ForeignKey('Taxon', models.DO_NOTHING,related_name='id_taxon', db_column='idtaxon', blank=True, null=True)
-    idestatushistoric = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatus_historic', db_column='idestatushistoric', blank=True, null=True)
-    idestatuscatalunya = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatus_catalunya', db_column='idestatuscatalunya', blank=True, null=True)
+    idestatushistoric = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatushistoric', db_column='idestatushistoric', blank=True, null=True) # modificado
+    idestatuscatalunya = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatus_atalunya', db_column='idestatuscatalunya', blank=True, null=True)# modificado
     idimatgeprincipal = models.ForeignKey('Imatges', models.DO_NOTHING,related_name='id_imatge_principal', db_column='idimatgeprincipal', blank=True, null=True)
-    idestatusgeneral = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatus_general', db_column='idestatusgeneral', blank=True, null=True)
+    idestatusgeneral = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatusgeneral', db_column='idestatusgeneral', blank=True, null=True)# modificado
 
     class Meta:
         managed = False
@@ -146,6 +147,8 @@ class Especieinvasora(models.Model):
 class Estatus(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
     nom = models.CharField(max_length=100, blank=True, null=True)
+    estatus_catalunya = models.BooleanField()
+    estatus_historic = models.BooleanField()
 
     class Meta:
         managed = False
@@ -330,7 +333,7 @@ class Quadricula(models.Model):
     field_ymax = models.FloatField(db_column='_ymax', blank=True, null=True)  # Field renamed because it started with '_'.
     #quadre = models.TextField(blank=True, null=True)  # This field type is a guess.
     quadre = models.GeometryField()
-    geom_4326 = models.GeometryField()
+    geom_4326 = models.GeometryField() # modificado
 
     class Meta:
         managed = False

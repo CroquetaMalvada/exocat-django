@@ -1,5 +1,15 @@
 $(document).ready(function(){
 
+
+    // select para la varietat (ojo que este es diferente a los demas,ver funcion de views)
+    $.getJSON('/ajax_varietat_select/', function(data){
+        var options = '<option value="">-</option>';
+        for (var x = 0; x < data.length; x++) {
+            options += '<option value="' + data[x]['varietat'] + '">' + data[x]['varietat'] + '</option>';
+        }
+        $('#varietat').html(options);
+    });
+
     // select para los grups
     $.getJSON('/ajax_grups_select/', function(data){
         var options = '<option value="">-</option>';
@@ -17,13 +27,19 @@ $(document).ready(function(){
 //        }
 //        $('#viaentrada').html(options);
 //    });
-    // select para los estatus (ojo que este se aplica a 2 selects!)
-    $.getJSON('/ajax_estatus_select/', function(data){
+    // select para los estatus
+    $.getJSON('/ajax_estatus_catalunya_select/', function(data){
         var options = '<option value="">-</option>';
         for (var x = 0; x < data.length; x++) {
             options += '<option value="' + data[x]['id'] + '">' + data[x]['nom'] + '</option>';
         }
         $('#estatuscatalunya').html(options);
+    });
+    $.getJSON('/ajax_estatus_historic_select/', function(data){
+        var options = '<option value="">-</option>';
+        for (var x = 0; x < data.length; x++) {
+            options += '<option value="' + data[x]['id'] + '">' + data[x]['nom'] + '</option>';
+        }
         $('#estatushistoric').html(options);
     });
 //    // select para las regiones nativas

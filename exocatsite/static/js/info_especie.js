@@ -22,7 +22,16 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
             $('#info_viesentrada').html(data['viesentrada']);
             $('#info_presentcatalog').html(data['presentcatalog']);
             $('#info_presenteuropeu').html(data['presentreglamenteur']);
-            $('#info_observacions').html(data['observacions']);
+            //
+
+            if(data['observacions'].length>100){
+                $('#info_observacions').html(data['observacions'].substring(0,100)+"...");
+            }else{
+                $('#info_observacions').html(data['observacions']);
+            }
+            $('#observaciones_tooltip').attr("title",data['observacions']);
+            $("#observaciones_tooltip").tooltip();
+            //
             $('#info_titolimatge').html(data['titolimatge']);
 
             //ocultar la info vacia
@@ -55,8 +64,12 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
             //imagen principal
             //$("#info_imatge").attr("src","http://exocat2.creaf.cat:8080/Exocat/grafics_temp/"+data['id']+"_port.jpg");
             $("#info_imatge").attr("src","");
+            $("#sense_imatge_principal").html("");
             if(data['imatges'][0]){
                 $("#info_imatge").attr("src","/media/imatges_especies/"+data['imatges'][0]["id"]+".jpg");
+            }else{
+                $("#info_imatge").attr("src","/media/imatges_especies/no_image.jpg");
+                $("#sense_imatge_principal").html("SENSE IMATGE");
             }
             $("#info_imatge").attr("title",data['titolimatge']);
 
@@ -143,15 +156,14 @@ function preparar_informe(){
     url_image=$("#info_imatge").prop("src");// OJO importante usar prop para obtener la absoluta
     $('#mapa_de_especie').tab('show');
     leafletImage(map_info_especie, function(err, canvas) {
-        getBase64FromImageUrl($("#info_imatge").prop("src"),function(data){ //Obtenemos la url en base64 para la imagen y así pasarla en el pdf
+        getBase64FromImageUrl(url_image,function(data){ //Obtenemos la url en base64 para la imagen y así pasarla en el pdf
             //console.log(data);
             $("#boton_informe").html(html_boton);
             url_image = data;
-            console.log(canvas);
+            //console.log(canvas);
             generar_informe(url_image,canvas.toDataURL("image/png"));
             //window.open(canvas.toDataURL("image/png"), '_blank');
         });
-
     });
 }
 
@@ -186,7 +198,7 @@ function generar_informe(url_image,url_mapa){
                 columns:[
                     [
                         datos_basicos,
-                        'OBSERVACIONS: '+$("#info_observacions").html(),
+                        //'OBSERVACIONS: '+$("#info_observacions").html(),
                     ]
                 ]
             },
