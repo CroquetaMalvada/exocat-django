@@ -168,7 +168,7 @@ def json_taula_especies_filtres(request):
 
     def filtro_nombre():# Ojo que este no se usa por ahora,en su lugar se usa los 3 de abajo
         if campos["especie"] is not "":
-            return (Q(idtaxon__genere__icontains=campos["especie"]) | Q(idtaxon__especie__icontains=campos["especie"]) | Q (idtaxon__subespecie__icontains=campos["especie"]))
+            return (Q(idtaxon__genere__icontains=campos["especie"]) | Q(idtaxon__especie__icontains=campos["especie"]) | Q (idtaxon__subespecie__icontains=campos["especie"]) | Q(idtaxon__varietat__icontains=campos["especie"]))
         else:
             return Q(id__isnull=False)
 
@@ -244,10 +244,11 @@ def json_taula_especies_filtres(request):
 
     especies= Especieinvasora.objects.filter(
         # para el nombre(campo especie) !Ojo __icontains no es sensible a mayusculas a diferencia de __contains!
-        # filtro_nombre(),# Ojo que este no se usa por ahora,en su lugar se usa los 3 de abajo
-        filtro_genere(),
-        filtro_especie(),
-        filtro_subespecie(),
+        filtro_nombre(),# incluye el genere,especie,subespecie y varietat
+        # filtro_genere(),
+        # filtro_especie(),
+        # filtro_subespecie(),
+        # filtro_varietat(),
 
         #para los grups
         filtro_grups(),
@@ -255,8 +256,7 @@ def json_taula_especies_filtres(request):
         #para estatus catalunya
         filtro_estatus_cat(),
 
-        #para varietat
-        filtro_varietat(),
+
 
         # para las regiones nativas
         filtro_regiones(),

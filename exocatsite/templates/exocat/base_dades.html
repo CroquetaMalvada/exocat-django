@@ -120,56 +120,48 @@
                 {% csrf_token %}
                 <div class="row">
                     <!--<div class="input-group col-md-4">-->
-                        <!--<span class="input-group-addon">Espècie</span>-->
-                        <!--<input type="text" class="form-control" name="especie" id="especie" />-->
+                        <!--<span class="input-group-addon">Gènere</span>-->
+                        <!--<input type="text" class="form-control" name="genere" id="genere" />-->
                     <!--</div>-->
-                    <div class="input-group col-md-4">
-                        <span class="input-group-addon">Gènere</span>
-                        <input type="text" class="form-control" name="genere" id="genere" />
-                    </div>
-                    <div class="input-group col-md-4">
-                        <span class="input-group-addon">Espècie</span>
+                    <div class="input-group col-md-6">
+                        <span class="input-group-addon">Taxon</span><!--OJO QUE AUNQUE PONGA TAXON ES EL ESPÈCIE!-->
                         <input type="text" class="form-control" name="especie" id="especie" />
                     </div>
-                    <div class="input-group col-md-4">
-                        <span class="input-group-addon">Subespècie</span>
-                        <input type="text" class="form-control" name="subespecie" id="subespecie" />
-                    </div>
-                </div>
-                <br>
-                <div class="row">
-                    <div class="input-group col-md-4">
-                        <span class="input-group-addon">Varietat</span>
-                        <select class="form-control" name="varietat" id="varietat"></select>
-                        <!--<input type="text" class="form-control" name="varietat" id="varietat" />-->
-                    </div>
-                    <div class="input-group col-md-4">
+                    <div class="input-group col-md-6">
                         <span class="input-group-addon">Grup</span>
                         <select class="form-control" name="grups" id="grups"></select>
                     </div>
-                    <div class="input-group col-md-4">
+                    <!--<div class="input-group col-md-4">-->
+                        <!--<span class="input-group-addon">Subespècie</span>-->
+                        <!--<input type="text" class="form-control" name="subespecie" id="subespecie" />-->
+                    <!--</div>-->
+                </div>
+                <br>
+                <div class="row">
+                    <!--<div class="input-group col-md-4">-->
+                        <!--<span class="input-group-addon">Varietat</span>-->
+                        <!--<select class="form-control" name="varietat" id="varietat"></select>-->
+                        <!--&lt;!&ndash;<input type="text" class="form-control" name="varietat" id="varietat" />&ndash;&gt;-->
+                    <!--</div>-->
+                    <div class="input-group col-md-6">
                         <span class="input-group-addon">Regió nativa</span>
                         <input class="form-control" name="regionativa" id="regionativa" />
                         <!--<select class="form-control" name="regionativa" id="regionativa"></select>-->
+                    </div>
+                        <div class="input-group col-md-6">
+                        <span class="input-group-addon">Via d'entrada</span>
+                        <input class="form-control" name="viaentrada" id="viaentrada" />
+                        <!--<select class="form-control" name="viaentrada" id="viaentrada"></select>-->
                     </div>
                 </div>
                 <br>
                 <div class="row">
 
-                    <!--<div class="input-group col-md-4">-->
-                        <!--<span class="input-group-addon">Gènere</span>-->
-                        <!--<input type="text" class="form-control" id="genere" />-->
-                    <!--</div>-->
-                    <div class="input-group col-md-4">
-                        <span class="input-group-addon">Via d'entrada</span>
-                        <input class="form-control" name="viaentrada" id="viaentrada" />
-                        <!--<select class="form-control" name="viaentrada" id="viaentrada"></select>-->
-                    </div>
-                    <div class="input-group col-md-4"> <!--OJO QUE AUNQUE PONGA GENERAL ES EL HISTORIC!!!-->
+                    <div class="input-group col-md-6"> <!--OJO QUE AUNQUE PONGA GENERAL ES EL HISTORIC!!!-->
                         <span class="input-group-addon">Estatus general</span>
                         <select class="form-control" name="estatushistoric" id="estatushistoric"></select>
                     </div>
-                    <div class="input-group col-md-4">
+                    <div class="input-group col-md-6">
                         <span class="input-group-addon">Estatus Catalunya</span>
                         <select class="form-control" name="estatuscatalunya" id="estatuscatalunya"></select>
                     </div>
@@ -200,15 +192,16 @@
                     <!--</div>-->
                 <div class="row justify-content-center">
 
-                        <button type="submit" class="btn btn-primary btn-lg" id="boton_filtrar">Filtrar</button>
+                        <button type="submit" class="btn btn-primary btn-lg" id="boton_filtrar"><i class='fa fa-search'></i> Filtrar</button>
                         <img src="{% static 'imagenes/ajax-loader.gif' %}" id="filtrar_loading"/>
+                        <a id="limpiar_filtros" class='btn btn-danger btn-lg' href='#'><i class='fa fa-eraser'></i> Netejar</a>
 
 
                 </div>
                 <br>
-                <div class="row justify-content-center">
-                        <a id="limpiar_filtros" class='btn btn-danger' href='#'><i class='fa fa-eraser fa-lg'></i> Netejar Filtres</a>
-                </div>
+                <!--<div class="row justify-content-center">-->
+                    <!--<a id="limpiar_filtros" class='btn btn-danger btn-lg' href='#'><i class='fa fa-eraser'></i> Netejar</a>-->
+                <!--</div>-->
             </form>
             <br>
         </div>

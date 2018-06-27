@@ -28,6 +28,7 @@ $(document).on({
 
     ajaxStart: function(){
         $("#boton_filtrar").hide();
+        $("#limpiar_filtros").hide();
         $("#filtrar_loading").show();
 //            if($(this).find(".dataTables_empty")){
 //                var mensaje=$(this).find(".dataTables_empty");
@@ -37,6 +38,7 @@ $(document).on({
     },
     ajaxStop: function(){
         $("#boton_filtrar").show();
+        $("#limpiar_filtros").show();
         $("#filtrar_loading").hide();
 //            if($(this).find(".dataTables_empty")){
 //                var mensaje=$(this).find(".dataTables_empty");

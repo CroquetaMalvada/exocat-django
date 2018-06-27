@@ -169,54 +169,57 @@ function preparar_informe(){
 
 //y una vez tenemos las imagenes,creamos el informe
 function generar_informe(url_image,url_mapa){
-    var cabecera_pdf={text:'Fitxa espècie invasora: '+$("#info_genere").html()+' '+$("#info_especie").html(),style:"titulo"};
+    var cabecera_pdf={text:'Fitxa espècie: '+$("#info_genere").html()+' '+$("#info_especie").html(),style:"titulo"};
     var datos_basicos=[];
     $(".dada_especie").each(function(){
-        if($(this).html()!=""){
+        if($(this).html()!="" && $(this).attr("id")!="info_observacions"){
             datos_basicos.push({text:$(this).prev().text()+$(this).text()});
-            datos_basicos.push({canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]});
-            datos_basicos.push({text:" "});
+            //datos_basicos.push({canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]});
+            datos_basicos.push({text:"\n\n "});
             //{canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
         }
     });
+    var info_observaciones = "OBSERVACIONS: "+$("#observaciones_tooltip").attr("title");
     //alert(url_image);
     var all_pdf = {
         header:cabecera_pdf,
         content: [
-            {
-                        image: url_image,
-                        width: 200,
-                        height: 100,
-                        style:"titulo"
-
-            },
             {text:" "},
             {text: "Dades bàsiques",style:"header"},
+            {canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
             {text:" "},
             //{image:url_image,width:250,alignment: 'center'},
             {
                 columns:[
-                    [
-                        datos_basicos,
-                        //'OBSERVACIONS: '+$("#info_observacions").html(),
-                    ]
-                ]
-            },
-            {text:" "},
-            {text: "Mapa",style:"header"},
-            {text:" "},
-            {text:" "},
-            {
-                columns:[
                     {
-                        width: "*",
-                        text: "Resum localitats"
-                    },{
-                        width: "*",
-                        text: "Mapa"
+                        width: "60%",
+                        text: datos_basicos,
+                        //'OBSERVACIONS: '+$("#info_observacions").html(),
+                    },
+                    {
+                        image: url_image,
+                        width: 200,
+                        height: 200
+
                     }
                 ]
             },
+            {text:" "},
+            {text: "Localitats",style:"header"},
+            {canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]},
+            {text:" "},
+            {text:" "},
+//            {
+//                columns:[
+//                    {
+//                        width: "*",
+//                        text: "Resum localitats"
+//                    },{
+//                        width: "*",
+//                        text: "Mapa"
+//                    }
+//                ]
+//            },
             {text:" "},
             {
                 columns:[
@@ -255,17 +258,22 @@ function generar_informe(url_image,url_mapa){
 //
 //                    ]
                 ]
-            }
+            },
+            {text:"\n\n"},
+            {text:info_observaciones}
 
         ],
         styles: {
-            header: {
+            titulo: {
             fontSize: 22,
+            alignment: 'center',
+            italic: true,
             bold: true
             },
-            titulo: {
+            header: {
             italic: true,
-            alignment: 'center'
+            fontSize: 18,
+
             }
         }
     };

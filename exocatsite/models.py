@@ -486,3 +486,25 @@ class ImatgesCitacions(models.Model):
     class Meta:
         managed = True
         db_table = 'imatges_citacions_especie'
+
+class CitacionsACA(models.Model):
+    id = models.AutoField(primary_key=True)
+    nom_especie = models.CharField(max_length=255, blank=True, null=True)
+    codi_ma = models.CharField(max_length=255, blank=True, null=True)
+    codi_especie = models.CharField(max_length=255, blank=True, null=True)
+    data_cita = models.CharField(max_length=255, blank=True, null=True)
+    nom_ma = models.CharField(max_length=255, blank=True, null=True)
+    grup = models.CharField(max_length=255, blank=True, null=True)
+    categoria_aca = models.CharField(max_length=255, blank=True, null=True)
+    utm_x = models.FloatField(blank=True, null=True)
+    utm_y = models.FloatField(blank=True, null=True)
+    localitzacio = models.CharField(max_length=500, blank=True, null=True)
+    autor_cita = models.CharField(max_length=255, blank=True, null=True)
+    font_cita = models.CharField(max_length=255, blank=True, null=True)
+    observacions = models.CharField(max_length=500, blank=True, null=True)
+    data = models.CharField(max_length=100, blank=True, null=True)
+
+
+    class Meta:
+        managed = True
+        db_table = 'citacions_ACA'

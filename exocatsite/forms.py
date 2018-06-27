@@ -8,17 +8,30 @@ from exocatsite.models import *
 class CitacionsACAForm(forms.ModelForm):
     # opciones_aca = [(massa.codi_aca, massa.nom) for massa in MassesAigua.objects.all().values("nom", "codi_aca")]
     class Meta:
-        model = ActualitzacioDades08072015
+        model = CitacionsACA
         fields = [
-            'codi_aca',
-            'utmx_etrs89',
-            'utmy_etrs89',
-            'localitzacio',
-            'codi_sp',
+            'nom_especie',
+            'codi_ma',
+            'codi_especie',
             'data_cita',
+            'nom_ma',
+            'grup',
+            'categoria_aca',
+            'utm_x',
+            'utm_y',
+            'localitzacio',
             'autor_cita',
             'font_cita',
-            'observacions'
+            'observacions',
+            # 'codi_aca',
+            # 'utmx_etrs89',
+            # 'utmy_etrs89',
+            # 'localitzacio',
+            # 'codi_sp',
+            # 'data_cita',
+            # 'autor_cita',
+            # 'font_cita',
+            # 'observacions'
         ]
         # widgets = {
         #     'codi_aca': forms.ChoiceField(choices=opciones_aca),
