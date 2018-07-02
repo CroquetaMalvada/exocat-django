@@ -208,12 +208,17 @@ def json_taula_especies_filtres(request):
         else:
             return Q(id__isnull=False)
 
-    def filtro_regiones(): #OJO para utilizar el unaccent he tenido que instalarlo en la migration extensiones.py y django.contrib.postgres en el INSTALLEDAPPS
+    def filtro_regio_nativa(): #OJO para utilizar el unaccent he tenido que instalarlo en el psql del servidor(como usuario psotgres) y django.contrib.postgres en el INSTALLEDAPPS
         if campos["regionativa"] is not "":
-            return Q(id__in=Regionativa.objects.filter(idzonageografica__nom__unaccent__icontains=campos["regionativa"]).values("idespecieinvasora"))
-            # return Q(id__in=Regionativa.objects.filter(idzonageografica=campos["regionativa"]).values("idespecieinvasora"))
+            return Q(regio_nativa__unaccent__icontains=campos["regionativa"])
         else:
             return Q(id__isnull=False)
+    # def filtro_regiones(): #OJO para utilizar el unaccent he tenido que instalarlo en la migration extensiones.py y django.contrib.postgres en el INSTALLEDAPPS
+    #     if campos["regionativa"] is not "":
+    #         return Q(id__in=Regionativa.objects.filter(idzonageografica__nom__unaccent__icontains=campos["regionativa"]).values("idespecieinvasora"))
+    #         # return Q(id__in=Regionativa.objects.filter(idzonageografica=campos["regionativa"]).values("idespecieinvasora"))
+    #     else:
+    #         return Q(id__isnull=False)
 
     def filtro_vias_entrada():
         if campos["viaentrada"] is not "":
@@ -259,7 +264,8 @@ def json_taula_especies_filtres(request):
 
 
         # para las regiones nativas
-        filtro_regiones(),
+        filtro_regio_nativa(),
+        # filtro_regiones(),
 
         # para las vias de entrada
         filtro_vias_entrada(),
@@ -373,17 +379,20 @@ def json_info_especie(request):
             nomsvulgars=nomsvulgars+nomv.idnomvulgar.nomvulgar+","
 
     grup = Grupespecie.objects.get(idespecieinvasora=info["id"]).idgrup.nom
-    regionativa=u""
-    try:# hacemos try porque hay algunos en los que es nulo(?) y peta
-        for reg in Regionativa.objects.filter(idespecieinvasora=info["id"]):
-            if reg == '':
-                regionativa = regionativa + reg.idzonageografica.nom
-            else:
-                regionativa = regionativa + ', ' + reg.idzonageografica.nom
-
-        # regionativa=Regionativa.objects.get(idespecieinvasora=info["id"]).idzonageografica.nom
-    except:
-        regionativa=""#"Desconeguda"
+    regionativa=Especieinvasora.objects.get(id=info["id"]).regio_nativa
+    if regionativa==None:
+        regionativa=""
+    # regionativa=u""
+    # try:# hacemos try porque hay algunos en los que es nulo(?) y peta
+    #     for reg in Regionativa.objects.filter(idespecieinvasora=info["id"]):
+    #         if reg == '':
+    #             regionativa = regionativa + reg.idzonageografica.nom
+    #         else:
+    #             regionativa = regionativa + ', ' + reg.idzonageografica.nom
+    #
+    #     # regionativa=Regionativa.objects.get(idespecieinvasora=info["id"]).idzonageografica.nom
+    # except:
+    #     regionativa=""#"Desconeguda"
 
     try:
         estatushistoric=Especieinvasora.objects.get(id=info["id"]).idestatushistoric.nom

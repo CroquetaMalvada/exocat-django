@@ -120,6 +120,7 @@ class Especieinvasora(models.Model):
     observacions = models.CharField(max_length=4000, blank=True, null=True)
     present_catalogo = models.CharField(max_length=1, blank=True, null=True)
     reglament_ue = models.CharField(max_length=1, blank=True, null=True) # anadido en la bdd el 29-05-1028
+    regio_nativa = models.CharField(max_length=1000, blank=True, null=True) # modificado
 
     # FOREIGN KEYS *Ojo importante el related name!
 
