@@ -350,8 +350,8 @@ function rellenar_table_especies_seleccion(data){ // esta funcion se llama en fu
         taula_especies_map.row.add([
             this.nom,
             this.grup,
-            this.nutm1000,
             this.nutm10000,
+            this.nutm1000,
             this.ncitacions,
             this.nmassesaigua,
             total,
