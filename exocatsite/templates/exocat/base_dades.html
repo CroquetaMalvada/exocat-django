@@ -236,11 +236,11 @@
                        <tr>
                             <th>Espècie</th>
                             <th>Grup</th>
-                            <th>Nº UMTs 10km</th>
-                            <th>Nº UMTs 1km</th>
-                            <th>Nº Citacions puntuals</th>
-                            <th>Nº Masses d'aigua</th>
-                            <th><b>Total</b></th>
+                            <th>Nº Total UMTs 10km</th>
+                            <th>Nº Total UMTs 1km</th>
+                            <th>Nº Total Citacions puntuals</th>
+                            <th>Nº Total Masses d'aigua</th>
+                            <th><b>Localitats Totals:</b></th>
                             <th></th>
                        </tr>
                    </thead>
@@ -251,10 +251,10 @@
        <div class="row">
           <div id="eines_map" class="col-md-2 offset-md-1" align="Left">
             <h3>Eines de selecció:</h3><br>
-           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Dibuixa un rectangle" id="boton_info_rectangulo" onclick=""><i class="fa fa-square fa-lg"></i>  Rectangle</a></div><br>
-           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Dibuixa un polígon" id="boton_info_poligono" onclick=""><i class="fa fa-star fa-lg"></i>  Polígon</a></div><br>
-           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Obtenir info al clicar" id="boton_info_clicar" onclick="" style="background-image:none;"><i class="fa fa-crosshairs fa-lg"></i>      UTM</a></div><br>
-           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Obtenir info sobre una comarca" id="boton_info_comarques" onclick="" style="background-image:none;"><i class="fa fa-globe fa-lg"></i>  Comarca</a></div><br>
+           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Dibuixar un rectangle per obtenir info" id="boton_info_rectangulo" onclick=""><i class="fa fa-square fa-lg"></i>  Rectangle</a></div><br>
+           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Dibuixar un polígon per obtenir info" id="boton_info_poligono" onclick=""><i class="fa fa-star fa-lg"></i>  Polígon</a></div><br>
+           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Clicar en UTM per obtenir info" id="boton_info_clicar" onclick="" style="background-image:none;"><i class="fa fa-crosshairs fa-lg"></i>      UTM</a></div><br>
+           <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Clicar en comarca per obtenir info" id="boton_info_comarques" onclick="" style="background-image:none;"><i class="fa fa-globe fa-lg"></i>  Comarca</a></div><br>
            </div>
            <div id="map" class="col-md-6">
 
@@ -602,19 +602,19 @@ z-index:1001;
                    <td></td>
                </tr>
                <tr>
-                   <td>Nº UTMs 10km</td>
+                   <td>Nº Total UTMs 10km</td>
                    <td id="td_n_utms_10"></td>
                </tr>
                <tr>
-                   <td>Nº UTMs 1km</td>
+                   <td>Nº Total UTMs 1km</td>
                    <td id="td_n_utms_1"></td>
                </tr>
                <tr>
-                   <td>Nº Citacions puntuals</td>
+                   <td>Nº Total Citacions puntuals</td>
                    <td id="td_n_citacions"></td>
                </tr>
                <tr>
-                   <td>Nº Masses d'aigua</td>
+                   <td>Nº Total Masses d'aigua</td>
                    <td id="td_n_masses"></td>
                </tr>
                <tr>

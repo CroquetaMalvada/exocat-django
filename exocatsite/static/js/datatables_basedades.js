@@ -298,6 +298,9 @@ $(document).ready(function(){
         $("#limpiar_filtros").on("click",function(){
             limpiar_filtros();
         });
+
+        //tooltip de las herramientas
+        $(".boton_herramientas").tooltip();
 });
 
 function limpiar_filtros(){
