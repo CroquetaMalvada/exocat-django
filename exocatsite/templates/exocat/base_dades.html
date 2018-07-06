@@ -13,6 +13,7 @@
     <!--<link href="{% static 'datatables/DataTables-1.10.16/css/jquery.dataTables.min.css' %}" rel="stylesheet">-->
     <!--<link href="{% static 'datatables/DataTables-1.10.16/css/dataTables.jqueryui.min.css' %}" rel="stylesheet">-->
     <link href="{% static 'css/font-awesome-4.7.0/css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/jquery-confirm.css' %}" rel="stylesheet" media="screen">
 
     <!--LEAFLET-->
     <link href="{% static 'leaflet/Leaflet.StyledLayerControl-master/css/styledLayerControl.css' %}" rel="stylesheet">
@@ -107,9 +108,7 @@
 </head>
 
 <body>
-{% if user.is_authenticated %}
 {% block cabecera %} {% include "exocat/cabecera.html" %} {% endblock %}
-{% endif %}
 <div class="container-fluid">
 {% block cabecera2 %} {% include "exocat/cabecera_base_dades.html" %} {% endblock %}
 <br>
@@ -190,11 +189,20 @@
                         <!--<span class="input-group-addon">Habitat</span>-->
                         <!--<input type="text" class="form-control" id="habitat" />-->
                     <!--</div>-->
-                <div class="row justify-content-center">
+                <div class="row">
+                    <div class="col-md-4" align="left">
+                        <a id="limpiar_filtros" class='btn btn-danger btn-lg' href='#'><i class='fa fa-eraser'></i> Netejar</a>
+                    </div>
 
+                    <div class="col-md-4" align="center">
                         <button type="submit" class="btn btn-primary btn-lg" id="boton_filtrar"><i class='fa fa-search'></i> Filtrar</button>
                         <img src="{% static 'imagenes/ajax-loader.gif' %}" id="filtrar_loading"/>
-                        <a id="limpiar_filtros" class='btn btn-danger btn-lg' href='#'><i class='fa fa-eraser'></i> Netejar</a>
+                    </div>
+
+                    <div class="col-md-4" align="right">
+                        <a id="generar_csv" class='btn btn-success btn-lg' href='#'><i class='fa fa-table'></i> Generar CSV</a>
+                        <input hidden id="ids_especies_filtradas" num_elem="" value="" />
+                    </div>
 
 
                 </div>
@@ -210,7 +218,7 @@
                <thead>
                    <tr>
                         <th></th>
-                        <th>Espècie</th>
+                        <th>Taxon</th>
                         <th>Grup</th>
                         <!--<th>Estatus Cat</th>-->
                         <!--<th>Varietat</th>-->

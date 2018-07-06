@@ -295,6 +295,7 @@
                 </div>
                 <br>
                 <h4>Altres imatges i mapes</h4>
+                {% if user.is_authenticated %}
             <!--<div class="row">-->
                 <!--<div class="input-group col-md-12">-->
 
@@ -352,6 +353,9 @@
                     <!--{{ form.mapes.errors}}-->
                 <!--</div>-->
             <!--</div>-->
+                {% else %}
+                <i class='fa fa-exclamation-triangle' style="color:orange"></i> <b class="text-warning">Per habilitar aquest apartat necessites estar registrat i iniciar sessió.</b>
+                {% endif %}
                 <br>
                 <br>
             </div>
@@ -366,7 +370,7 @@
             <br>
             {% if form.non_field_errors %}
                 <div id="div_errores">
-                    <b class="text-danger">Error al guardar:</b><br>
+                    <i class='fa fa-exclamation-circle' style="color:red"></i> <b class="text-danger">Error al guardar:</b><br>
                     {{ form.non_field_errors }}
                     <script>errores = 1;</script>
                     <br>

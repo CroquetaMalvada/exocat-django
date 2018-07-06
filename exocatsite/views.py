@@ -17,6 +17,18 @@ import json, urllib, datetime
 from forms import *
 from models import *
 
+import unicodecsv as csv # instalado con el pip ya que el csv a secas no incluye unicode
+from io import BytesIO
+#import csv,io
+
+
+def dictfetchall(cursor):
+    # Devuelve todos los campos de cada row como una lista
+    columns = [col[0] for col in cursor.description]
+    return [
+        dict(zip(columns, row))
+        for row in cursor.fetchall()
+    ]
 
 #Pagina a cargar cuando se entra en la raiz
 def index(request):
@@ -93,6 +105,7 @@ def json_select_regionativa(request):
 def json_taula_especies(request):
     especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie")
     resultado=[]
+    ids_especies=[]
     for especie in especies[int(request.POST["start"]):(int(request.POST["start"])+int(request.POST["length"]))]:
         # nombre de la especie(se juntan el genere con especie y subespecie)
         id=str(especie["id"])
@@ -156,13 +169,18 @@ def json_taula_especies(request):
         #resultado.append({'id':str(especie.id),'especie': genere,'grup':grup, 'varietat':varietat, 'regionativa':regionativa, 'estatuscat':estatuscat,'viaentrada':viaentrada, 'estatushistoric':estatushistoric, 'present':present}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
         #resultado.append({'id':"",'especie':"",'grup':"", 'varietat':"", 'regionativa':"", 'estatuscat':"",'viaentrada':"", 'estatushistoric':"", 'present':""}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
 
-    resultado=json.dumps({"data":resultado,"recordsTotal":len(especies),"recordsFiltered":len(especies)})
+    # para el input de ids para el csv
+    for especie in especies:
+        ids_especies.append(especie["id"])
+    ids=""
+    if(len(ids_especies)>0):
+        ids = ','.join(ids_especies)
+
+    resultado=json.dumps({"data":resultado,"recordsTotal":len(especies),"recordsFiltered":len(especies),"ids_especies":ids,"num_elem":len(ids_especies)})
     return HttpResponse(resultado, content_type='application/json;')
 
-#ESPECIES FILTRADAS
-def json_taula_especies_filtres(request):
-    campos=request.POST
-
+# LOS FILTROS A SECAS
+def filtrar_especies(campos):
     # CREAMOS LOS FILTROS:
     estatus = Estatus.objects.all().values("id") #lo metemos en una variable ya que esta lista la usaremos en mas de una ocasion en los filtros
 
@@ -281,29 +299,162 @@ def json_taula_especies_filtres(request):
 
     ).order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie")
 
+    return especies
+
+#ESPECIES FILTRADAS
+def json_taula_especies_filtres(request):
+    campos=request.POST
+    especies = filtrar_especies(campos)
+
     # FINALMENTE DEVOLVEMOS CADA ESPECIE QUE HAYA PASADO LOS FILTROS:
-    resultado=[]
-    for especie in especies[int(request.POST["start"]):(int(request.POST["start"])+int(request.POST["length"]))]:
-        # nombre de la especie(se juntan el genere con especie y subespecie)
-        id=especie["id"]
-        genere=especie["idtaxon__genere"]
-        especiestr=especie["idtaxon__especie"]
-        subespeciestr = especie["idtaxon__subespecie"]
-        if especiestr is not None:
-            genere=genere+" "+especiestr
-        if subespeciestr is not None:
-            genere = genere + u" [Subespècie: "+subespeciestr+" ]"
+    resultado = []
+    ids_especies = []
+    try:
+        for especie in especies[int(request.POST["start"]):(int(request.POST["start"]) + int(request.POST["length"]))]:
+            # nombre de la especie(se juntan el genere con especie y subespecie)
+            id = especie["id"]
+            genere = especie["idtaxon__genere"]
+            especiestr = especie["idtaxon__especie"]
+            subespeciestr = especie["idtaxon__subespecie"]
+            if especiestr is not None:
+                genere = genere + " " + especiestr
+            if subespeciestr is not None:
+                genere = genere + u" [Subespècie: " + subespeciestr + " ]"
 
-        #grupo
-        grup=Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
+            # grupo
+            grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
 
-        # # viaentrada=Viaentradaespecie.objects.get(idespecieinvasora=especie.id).idviaentrada.viaentrada
-        resultado.append({'id':id,'especie': genere,'grup':grup}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
-        #resultado.append({'id':str(especie.id),'especie': genere,'grup':grup, 'varietat':varietat, 'regionativa':regionativa, 'estatuscat':estatuscat,'viaentrada':viaentrada, 'estatushistoric':estatushistoric, 'present':present}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
-        #resultado.append({'id':"",'especie':"",'grup':"", 'varietat':"", 'regionativa':"", 'estatuscat':"",'viaentrada':"", 'estatushistoric':"", 'present':""}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
+            resultado.append({'id': id, 'especie': genere, 'grup': grup})  # ,'nomsvulgars':nomsvulgars,'habitat':habitat
+        # para el input de ids para el csv
+        for especie in especies:
+            ids_especies.append(especie["id"])
+        ids=""
+        if(len(ids_especies)>0):
+            ids = ','.join(ids_especies)
+        resultado = json.dumps({"data": resultado, "recordsTotal": len(especies), "recordsFiltered": len(especies), "ids_especies":ids,"num_elem":len(ids_especies)})
+        return HttpResponse(resultado, content_type='application/json;')
 
-    resultado = json.dumps({"data": resultado, "recordsTotal": len(especies), "recordsFiltered": len(especies)})
-    return HttpResponse(resultado, content_type='application/json;')
+    except:
+        resultado = []
+        resultado = json.dumps(resultado)
+        return HttpResponse(resultado, content_type='application/json;')
+
+
+# GENERAR CSV DE ESPECIES FILTRADAS
+def generar_csv_especies(request,especies):
+    # f = BytesIO()
+    # w = csv.writer(f, encoding='utf-8')
+    # _ = w.writerow([u'ést', u'ñgfdgdf'])
+    # _ = f.seek(0)
+    # r = csv.reader(f, encoding='utf-8')
+    # next(r) == [u'é', u'ñ']
+    #buffer = io.BytesIO()
+    #writer = csv.writer(buffer, quoting=csv.QUOTE_ALL)
+    #writer.writerow([u'Taxon', u'Grup', u'Regio nativa', u'Vies d"entrada', u'Estatus general', u'Estatus Catalunya',u'Present al "Catalogo"', u'Present al Reglament Europeu'])
+    #writer.writerow({'id','NAME','ABBREVIATION','ADDRESS'})
+
+    resultado = HttpResponse(content_type='text/csv')
+    resultado['Content-Disposition'] = 'attachment; filename="EspeciesFiltrades.csv"'
+
+    writer = csv.writer(resultado, delimiter=str(u';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+    resultado.write(u'\ufeff'.encode('utf8')) # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+    writer.writerow([u'Taxon', u'Grup', 'Regió nativa', u"Vies d'entrada", u'Estatus general', u'Estatus Catalunya',u'Present al "Catálogo"', u'Present al Reglament Europeu'])
+
+    cursor = connection.cursor()
+    try:
+        if 'DELETE' in especies or 'delete' in especies or 'UPDATE' in especies or 'update' in especies:# toda precaucion con las querys es poca
+            raise Http404('Error al generar el csv.')
+        especies = especies.split(",")
+        cursor.execute("SELECT  CONCAT_WS(' ',taxon.genere, taxon.especie) AS taxon,"
+        " taxon.subespecie AS subespecie,"
+        " grup.nom AS grup,"
+        " especieinvasora.regio_nativa AS regionativa,"
+        " (SELECT string_agg(viaentrada.viaentrada,',') FROM viaentradaespecie INNER JOIN viaentrada ON viaentrada.id = viaentradaespecie.idviaentrada WHERE viaentradaespecie.idespecieinvasora = especieinvasora.id) AS viesentrada,"
+        " (SELECT nom FROM estatus WHERE id=especieinvasora.idestatushistoric) AS estatushistoric,"
+        " (SELECT nom FROM estatus WHERE id=especieinvasora.idestatuscatalunya) AS estatuscatalunya,"
+        " (SELECT CASE WHEN especieinvasora.present_catalogo='N' THEN 'No' ELSE 'Si' END AS presentcatalog) AS presentcatalog,"
+        " (SELECT CASE WHEN especieinvasora.reglament_ue='N' THEN 'No' ELSE 'Si' END AS presentreglamenteur) AS presentreglamenteur"
+        " FROM especieinvasora"
+        " INNER JOIN taxon ON especieinvasora.idtaxon = taxon.id" 
+        " INNER JOIN grupespecie ON especieinvasora.id = grupespecie.idespecieinvasora"
+        " INNER JOIN grup ON grup.id = grupespecie.idgrup"
+        " WHERE especieinvasora.id = ANY( %s )",[especies])
+        fetch = dictfetchall(cursor)
+
+        for especie in fetch:
+            writer.writerow([especie["taxon"], especie["grup"], especie["regionativa"], especie["viesentrada"], especie["estatushistoric"], especie["estatuscatalunya"], especie["presentcatalog"],especie["presentreglamenteur"]])
+        return resultado
+    except:
+        raise Http404('Error al generar el csv.')
+
+    finally:
+        cursor.close()
+
+    # for especie in Especieinvasora.objects.filter(id__in=especies.split(',')):
+    #     #especie = Especieinvasora.objects.get(id=id_especie).values_list('idtaxon__genere','idtaxon__especie','idtaxon__subespecie')
+    #     #especie = get_object_or_404(Especieinvasora,id=id_especie)
+    #     id = especie.id
+    #
+    #     # nombre de la especie(se juntan el genere con especie y subespecie)
+    #     taxon = ""
+    #     genere = especie.idtaxon.genere
+    #     especiestr = especie.idtaxon.especie
+    #     subespeciestr = especie.idtaxon.subespecie
+    #     if especiestr is not None:
+    #         taxon = genere + " " + especiestr
+    #     if subespeciestr is not None:
+    #         taxon = genere + u" [Subespècie: " + subespeciestr + " ]"
+    #
+    #     # grupo
+    #     grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
+    #     if grup == None:
+    #         grup = ""
+    #
+    #     # regio nativa
+    #     regionativa = especie.regio_nativa
+    #     if regionativa == None:
+    #         regionativa = ""
+    #
+    #     # via entrada
+    #     viesentrada = u""
+    #     for via in Viaentradaespecie.objects.filter(idespecieinvasora=id):
+    #         if viesentrada == '':
+    #             viesentrada = viesentrada + via.idviaentrada.viaentrada
+    #         else:
+    #             viesentrada = viesentrada + ', ' + via.idviaentrada.viaentrada
+    #
+    #     # estatus general/historic
+    #     try:
+    #         estatushistoric = especie.idestatushistoric.nom
+    #     except:
+    #         estatushistoric = ""
+    #
+    #     # estatus catalunya
+    #     try:
+    #         estatuscatalunya = especie.idestatuscatalunya.nom
+    #     except:
+    #         estatuscatalunya = ""
+    #
+    #     # present catalog
+    #     presentcatalog = especie.present_catalogo
+    #     if presentcatalog == "S":
+    #         presentcatalog = "Si"
+    #     else:
+    #         presentcatalog = "No"
+    #
+    #     # present reglament
+    #     presentreglamenteur = especie.reglament_ue
+    #     if presentreglamenteur == "S":
+    #         presentreglamenteur = "Si"
+    #     else:
+    #         presentreglamenteur = "No"
+    #
+    #     writer.writerow([taxon, grup, regionativa, viesentrada, estatushistoric, estatuscatalunya, presentcatalog, presentreglamenteur])
+    #
+    #
+    # return resultado
+
+
 
 # INFO DE UNA ESPECIE
 def json_info_especie(request):
@@ -614,13 +765,18 @@ def view_formularis_usuari(request):
     return render(request, 'exocat/formularis.html', context)
 
 # Formulario de citacions/noves localitats de especies
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
 def view_formularis_localitats_especie(request):
     id_imatge_principal=""
-    ids_imatges=""
+    ids_imatges = ""
+    if "ids_imatges" in request.POST:
+        ids_imatges = request.POST["ids_imatges"]
     imatges=[]
     id_form=""
-    usuari = request.user.username
+    if request.user.is_authenticated():
+        usuari = request.user.username
+    else:
+        usuari = u"Anònim"
     nuevo="1"
     admin=False
     if request.method == 'POST':
@@ -685,7 +841,7 @@ def view_formularis_localitats_especie(request):
 
 
             # Ahora verificamos que no haya subido secundarias de mas
-            if request.POST["ids_imatges"] != "":
+            if ids_imatges != "":
                 ids_imatges = request.POST["ids_imatges"]
                 imatges = request.POST["ids_imatges"].split(",")
                 # el ultimo tiene un elemento vacio ya que se pasa una coma suelta
@@ -737,8 +893,10 @@ def view_formularis_localitats_especie(request):
                             img.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
                             img.save()
                 # nuevo="0"
-
-                return HttpResponseRedirect('/formularis/')
+                if request.user.is_authenticated():
+                    return HttpResponseRedirect('/formularis/')
+                else:
+                    return HttpResponseRedirect('/base_dades/')
 
 
 
@@ -779,7 +937,7 @@ def view_formularis_aca(request):
     context={'form':form}
     return render(request,'exocat/formularis_aca.html',context)
 
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
 def view_upload_imatge_citacions_especie(request):
 
     if request.GET:

@@ -126,12 +126,14 @@ $(document).ready(function(){
 
     //crear tooltips
     $(".boton_tooltip").tooltip();
+    $(".boton_herramientas")
 //    Cookies.set('proyectos',proyectos, { expires: 1 });
 
     //si hay errores:
     if(errores==1){
         errores_detectados();
     }
+    $("#div_dades_opcionals").hide();
 });
 
 function cargar_default(){

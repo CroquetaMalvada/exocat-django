@@ -29,6 +29,7 @@ $(document).on({
     ajaxStart: function(){
         $("#boton_filtrar").hide();
         $("#limpiar_filtros").hide();
+        $("#generar_csv").hide();
         $("#filtrar_loading").show();
 //            if($(this).find(".dataTables_empty")){
 //                var mensaje=$(this).find(".dataTables_empty");
@@ -39,6 +40,7 @@ $(document).on({
     ajaxStop: function(){
         $("#boton_filtrar").show();
         $("#limpiar_filtros").show();
+        $("#generar_csv").show();
         $("#filtrar_loading").hide();
 //            if($(this).find(".dataTables_empty")){
 //                var mensaje=$(this).find(".dataTables_empty");
@@ -117,6 +119,14 @@ $(document).ready(function(){
                     overflow:       "auto",
                     language: opciones_idioma,
         });
+        // Ojo ESTO SIRVE PARA OBTENER EL JSON DE LA TABLA
+        taula_especies.on( 'xhr', function () {
+            var json = taula_especies.ajax.json();
+            //console.log(json["ids_especies"]);
+            $("#ids_especies_filtradas").attr("value",json["ids_especies"]);
+            $("#ids_especies_filtradas").attr("num_elem",json["num_elem"]);
+        } );
+
 
         taula_especies_map = $("#table_info_map").DataTable({
                     columnDefs:[
@@ -286,8 +296,34 @@ $(document).ready(function(){
             event.preventDefault();
             taula_especies.ajax.url("/ajax_taula_especies_filtres/");
             taula_especies.ajax.reload(null,false);
+        });
+
+        // GENERAR CSV
+        $("#generar_csv").click(function(){
+            var num = parseInt($("#ids_especies_filtradas").attr("num_elem"));
+            if(num > 100){
+                $.confirm({
+                    title: 'Alerta',
+                    content: "Es mostraran les dades de més de 100 espècies ("+num+"). Això podria fer que la generació del document trigui una mica.",
+                    confirmButton: 'Endavant',
+                    cancelButton: 'Cancel·lar',
+                    confirmButtonClass: 'btn-info',
+                    cancelButtonClass: 'btn-danger',
+                    closeIcon: false,
+                    confirm: function(){
+                        window.open("/generar_csv_especies/"+$("#ids_especies_filtradas").attr("value"));
+                    },
+                    cancel: function(){
+                    }
+                });
+            }
+            else{
+                window.open("/generar_csv_especies/"+$("#ids_especies_filtradas").attr("value"));
+            }
+
 
         });
+
 
         // ajustar columnas al cargar un tab
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {

@@ -56,6 +56,8 @@ urlpatterns = [
     #BORRAR IMAGEN
     url('^delete_imatge_citacions_especie/$', views.view_delete_imatge_citacions_especie),
 
+    #GENERAR CSV
+    url('^generar_csv_especies/(?P<especies>.+)/$', views.generar_csv_especies),
 
 
 ]
