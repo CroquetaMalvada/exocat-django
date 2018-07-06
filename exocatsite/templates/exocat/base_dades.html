@@ -112,6 +112,10 @@
 <div class="container-fluid">
 {% block cabecera2 %} {% include "exocat/cabecera_base_dades.html" %} {% endblock %}
 <br>
+    <form id="form_generar_csv" method="post" action="/generar_csv_especies/" hidden>
+        {% csrf_token %}
+        <input hidden id="ids_especies_filtradas" name="ids_especies_filtradas" value="" />
+    </form>
     <div id="llistat_especies_div" class="container-fluid contenido">
         <div class="col-md-6 offset-md-3 border border-secondary">
             <br>
@@ -201,7 +205,7 @@
 
                     <div class="col-md-4" align="right">
                         <a id="generar_csv" class='btn btn-success btn-lg' href='#'><i class='fa fa-table'></i> Generar CSV</a>
-                        <input hidden id="ids_especies_filtradas" num_elem="" value="" />
+                        <!--<input hidden id="ids_especies_filtradas" num_elem="" value="" />-->
                     </div>
 
 

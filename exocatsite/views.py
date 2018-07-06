@@ -341,7 +341,7 @@ def json_taula_especies_filtres(request):
 
 
 # GENERAR CSV DE ESPECIES FILTRADAS
-def generar_csv_especies(request,especies):
+def generar_csv_especies(request):
     # f = BytesIO()
     # w = csv.writer(f, encoding='utf-8')
     # _ = w.writerow([u'ést', u'ñgfdgdf'])
@@ -352,7 +352,7 @@ def generar_csv_especies(request,especies):
     #writer = csv.writer(buffer, quoting=csv.QUOTE_ALL)
     #writer.writerow([u'Taxon', u'Grup', u'Regio nativa', u'Vies d"entrada', u'Estatus general', u'Estatus Catalunya',u'Present al "Catalogo"', u'Present al Reglament Europeu'])
     #writer.writerow({'id','NAME','ABBREVIATION','ADDRESS'})
-
+    especies = request.POST["ids_especies_filtradas"]
     resultado = HttpResponse(content_type='text/csv')
     resultado['Content-Disposition'] = 'attachment; filename="EspeciesFiltrades.csv"'
 
@@ -378,7 +378,7 @@ def generar_csv_especies(request,especies):
         " INNER JOIN taxon ON especieinvasora.idtaxon = taxon.id" 
         " INNER JOIN grupespecie ON especieinvasora.id = grupespecie.idespecieinvasora"
         " INNER JOIN grup ON grup.id = grupespecie.idgrup"
-        " WHERE especieinvasora.id = ANY( %s )",[especies])
+        " WHERE especieinvasora.id = ANY( %s ) ORDER BY taxon",[especies])
         fetch = dictfetchall(cursor)
 
         for especie in fetch:

@@ -124,7 +124,7 @@ $(document).ready(function(){
             var json = taula_especies.ajax.json();
             //console.log(json["ids_especies"]);
             $("#ids_especies_filtradas").attr("value",json["ids_especies"]);
-            $("#ids_especies_filtradas").attr("num_elem",json["num_elem"]);
+            //$("#ids_especies_filtradas").attr("num_elem",json["num_elem"]);
         } );
 
 
@@ -300,26 +300,38 @@ $(document).ready(function(){
 
         // GENERAR CSV
         $("#generar_csv").click(function(){
-            var num = parseInt($("#ids_especies_filtradas").attr("num_elem"));
-            if(num > 100){
-                $.confirm({
-                    title: 'Alerta',
-                    content: "Es mostraran les dades de més de 100 espècies ("+num+"). Això podria fer que la generació del document trigui una mica.",
-                    confirmButton: 'Endavant',
-                    cancelButton: 'Cancel·lar',
-                    confirmButtonClass: 'btn-info',
-                    cancelButtonClass: 'btn-danger',
-                    closeIcon: false,
-                    confirm: function(){
-                        window.open("/generar_csv_especies/"+$("#ids_especies_filtradas").attr("value"));
-                    },
-                    cancel: function(){
-                    }
-                });
-            }
-            else{
-                window.open("/generar_csv_especies/"+$("#ids_especies_filtradas").attr("value"));
-            }
+
+            $("#form_generar_csv").submit();
+//              $.ajax({
+//                type: "POST",
+//                url: "/generar_csv_especies/",
+//                data: {"ids":$("#ids_especies_filtradas").attr("value")},
+//                sucess:function(response, status, request){
+//                    console.log(response);
+//                    alert("exito");
+//                }
+//              });
+
+//            var num = parseInt($("#ids_especies_filtradas").attr("num_elem"));
+//            if(num > 100){
+//                $.confirm({
+//                    title: 'Alerta',
+//                    content: "Es mostraran les dades de més de 100 espècies ("+num+"). Això podria fer que la generació del document trigui una mica.",
+//                    confirmButton: 'Endavant',
+//                    cancelButton: 'Cancel·lar',
+//                    confirmButtonClass: 'btn-info',
+//                    cancelButtonClass: 'btn-danger',
+//                    closeIcon: false,
+//                    confirm: function(){
+//                        window.open("/generar_csv_especies/"+$("#ids_especies_filtradas").attr("value"));
+//                    },
+//                    cancel: function(){
+//                    }
+//                });
+//            }
+//            else{
+                //window.open("/generar_csv_especies/"+$("#ids_especies_filtradas").attr("value"));
+//            }
 
 
         });
@@ -435,6 +447,36 @@ function rellenar_table_actuacions_especie(data){ // esta funcion se llama en in
         ]);
     });
     taula_actuacions_especie.draw();
+}
+
+function descargar_csv(url){
+    data = {
+        ids: $("#ids_especies_filtradas").attr("value"),
+        csrfmiddlewaretoken:'{{ csrf_token }}'
+
+    };
+
+    // Use XMLHttpRequest instead of Jquery $ajax
+    xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        var a;
+        if (xhttp.readyState === 4 && xhttp.status === 200) {
+            // Trick for making downloadable link
+            a = document.createElement('a');
+            a.href = window.URL.createObjectURL(xhttp.response);
+            // Give filename you wish to download
+            a.download = "test-file.xls";
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+        }
+    };
+    // Post data to URL which handles post request
+    xhttp.open("POST", url);
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    // You should set responseType as blob for binary responses
+    xhttp.responseType = 'blob';
+    xhttp.send(JSON.stringify(data));
 }
 //function ajustar_columnas_actual_tab(){
 //    $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust().draw();
