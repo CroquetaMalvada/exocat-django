@@ -22,20 +22,26 @@
         <div class="btn-group">
             <!--href="/base_dades" -->
             <!--href="/mapa"-->
+            <a href="http://exocat.creaf.cat/" class="btn btn-secondary btn-lg" role="button" >Pàgina principal</a>
             {% if user.is_authenticated %}
-              {% for group in user.groups.all %}
-                {% if group.name == 'Admins' %}
-                <a href="/formularis/" class="btn btn-secondary btn-lg" role="button" >Administrar formularis</a>
-                {% endif %}
+                {% for group in user.groups.all %}
+
+                    {% if group.name == 'Admins' %}
+                        <a href="/formularis/" class="btn btn-secondary btn-lg" role="button" >Administrar formularis</a>
+                    {% endif %}
+
+                {% endfor %}
+                <!--Si esta autenticado pero no es admin-->
                 <a href="/formularis_localitats_especie/" class="btn btn-secondary btn-lg" role="button" >Formulari de citació</a>
                 <a href="/base_dades/" class="btn btn-secondary btn-lg" role="button" >Base de dades</a>
-              {% endfor %}
-              <a href="/logout/" role="button" class="btn btn-secondary btn-lg">Tancar Sessió</a>
+                <a href="/logout/" role="button" class="btn btn-secondary btn-lg">Tancar Sessió</a>
+
             {% else %}
                 <a href="/formularis_localitats_especie/" class="btn btn-secondary btn-lg" role="button" >Formulari de citació</a>
                 <a href="/base_dades/" class="btn btn-secondary btn-lg" role="button" >Base de dades</a>
                 <a href="/login/" role="button" class="btn btn-secondary btn-lg opcion_cabecera">Iniciar Sessió</a>
             {% endif %}
+
         </div>
     </div>
 </header>
