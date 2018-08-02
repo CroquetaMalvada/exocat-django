@@ -43,35 +43,35 @@ $(document).ready(function(){
         var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
         var osm = new L.TileLayer(osmUrl, {attribution: osmAttrib});
 
-        wmsLayer_presencia_10000 = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
+        wmsLayer_presencia_10000 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:PRESENCIA_SP_10000_p',
             transparent: 'true',
             format: 'image/png',
             opacity: 0.5
         });
 
-        wmsLayer_presencia_1000 = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
+        wmsLayer_presencia_1000 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:PRESENCIA_SP_1000_p',
             transparent: 'true',
             format: 'image/png',
             opacity: 0.5
         });
 
-        wmsLayer_citacions = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
+        wmsLayer_citacions = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:citacions',
             transparent: 'true',
             format: 'image/png',
         //        opacity: 0.5
         });
 
-        wmsLayer_presencia_ma = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
+        wmsLayer_presencia_ma = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:presencia_massa_aigua',
             transparent: 'true',
             format: 'image/png',
         //        opacity: 0.5
         });
 
-        wmsLayer_comarques = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
+        wmsLayer_comarques = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:comarques_4326',
             transparent: 'true',
             format: 'image/png',
@@ -146,28 +146,28 @@ $(document).ready(function(){
         var mapainfo_osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
         var mapainfo_osm = new L.TileLayer(mapainfo_osmUrl, {attribution: mapainfo_osmAttrib});
 
-        mapainfo_wmsLayer_presencia_10000 = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
+        mapainfo_wmsLayer_presencia_10000 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:PRESENCIA_SP_10000_p',
             transparent: 'true',
             format: 'image/png',
             opacity: 0.5
         });
 
-        mapainfo_wmsLayer_presencia_1000 = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
+        mapainfo_wmsLayer_presencia_1000 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:PRESENCIA_SP_1000_p',
             transparent: 'true',
             format: 'image/png',
             opacity: 0.5
         });
 
-        mapainfo_wmsLayer_citacions = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
+        mapainfo_wmsLayer_citacions = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:citacions',
             transparent: 'true',
             format: 'image/png',
         //        opacity: 0.5
         });
 
-        mapainfo_wmsLayer_presencia_ma = L.tileLayer.wms('http://exocat2.creaf.cat/geoserver/wms?', {
+        mapainfo_wmsLayer_presencia_ma = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:presencia_massa_aigua',
             transparent: 'true',
             format: 'image/png',
@@ -330,7 +330,7 @@ $(document).ready(function(){
 //    params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
 //    params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
 //
-//    wms_url = "http://exocat2.creaf.cat/geoserver/wms";
+//    wms_url = "http://exocatdb.creaf.cat/geoserver/wms";
 ////    alert(params.bbox);
 ////    alert(L.Util.getParamString(params, wms_url, true));
 //    return wms_url + L.Util.getParamString(params, wms_url, true);

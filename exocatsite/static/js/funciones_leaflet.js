@@ -114,7 +114,7 @@ function obtener_especies_pos(latlng){// OBTENER ESPECIES DEL CLICK(aqui se usa 
         params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
         params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
 
-        wms_url = "http://exocat2.creaf.cat/geoserver/wms";
+        wms_url = "http://exocatdb.creaf.cat/geoserver/wms";
         url = wms_url + L.Util.getParamString(params, wms_url, true);
 //        }else if(tipo==2){// si es una comarca
 ////            var bbox=a1,b1,a2,b2;
@@ -197,7 +197,7 @@ function obtener_especies_comarca(latlng){// OBTENER ESPECIES DE COMARCA( se usa
         params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
         params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
 
-        wms_url = "http://exocat2.creaf.cat/geoserver/wms";
+        wms_url = "http://exocatdb.creaf.cat/geoserver/wms";
         url = wms_url + L.Util.getParamString(params, wms_url, true);
         ////////// PARTE 3,USAMOS LA URL PARA HACER UNA PETICION AJAX(esta nos dara la geom de la comarca
         $.ajax({
