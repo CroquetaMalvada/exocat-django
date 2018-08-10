@@ -148,6 +148,26 @@
 
             <br>
             <input id="id_imatge_principal" name="id_imatge_principal" hidden value="{{ id_imatge_principal }}"/>
+            <br>
+            <h4>Dades de contacte</h4>
+            <div class="row">
+                <div class="input-group col-md-6">
+                    <span class="input-group-addon">Correu</span>
+                    {{ form.contacte}}
+                    {{ form.contacte.errors}}
+                </div>
+                <div class="input-group col-md-6">
+                    <span class="input-group-addon">Codi de col·laborador ( Opcional )</span>
+                    {{ form.NIP}}
+                    {{ form.NIP.errors}}
+                    <span class="input-group-addon">
+                        <a type="button" class="btn btn-secondary boton_tooltip" data-toggle="tooltip" data-container="body" data-placement="top" title="Clica per contactar amb especiesinvasores.tes@gencat.cat i obtenir el codi de col·laborador." href='mailto:especiesinvasores.tes@gencat.cat'>
+                            ?
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <br>
             <h2><b>Camps opcionals</b></h2>
             <hr>
             <a href="#a" id="mostrar_dades_opcionals" onclick="mostrar_ocultar_dades_opcionals();">Mostrar / Ocultar</a>
@@ -275,25 +295,6 @@
                     </div>
                 </div>
                 <br>
-                <h4>Dades de contacte</h4>
-                <div class="row">
-                    <div class="input-group col-md-6">
-                        <span class="input-group-addon">Correu</span>
-                        {{ form.contacte}}
-                        {{ form.contacte.errors}}
-                    </div>
-                    <div class="input-group col-md-6">
-                        <span class="input-group-addon">Codi de col·laborador</span>
-                        {{ form.NIP}}
-                        {{ form.NIP.errors}}
-                        <span class="input-group-addon">
-                            <a type="button" class="btn btn-secondary boton_tooltip" data-toggle="tooltip" data-container="body" data-placement="top" title="Clica per contactar amb especiesinvasores.tes@gencat.cat i obtenir el codi de col·laborador." href='mailto:especiesinvasores.tes@gencat.cat'>
-                                ?
-                            </a>
-                        </span>
-                    </div>
-                </div>
-                <br>
                 <h4>Altres imatges i mapes</h4>
                 {% if user.is_authenticated %}
             <!--<div class="row">-->
@@ -363,7 +364,7 @@
             <br>
             <div class="row">
                 <div class="input-group col-md-12">
-                    <input type="checkbox" id="autoritzacio" name="autoritzacio" unchecked/> <b> * Autoritzo a EXOCAT a tenir les meves dades i imatges. Aquestes no s'utilitzarán per a cap fi comercial ni seràn donades a tercers.</b>
+                    <input type="checkbox" id="autoritzacio" name="autoritzacio" unchecked/> <b> * Autoritzo a EXOCAT i al DTES a tenir i utilitzar les meves dades i imatges. Aquestes no s'utilitzarán per a cap fi comercial ni seràn donades a tercers.</b>
                 </div>
 
             </div>

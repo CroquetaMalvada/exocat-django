@@ -184,9 +184,10 @@ def filtrar_especies(campos):
     # CREAMOS LOS FILTROS:
     estatus = Estatus.objects.all().values("id") #lo metemos en una variable ya que esta lista la usaremos en mas de una ocasion en los filtros
 
-    def filtro_nombre():# Ojo que este no se usa por ahora,en su lugar se usa los 3 de abajo
+    def filtro_nombre():
         if campos["especie"] is not "":
-            return (Q(idtaxon__genere__icontains=campos["especie"]) | Q(idtaxon__especie__icontains=campos["especie"]) | Q (idtaxon__subespecie__icontains=campos["especie"]) | Q(idtaxon__varietat__icontains=campos["especie"]))
+            for especie in campos["especie"].split(" "):
+                return (Q(idtaxon__genere__icontains=especie) | Q(idtaxon__especie__icontains=especie) | Q (idtaxon__subespecie__icontains=especie) | Q(idtaxon__varietat__icontains=especie))
         else:
             return Q(id__isnull=False)
 
@@ -815,7 +816,7 @@ def view_formularis_localitats_especie(request):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            camps_obligatoris = ['idspinvasora','data'] # 'NIP'
+            camps_obligatoris = ['idspinvasora','data','contacte'] # 'NIP'
             formulario_clean  = form.cleaned_data
 
             if formulario_clean["idspinvasora"] == "00000":
@@ -1006,7 +1007,7 @@ def json_taula_formularis_usuari(request):
     if request.user.is_authenticated():
         formscitacions=[]
         if request.user.groups.filter(name="Admins"):
-            formscitacions=CitacionsEspecie.objects.all().values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio")
+            formscitacions=CitacionsEspecie.objects.all().values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
         else:
             formscitacions = CitacionsEspecie.objects.filter(usuari=request.user.username).values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio")
 
@@ -1021,7 +1022,16 @@ def json_taula_formularis_usuari(request):
             except:
                 nom_especie=""
 
-            formularios.append({"id":form["id"],"especie":nom_especie,"usuari":form["usuari"],"validat":form["validat"],"data_creacio":form["data_creacio"],"data_modificacio":form["data_modificacio"]})
+            usuari = form["usuari"]
+            try:
+                if form["contacte"] != "" and usuari=="Anònim" and form["contacte"] is not None:
+                    usuari = usuari +u" ( "+form["contacte"]
+                    if form["NIP"] != "" and form["NIP"] is not None:
+                        usuari = usuari + u" - codi:"+form["NIP"]
+                    usuari = usuari +u" )"
+            except:
+                usuari = usuari
+            formularios.append({"id":form["id"],"especie":nom_especie,"usuari":usuari,"contacte":form["contacte"],"validat":form["validat"],"data_creacio":form["data_creacio"],"data_modificacio":form["data_modificacio"]})
 
     resultado = json.dumps(formularios)
     return HttpResponse(resultado, content_type='application/json;')
