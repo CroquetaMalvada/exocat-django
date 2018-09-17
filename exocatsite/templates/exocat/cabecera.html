@@ -28,7 +28,11 @@
 
                     {% if group.name == 'Admins' %}
                         <a href="/formularis/" class="btn btn-secondary btn-lg" role="button" >Administrar formularis</a>
+                    {% else %}
+                        <a href="/formularis/" class="btn btn-secondary btn-lg" role="button" >Administrar els meus formularis</a>
                     {% endif %}
+
+
 
                 {% endfor %}
                 <!--Si esta autenticado pero no es admin-->

@@ -49,7 +49,7 @@ $(function () {
     done: function (e, data) {
       if (data.result.is_valid) { // Si la imagen ha sido validada correctamente:
         $("#ids_imatges").val($("#ids_imatges").val()+data.result.id+",");
-        alert($("#ids_imatges").val());
+        //alert($("#ids_imatges").val());
         $("#gallery tbody").prepend(
           "<tr><td><img width='100' src='" + data.result.url + "'></img> <a class='btn btn-danger eliminar_imatge' id_imatge='" + data.result.id + "' title='Eliminar' href='#'><i class='fa fa-trash  fa-lg'></i></a></td></tr>"
         );

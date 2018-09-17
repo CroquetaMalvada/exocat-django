@@ -111,8 +111,8 @@ $(document).ready(function(){
                             groupName : "Presencia espècie",
                             expanded  : true,
                             layers    : {
-                                "Presència 10000m" : wmsLayer_presencia_10000,
-                                "Presència 1000m" : wmsLayer_presencia_1000,
+                                "UTM 10x10km" : wmsLayer_presencia_10000, //Presència 10000m
+                                "UTM 1x1km" : wmsLayer_presencia_1000,
                                 "Citacions" : wmsLayer_citacions,
                                 "Masses d'aigua" : wmsLayer_presencia_ma,
                                 //"Comarques": wmsLayer_comarques
@@ -208,8 +208,8 @@ $(document).ready(function(){
                             groupName : "Presencia espècie",
                             expanded  : true,
                             layers    : {
-                                "Presència 10000m <a id='exportar_presencia_10000'/>" : mapainfo_wmsLayer_presencia_10000,
-                                "Presència 1000m <a id='exportar_presencia_1000'/>" : mapainfo_wmsLayer_presencia_1000,
+                                "UTM 10x10km <a id='exportar_presencia_10000'/>" : mapainfo_wmsLayer_presencia_10000,
+                                "UTM 1x1km <a id='exportar_presencia_1000'/>" : mapainfo_wmsLayer_presencia_1000,
                                 "Citacions <a id='exportar_presencia_citacions'/>" : mapainfo_wmsLayer_citacions,
                                 "Masses d'aigua <a id='exportar_presencia_masses'/>" : mapainfo_wmsLayer_presencia_ma,
                             }

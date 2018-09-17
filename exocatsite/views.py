@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views import View
@@ -13,7 +13,7 @@ from exocatsite.models import *#Grup,Grupespecie,Viaentrada,Viaentradaespecie,Es
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib.gis.geos import GEOSGeometry
-import json, urllib, datetime
+import json, urllib, datetime, os
 from forms import *
 from models import *
 
@@ -881,17 +881,44 @@ def view_formularis_localitats_especie(request):
                 #
                 new_form = form.save()
                 img_principal = ImatgesCitacions.objects.get(id=id_imatge_principal)
-                if nuevo=="0":#Si no es nuevo hay que substituir la imagen
-                    ImatgesCitacions.objects.get(id_citacio_especie=id_form, tipus="principal").delete()
+                if nuevo=="0":#Si no es nuevo hay que substituir la imagen(moviandola antes a temp)
+                    img_borrar = ImatgesCitacions.objects.get(id_citacio_especie=id_form, tipus="principal")
+                    #img_borrar.cambiar_localizacion(1)
+                    #img_borrar.save()
+                    ##### mover de imatges citacions especies al temp
+                    initial_path = img_borrar.fitxer.path
+                    img_borrar.fitxer.name = img_borrar.fitxer.name.replace('imatges_citacions_especies/', '')
+                    img_borrar.fitxer.name = '/imatges_temp/' + img_borrar.fitxer.name
+                    new_path = settings.MEDIA_ROOT + img_borrar.fitxer.name
+                    os.rename(initial_path, new_path)
+                    #####
+                    img_borrar.delete()
+                    # ImatgesCitacions.objects.get(id_citacio_especie=id_form, tipus="principal").delete()
 
                 img_principal.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
-                img_principal.save()
+                img_principal.temporal = False
+                ##### mover de temp al imatges citacions especies
+                initial_path = img_principal.fitxer.path
+                img_principal.fitxer.name = img_principal.fitxer.name.replace('imatges_temp/','')
+                img_principal.fitxer.name = '/imatges_citacions_especies/'+img_principal.fitxer.name
+                new_path = settings.MEDIA_ROOT + img_principal.fitxer.name
+                os.rename(initial_path, new_path)
+                #####
+                img_principal.save() # guardar(2)
 
                 if len(imatges)>0:
                     for imatge in imatges:
                         if imatge != "":
                             img = ImatgesCitacions.objects.get(id=imatge)
                             img.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
+                            img.temporal = False
+                            ##### mover de temp al imatges citacions especies
+                            initial_path = img.fitxer.path
+                            img.fitxer.name = img.fitxer.name.replace('imatges_temp/', '')
+                            img.fitxer.name = '/imatges_citacions_especies/' + img.fitxer.name
+                            new_path = settings.MEDIA_ROOT + img.fitxer.name
+                            os.rename(initial_path, new_path)
+                            #####
                             img.save()
                 # nuevo="0"
                 if request.user.is_authenticated():
@@ -984,8 +1011,12 @@ def view_upload_imatge_citacions_especie(request):
                 if (imagen._size > max_file_size):
                     data = {"is_valid": False, 'errormessage': 'Error: El tamany del fixter ha de ser menor a 5MB.'}
                 else:
+                    # form.cleaned_data["temporal"] = True
+                    form = form.save(commit=False)  # Ojo esto es importante para modificar los campos del forma antes de guardar
+                    form.temporal=True
+                    # form.cambiar_localizacion(1)
                     imatge = form.save()
-                    data = {'is_valid':True, 'name': imatge.fitxer.name , 'url': imatge.fitxer.url, 'id':imatge.id }
+                    data = {'is_valid':True, 'name': form.fitxer.name , 'url': form.fitxer.url, 'id':form.id }
         else:
             data = {"is_valid":False, 'errormessage':'Error al pujar la imatge.'}
         return JsonResponse(data)
@@ -994,6 +1025,14 @@ def view_upload_imatge_citacions_especie(request):
 def view_delete_imatge_citacions_especie(request):
     try:
         instancia = ImatgesCitacions.objects.get(id=request.POST["id"])
+        ##### mover de imatges citacions especies al temp OJO que este es diferente a los demas en el initial path
+        initial_path = settings.MEDIA_ROOT + instancia.fitxer.name
+        instancia.fitxer.name = instancia.fitxer.name.replace('imatges_citacions_especies/', '')
+        instancia.fitxer.name = instancia.fitxer.name.replace('imatges_temp/', '')
+        instancia.fitxer.name = '/imatges_temp/' + instancia.fitxer.name
+        new_path = settings.MEDIA_ROOT + instancia.fitxer.name
+        os.rename(initial_path, new_path)
+        #####
         instancia.delete()
         data = {'is_valid': True}
         return JsonResponse(data)
@@ -1009,7 +1048,7 @@ def json_taula_formularis_usuari(request):
         if request.user.groups.filter(name="Admins"):
             formscitacions=CitacionsEspecie.objects.all().values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
         else:
-            formscitacions = CitacionsEspecie.objects.filter(usuari=request.user.username).values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio")
+            formscitacions = CitacionsEspecie.objects.filter(usuari=request.user.username).values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
 
         for form in formscitacions:
             try:
@@ -1031,7 +1070,7 @@ def json_taula_formularis_usuari(request):
                     usuari = usuari +u" )"
             except:
                 usuari = usuari
-            formularios.append({"id":form["id"],"especie":nom_especie,"usuari":usuari,"contacte":form["contacte"],"validat":form["validat"],"data_creacio":form["data_creacio"],"data_modificacio":form["data_modificacio"]})
+            formularios.append({"id":form["id"],"especie":nom_especie,"usuari":usuari,"validat":form["validat"],"data_creacio":form["data_creacio"],"data_modificacio":form["data_modificacio"]})
 
     resultado = json.dumps(formularios)
     return HttpResponse(resultado, content_type='application/json;')

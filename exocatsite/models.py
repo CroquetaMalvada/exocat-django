@@ -479,15 +479,46 @@ class CitacionsEspecie(models.Model):
         managed = True
         db_table = 'citacions_especie'
 
+#######
+# localizacion =  'imatges_temp/'
+#
+# def cambiar_localizacion(tipo):
+#     if tipo == 1:
+#         setattr(models, localizacion, str('imatges_temp/'))
+#     else:
+#         if tipo == 2:
+#             localizacion = 'imatges_citacions_especies/'
+#
+# def get_image_path(instance, filename):
+#     # if instance.temporal==True:
+#     #     return localizacion+'{0}'.format(filename)
+#     # else:
+#     return localizacion+'{0}'.format(filename)
+def upload_path_handler(instance, filename):
+    if instance.temporal==True:
+        return 'imatges_temp/{0}'.format(filename)
+    else:
+        return 'imatges_citacions_especies/{0}'.format(filename)
+
+
 class ImatgesCitacions(models.Model):
-    fitxer = models.FileField(upload_to='imatges_citacions_especies',blank=True,null=True)
+    fitxer = models.FileField(upload_to=upload_path_handler,blank=True,null=True)
     id_citacio_especie = models.ForeignKey(CitacionsEspecie, related_name='imatges_citacio_especie', blank=True, null=True)
     tipus = models.CharField(max_length=255, blank=True, null=True)
     data_pujada = models.DateTimeField(auto_now_add=True)
+    temporal = models.BooleanField()
     class Meta:
         managed = True
         db_table = 'imatges_citacions_especie'
 
+    def guardar(self,tipo):
+        if tipo == 1:# imagen temporal
+            self.fitxer.file.upload_to='imatges_temp'
+            self.save()
+        else:
+            if tipo == 2:
+                self.fitxer.file.upload_to ='imatges_citacions_especies'
+                self.save()
 class CitacionsACA(models.Model):
     id = models.AutoField(primary_key=True)
     nom_especie = models.CharField(max_length=255, blank=True, null=True)
