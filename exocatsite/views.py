@@ -16,6 +16,7 @@ from django.contrib.gis.geos import GEOSGeometry
 import json, urllib, datetime, os
 from forms import *
 from models import *
+from django.db.models.functions import Substr
 
 import unicodecsv as csv # instalado con el pip ya que el csv a secas no incluye unicode
 from io import BytesIO
@@ -181,6 +182,63 @@ def json_taula_especies(request):
 
 # LOS FILTROS A SECAS
 def filtrar_especies(campos):
+
+    ###########ESPECIES QUE TIENEN CITACIONES QUE CUMPLAN LO MANDADO EN LOS FILTROS
+    list_especies =[]
+    list_espceis_citacions=[]
+    if campos["data_min_citacio"] is not "" or campos["data_max_citacio"] is not "":
+        data_min=0
+        data_max=0
+        if campos["data_min_citacio"] is "":
+            data_min=0
+        else:
+            data_min=int(campos["data_min_citacio"])
+        if campos["data_max_citacio"] is "":
+            data_max=9999
+        else:
+            data_max=int(campos["data_max_citacio"])
+        if data_max-data_min>0:#comprobar que no hayan metido una fecha min mayor que la max
+            ####CITACIONES ANTIGUAS
+            citacions = Citacions.objects.exclude(Q(data__icontains="Indeterminada") | Q(data__isnull=True) | Q(data="")).values("id","idspinvasora","data")
+            for citacio in citacions:
+                try:
+                    #if campos["data_min_citacio"] is not "":#
+                    # any = int(citacio["data"][-4:])
+                    esint = int(citacio["data"])
+                    any=0
+                    any_min = 9999
+                    any_max = -1
+                    for year in  range(1980,datetime.date.today().year+1):
+                        if(citacio["data"].find(str(year))!=-1):# si encuentra x any en el string de data
+                            if year < any_min:
+                                any_min = year
+                            if year > any_max:
+                                any_max = year
+                        #any = int(citacio["data"][-4:])
+                    if(any_min!=9999 and any_max!=-1):
+                        #if(citacio["idspinvasora"]=="Agav_amer"):
+                         #   None
+                        if((any_min>data_min and data_max==9999) or (data_min==0 and any_max<data_max)) or (any_min>data_min and any_max<data_max):
+                            list_especies.append(citacio["idspinvasora"])
+                            #list_citacions.append({"id":citacio["id"],"especie":citacio["idspinvasora"],"data":citacio["data"]})
+                            #citacions.exclude(id=citacio["id"])
+                except:
+                    None
+
+            ####CITACIONES DE FORMULARIO
+            citacions = CitacionsEspecie.objects.all().values("id","idspinvasora","data")
+            for citacio in citacions:
+                any=0;
+                for year in range(1980, datetime.date.today().year+1):
+                    if (citacio["data"].find(str(year)) != -1):
+                        any=year
+                        break
+                if((any>data_min and data_max==9999) or (data_min==0 and any<data_max)):
+                    list_especies.append(citacio["idspinvasora"])
+
+    list_especies_citacions=set(list_especies)#hacemos un "distinct" a la lista de especies para limpiarla
+
+    #list_espceis_citacions = set([citacio.idspinvasora for citacio in list_citacions])
     # CREAMOS LOS FILTROS:
     estatus = Estatus.objects.all().values("id") #lo metemos en una variable ya que esta lista la usaremos en mas de una ocasion en los filtros
 
@@ -263,6 +321,18 @@ def filtrar_especies(campos):
         else:
             return Q(id__isnull=False)
 
+    def filtro_data_citacions():
+        # if campos["data_min_citacio"] is not "":
+        #     for citacio in Citacions.objects.filter()
+        #     return True
+        #if Q(id__in=list_espceis_citacions):
+        if campos["filtrar_data_citacions"] == "true":
+            return Q(id__in=list_especies_citacions)
+        else:
+            return Q(id__isnull=False)
+        #else:
+         #   return Q(id__isnull=False)
+            #if not Citacions.objects.filter(str(data[-2])>=campos["data_min_citacio"])
 
     # APLICAMOS LOS FILTROS:
 
@@ -298,6 +368,9 @@ def filtrar_especies(campos):
         # para el present al reglamento europeo
         filtro_reglamento_eur(),
 
+        # para las fechas de citaciones
+        filtro_data_citacions(),
+
     ).order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie")
 
     return especies
@@ -306,7 +379,6 @@ def filtrar_especies(campos):
 def json_taula_especies_filtres(request):
     campos=request.POST
     especies = filtrar_especies(campos)
-
     # FINALMENTE DEVOLVEMOS CADA ESPECIE QUE HAYA PASADO LOS FILTROS:
     resultado = []
     ids_especies = []

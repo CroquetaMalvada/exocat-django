@@ -61,6 +61,13 @@ var taula_actuacions_especie;
 
 $(document).ready(function(){
 
+    //$("#data_min_citacio").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false});
+    //$("#data_max_citacio").datepicker({ dateFormat: 'dd-mm-yy' , TimePicker: false});
+    for (i = new Date().getFullYear(); i >= 1980; i--){
+        $('#data_min_citacio').append($('<option />').val(i).html(i));
+        $('#data_max_citacio').append($('<option />').val(i).html(i));
+    }
+    comprobar_filtrar_data_citacio();
     // Si se esta cargando especies:
 
 
@@ -85,6 +92,9 @@ $(document).ready(function(){
                             d.estatushistoric=$("#estatushistoric").val();
                             d.present_catalog=$("#present_catalog").val();
                             d.present_reglament_eur=$("#present_reglament_eur").val();
+                            d.filtrar_data_citacions=$("#filtrar_data_citacions").is(":checked");
+                            d.data_min_citacio=$("#data_min_citacio").val();
+                            d.data_max_citacio=$("#data_max_citacio").val();
 //                            d.=$("#").val();
                         }
                     },
@@ -296,6 +306,7 @@ $(document).ready(function(){
             event.preventDefault();
             taula_especies.ajax.url("/ajax_taula_especies_filtres/");
             taula_especies.ajax.reload(null,false);
+            //console.debug(event);
         });
 
         // GENERAR CSV
@@ -350,11 +361,26 @@ $(document).ready(function(){
         //tooltip de las herramientas
         $(".boton_herramientas").tooltip();
 });
+function comprobar_filtrar_data_citacio(){
+    if($("#filtrar_data_citacions").is(":checked")){
+        //$("#data_min_citacio").val("");
+        $("#data_min_citacio").attr("disabled",false);
+        //$("#data_max_citacio").val("");
+        $("#data_max_citacio").attr("disabled",false);
+    }else{
+        $("#data_min_citacio").val("");
+        $("#data_min_citacio").attr("disabled",true);
+        $("#data_max_citacio").val("");
+        $("#data_max_citacio").attr("disabled",true);
+    }
+}
 
 function limpiar_filtros(){
     $("#form_filtres .form-control").each(function(){
     $(this).val($(this).data("original-value"));
     });
+    $("#filtrar_data_citacions").prop("checked",false);
+    comprobar_filtrar_data_citacio();
 }
 
 function cargando_datos_mapa(tipo){
