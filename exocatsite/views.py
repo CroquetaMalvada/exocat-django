@@ -952,31 +952,49 @@ def view_formularis_localitats_especie(request):
                 form.data_modificacio=datetime.date.today().strftime('%d-%m-%Y')
                 #
                 new_form = form.save()
-                img_principal = ImatgesCitacions.objects.get(id=id_imatge_principal)
-                if nuevo=="0":#Si no es nuevo hay que substituir la imagen(moviandola antes a temp)
-                    img_borrar = ImatgesCitacions.objects.get(id_citacio_especie=id_form, tipus="principal")
-                    #img_borrar.cambiar_localizacion(1)
-                    #img_borrar.save()
-                    ##### mover de imatges citacions especies al temp
-                    initial_path = img_borrar.fitxer.path
-                    img_borrar.fitxer.name = img_borrar.fitxer.name.replace('imatges_citacions_especies/', '')
-                    img_borrar.fitxer.name = '/imatges_temp/' + img_borrar.fitxer.name
-                    new_path = settings.MEDIA_ROOT + img_borrar.fitxer.name
-                    os.rename(initial_path, new_path)
-                    #####
-                    img_borrar.delete()
-                    # ImatgesCitacions.objects.get(id_citacio_especie=id_form, tipus="principal").delete()
+                try:
+                    img_principal = ImatgesCitacions.objects.get(id=id_imatge_principal)
+                    if nuevo=="0":#Si no es nuevo hay que substituir la imagen(moviandola antes a temp)
+                        # si al editar el proyecto se ha modificado la imagen principal:
+                        if img_principal.fitxer.name != ImatgesCitacions.objects.get(id_citacio_especie=id_form,tipus="principal").fitxer.name:
+                            img_borrar = ImatgesCitacions.objects.get(id_citacio_especie=id_form, tipus="principal")
+                            #img_borrar.cambiar_localizacion(1)
+                            #img_borrar.save()
+                            ##### mover de imatges citacions especies al temp
+                            img_borrar.temporal = True
+                            initial_path = img_borrar.fitxer.path
+                            img_borrar.fitxer.name = img_borrar.fitxer.name.replace('imatges_citacions_especies/', '')
+                            img_borrar.fitxer.name = 'imatges_temp/' + img_borrar.fitxer.name
+                            new_path = settings.MEDIA_ROOT  + '/' + img_borrar.fitxer.name
+                            os.rename(initial_path, new_path)
+                            #####
+                            img_borrar.delete()
+                            # ImatgesCitacions.objects.get(id_citacio_especie=id_form, tipus="principal").delete()
 
-                img_principal.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
-                img_principal.temporal = False
-                ##### mover de temp al imatges citacions especies
-                initial_path = img_principal.fitxer.path
-                img_principal.fitxer.name = img_principal.fitxer.name.replace('imatges_temp/','')
-                img_principal.fitxer.name = '/imatges_citacions_especies/'+img_principal.fitxer.name
-                new_path = settings.MEDIA_ROOT + img_principal.fitxer.name
-                os.rename(initial_path, new_path)
-                #####
-                img_principal.save() # guardar(2)
+                            #####este parrafo ha de ser igual que el siguient
+                            img_principal.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
+                            img_principal.temporal = False
+                            ##### mover de temp al imatges citacions especies
+                            initial_path = img_principal.fitxer.path
+                            img_principal.fitxer.name = img_principal.fitxer.name.replace('imatges_temp/', '')
+                            img_principal.fitxer.name = 'imatges_citacions_especies/' + img_principal.fitxer.name
+                            new_path = settings.MEDIA_ROOT + '/' + img_principal.fitxer.name
+                            os.rename(initial_path, new_path)
+                            #####
+                            img_principal.save()  # guardar(2)
+                    else:
+                        img_principal.id_citacio_especie = CitacionsEspecie.objects.get(id=form.id)
+                        img_principal.temporal = False
+                        ##### mover de temp al imatges citacions especies
+                        initial_path = img_principal.fitxer.path
+                        img_principal.fitxer.name = img_principal.fitxer.name.replace('imatges_temp/', '')
+                        img_principal.fitxer.name = 'imatges_citacions_especies/' + img_principal.fitxer.name
+                        new_path = settings.MEDIA_ROOT + '/' + img_principal.fitxer.name
+                        os.rename(initial_path, new_path)
+                        #####
+                        img_principal.save()  # guardar(2)
+                except:
+                    return HttpResponseRedirect('/formularis/')
 
                 if len(imatges)>0:
                     for imatge in imatges:
@@ -987,8 +1005,8 @@ def view_formularis_localitats_especie(request):
                             ##### mover de temp al imatges citacions especies
                             initial_path = img.fitxer.path
                             img.fitxer.name = img.fitxer.name.replace('imatges_temp/', '')
-                            img.fitxer.name = '/imatges_citacions_especies/' + img.fitxer.name
-                            new_path = settings.MEDIA_ROOT + img.fitxer.name
+                            img.fitxer.name = 'imatges_citacions_especies/' + img.fitxer.name
+                            new_path = settings.MEDIA_ROOT  + '/' + img.fitxer.name
                             os.rename(initial_path, new_path)
                             #####
                             img.save()
@@ -1098,11 +1116,11 @@ def view_delete_imatge_citacions_especie(request):
     try:
         instancia = ImatgesCitacions.objects.get(id=request.POST["id"])
         ##### mover de imatges citacions especies al temp OJO que este es diferente a los demas en el initial path
-        initial_path = settings.MEDIA_ROOT + instancia.fitxer.name
+        initial_path = instancia.fitxer.path
         instancia.fitxer.name = instancia.fitxer.name.replace('imatges_citacions_especies/', '')
         instancia.fitxer.name = instancia.fitxer.name.replace('imatges_temp/', '')
-        instancia.fitxer.name = '/imatges_temp/' + instancia.fitxer.name
-        new_path = settings.MEDIA_ROOT + instancia.fitxer.name
+        instancia.fitxer.name = 'imatges_temp/' + instancia.fitxer.name
+        new_path = settings.MEDIA_ROOT  + '/' + instancia.fitxer.name
         os.rename(initial_path, new_path)
         #####
         instancia.delete()
