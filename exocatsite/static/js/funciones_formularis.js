@@ -1,5 +1,8 @@
 var espai_natural_protegit="no";
 var espai_natural_nom="";
+var tipus_coordenades_1="";
+var tipus_coordenades_2="";
+var tipus_coordenades_3="";
 var nuevo=1;
 var id_form;
 var cargar_especie="";
@@ -36,6 +39,13 @@ $(document).ready(function(){
     if(nuevo==0){
         $("#id_idspinvasora").val(cargar_especie);
         $("#id_espai_nom").val(espai_natural_nom);
+        if( tipus_coordenades_3 != "None"){
+            $("#coordenada_3").trigger('click');
+        }else if( tipus_coordenades_2 != "None"){
+            $("#coordenada_2").trigger('click');
+        }else{
+            $("#coordenada_1").trigger('click');
+        }
         check_select_especie();
         check_coordenades();
     }else{

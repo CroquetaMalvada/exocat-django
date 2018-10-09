@@ -837,6 +837,16 @@ def view_formularis_usuari(request):
     context = {'formularis': formularios, 'titulo': "FORMULARIS USUARI", 'usuari': request.user.username}
     return render(request, 'exocat/formularis.html', context)
 
+# CITACIONES DE EXOAQUA POR REVISAR
+@login_required(login_url='/login/')
+def view_revisar_citacions_aca(request):
+    especies = []
+    for especie in TaxonExoaquaRevisar.objects.all():
+        especies.append(especie)
+
+    context = {'especies': especies, 'titulo': "REVISAR CITACIONS EXOAQUA", 'usuari': request.user.username}
+    return render(request, 'exocat/revisar_citacions_aca.html', context)
+
 # Formulario de citacions/noves localitats de especies
 # @login_required(login_url='/login/')
 def view_formularis_localitats_especie(request):
@@ -951,6 +961,13 @@ def view_formularis_localitats_especie(request):
                     form.data_creacio=datetime.date.today().strftime('%d-%m-%Y')
                 form.data_modificacio=datetime.date.today().strftime('%d-%m-%Y')
                 #
+                try:
+                    if request.POST["tipus_coordenades"] == "1":
+                        punto = GEOSGeometry('POINT(' + request.POST["utmx"] + ' ' + request.POST["utmy"] + ')', srid=4326)
+                        form.geom_4326=punto
+                    # punto = 1
+                except:
+                    None
                 new_form = form.save()
                 try:
                     img_principal = ImatgesCitacions.objects.get(id=id_imatge_principal)
@@ -1039,7 +1056,7 @@ def view_formularis_localitats_especie(request):
     context={'form':form,'especies':especies,'id_imatge_principal':id_imatge_principal,'ids_imatges':ids_imatges,'nuevo':nuevo,'id_form':id_form}
     return render(request,'exocat/formularis_localitats_especie.html',context)
 
-# Formulario de ACA para las citacions
+# Formulario de ACA para las citacions !no utilizable de momento
 @login_required(login_url='/login/')
 def view_formularis_aca(request):
     if request.method == 'POST':

@@ -421,7 +421,6 @@ class Imatge(models.Model):
 
 # ------------------------------------------------- MODIFICADO
 
-
 class CitacionsEspecie(models.Model):
     id = models.AutoField(primary_key=True)
     especie = models.CharField(max_length=255, blank=True, null=True)
@@ -437,8 +436,9 @@ class CitacionsEspecie(models.Model):
     utmx = models.FloatField(blank=True, null=True)
     utmy = models.FloatField(blank=True, null=True)
     utmz = models.FloatField(blank=True, null=True)
-    utm_10 = models.CharField(max_length=4, blank=True, null=True)
-    utm_1 = models.CharField(max_length=6, blank=True, null=True)
+    utm_10 = models.CharField(max_length=4, blank=True, null=True) #ej DG89
+    utm_1 = models.CharField(max_length=6, blank=True, null=True) #ej DG8391
+    geom_4326 = models.GeometryField(blank=True, null=True)
 
     propietari_nom = models.CharField(max_length=255, blank=True, null=True)
     adreca = models.CharField(max_length=255, blank=True, null=True)
@@ -510,15 +510,27 @@ class ImatgesCitacions(models.Model):
     class Meta:
         managed = True
         db_table = 'imatges_citacions_especie'
+    # 
+    # def guardar(self,tipo):
+    #     if tipo == 1:# imagen temporal
+    #         self.fitxer.file.upload_to='imatges_temp'
+    #         self.save()
+    #     else:
+    #         if tipo == 2:
+    #             self.fitxer.file.upload_to ='imatges_citacions_especies'
+    #             self.save()
 
-    def guardar(self,tipo):
-        if tipo == 1:# imagen temporal
-            self.fitxer.file.upload_to='imatges_temp'
-            self.save()
-        else:
-            if tipo == 2:
-                self.fitxer.file.upload_to ='imatges_citacions_especies'
-                self.save()
+class TaxonExoaquaRevisar(models.Model):
+    id_especie_exocat = models.CharField(max_length=100, blank=True, null=True)
+    id_especie_exoaqua = models.CharField(max_length=100, blank=True, null=True)
+    nom_especie = models.CharField(max_length=255, blank=True, null=True)
+    data = models.DateTimeField(blank=True, null=True)
+    revisat = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'taxon_exoaqua_revisar'
+
 class CitacionsACA(models.Model):
     id = models.AutoField(primary_key=True)
     nom_especie = models.CharField(max_length=255, blank=True, null=True)

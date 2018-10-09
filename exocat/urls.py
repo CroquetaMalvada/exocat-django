@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^formularis_localitats_especie/',views.view_formularis_localitats_especie,name="formularis localitats especie"),
     url(r'^formularis_aca/',views.view_formularis_aca,name="formularis aca"),
     url(r'^formularis/',views.view_formularis_usuari,name="formularis usuari"),
+    url(r'^revisar_citacions_aca/',views.view_revisar_citacions_aca,name="revisar citacions aca"),
     url(r'^mapa/',views.view_mapa,name="mapa"),
     # AJAX SELECTS BASE DE DADES
     url('^ajax_varietat_select/', views.json_select_varietat),

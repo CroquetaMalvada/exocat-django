@@ -123,6 +123,8 @@ STATIC_URL = '/static/'
 # STATICFILES_DIRS = (
 #   os.path.join(BASE_DIR, 'static/'),
 # )
+FILE_UPLOAD_PERMISSIONS = 0644 # Ojo si la version de python es >= 3 entonces es 0o644
+
 LOGIN_REDIRECT_URL = '/base_dades/'
 #Esto solo para produccion ya que en produccion se necesita un collectstatic:
 # STATIC_ROOT = "c:\wsgi_app\gestprjsite\static"
