@@ -140,12 +140,12 @@
             </div>
             <br>
             <h4>Foto identificativa</h4>
+            * Max 10MB
             <div id="foto_principal_gallery" class="col-md-12" align="center">
 
             </div>
             <br>
             <input id="foto_principal" type="file" name="fitxer" data-url="/upload_imatge_citacions_especie/" data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}","tipus":"principal"}' method="post">
-
             <br>
             <input id="id_imatge_principal" name="id_imatge_principal" hidden value="{{ id_imatge_principal }}"/>
             <br>
@@ -320,6 +320,8 @@
                             <li>Ortofotomapa a 1:5.000 de la possible localitat de l'espècie.</li>
                         </ul>
                     </ul>
+                *Max 10MB
+                <br>
                     <button type="button" class="btn btn-primary js-upload-photos">
                       <span class="glyphicon glyphicon-cloud-upload"></span> Penjar Imatges
                     </button><br>

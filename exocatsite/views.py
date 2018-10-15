@@ -13,9 +13,11 @@ from exocatsite.models import *#Grup,Grupespecie,Viaentrada,Viaentradaespecie,Es
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib.gis.geos import GEOSGeometry
-import json, urllib, datetime, os
+import json, urllib, datetime, os, requests
 from forms import *
 from models import *
+
+
 from django.db.models.functions import Substr
 
 import unicodecsv as csv # instalado con el pip ya que el csv a secas no incluye unicode
@@ -837,16 +839,6 @@ def view_formularis_usuari(request):
     context = {'formularis': formularios, 'titulo': "FORMULARIS USUARI", 'usuari': request.user.username}
     return render(request, 'exocat/formularis.html', context)
 
-# CITACIONES DE EXOAQUA POR REVISAR
-@login_required(login_url='/login/')
-def view_revisar_citacions_aca(request):
-    especies = []
-    for especie in TaxonExoaquaRevisar.objects.all():
-        especies.append(especie)
-
-    context = {'especies': especies, 'titulo': "REVISAR CITACIONS EXOAQUA", 'usuari': request.user.username}
-    return render(request, 'exocat/revisar_citacions_aca.html', context)
-
 # Formulario de citacions/noves localitats de especies
 # @login_required(login_url='/login/')
 def view_formularis_localitats_especie(request):
@@ -1057,20 +1049,20 @@ def view_formularis_localitats_especie(request):
     return render(request,'exocat/formularis_localitats_especie.html',context)
 
 # Formulario de ACA para las citacions !no utilizable de momento
-@login_required(login_url='/login/')
-def view_formularis_aca(request):
-    if request.method == 'POST':
-        form = CitacionsACAForm(request.POST)
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
-            return HttpResponseRedirect('/thanks/')
-    else:
-        form = CitacionsACAForm()
-    context={'form':form}
-    return render(request,'exocat/formularis_aca.html',context)
+# @login_required(login_url='/login/')
+# def view_formularis_aca(request):
+#     if request.method == 'POST':
+#         form = CitacionsACAForm(request.POST)
+#         # check whether it's valid:
+#         if form.is_valid():
+#             # process the data in form.cleaned_data as required
+#             # ...
+#             # redirect to a new URL:
+#             return HttpResponseRedirect('/thanks/')
+#     else:
+#         form = CitacionsACAForm()
+#     context={'form':form}
+#     return render(request,'exocat/formularis_aca.html',context)
 
 # @login_required(login_url='/login/')
 def view_upload_imatge_citacions_especie(request):
@@ -1105,7 +1097,7 @@ def view_upload_imatge_citacions_especie(request):
         # 100MB 104857600
         # 250MB - 214958080
         # 500MB - 429916160
-        max_file_size = 5242880
+        max_file_size = 10485760
 
         data = {}
         if form.is_valid():
@@ -1181,3 +1173,65 @@ def json_taula_formularis_usuari(request):
 
     resultado = json.dumps(formularios)
     return HttpResponse(resultado, content_type='application/json;')
+
+# CITACIONES DE EXOAQUA POR REVISAR
+@login_required(login_url='/login/')
+def view_revisar_citacions_aca(request):
+    especies_autocomplete = []
+    for especie in Especieinvasora.objects.all().values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere"):
+        # nombre de la especie(se juntan el genere con especie y subespecie)
+        id = especie["id"]
+        genere = especie["idtaxon__genere"]
+        especiestr = especie["idtaxon__especie"]
+        subespeciestr = especie["idtaxon__subespecie"]
+        if especiestr is not None:
+            genere = genere + " " + especiestr
+        if subespeciestr is not None:
+            genere = genere + u" [Subespècie: " + subespeciestr + " ]"
+        especies_autocomplete.append({"id":id,"especie":genere})
+
+    context = {'especies_autocomplete':especies_autocomplete,'titulo': "REVISAR CITACIONS EXOAQUA", 'usuari': request.user.username}
+    return render(request, 'exocat/revisar_citacions_aca.html', context)
+
+# AJAX DE LES CITACIONS DE EXOAQUA PER REVISAR
+@login_required(login_url='/login/')
+def json_taula_revisar_citacions_aca(request):
+    especies = []
+    for especie in TaxonExoaquaRevisar.objects.all():
+        especies.append({'id':especie.id,'id_especie_exoaqua':especie.id_especie_exoaqua,'nom':especie.nom_especie,'data':'{:%d-%m-%Y}'.format(especie.data.date()),'revisat':especie.revisat})
+
+    resultado = json.dumps(especies)
+    return HttpResponse(resultado, content_type='application/json;')
+
+# AJAX PER REVISAR UNA ESPECIE DE EXOAQUA I ASSIGNARLE UN ID DE EXOCAT
+@login_required(login_url='/login/')
+def post_revisar_citacions_aca(request):
+    try:
+        if request.user.groups.filter(name="Admins"):
+            if Especieinvasora.objects.filter(id=request.POST["id_especie_exocat"]).exists():
+                if TaxonExoaquaRevisar.objects.filter(id=request.POST['id'],revisat=0).exists():
+                    taxonarevisar = TaxonExoaquaRevisar.objects.get(id=request.POST['id'])
+                    id_especie_exoaqua = taxonarevisar.id_especie_exoaqua
+                    r = requests.post('http://delfos.creaf.uab.es/exoaqua_test/exoaqua/api/validataxon.htm',{'id':id_especie_exoaqua,'idexo':request.POST['id_especie_exocat']})
+                    if r.status_code == 200:
+                        taxonarevisar.id_especie_exocat = request.POST["id_especie_exocat"]
+                        taxonarevisar.revisat = 1
+                        taxonarevisar.save()
+                        return HttpResponse("{}", content_type='application/json;')
+                    else:
+                        response = JsonResponse({"error": "Error al guardar l'espécie. Torna-ho a provar en uns minuts o contacta amb l'administrador."})
+                        response.status_code = 400
+                        return response
+            else:
+                response = JsonResponse({"error": "Error: El nom de l'espécie no es correcte o aquesta no existeix a la base de dades d'Exocat."})
+                response.status_code = 400
+                return response
+        else:
+
+            response = JsonResponse({"error": "Error"})
+            response.status_code = 400
+            return response
+    except:
+        response = JsonResponse({"error": "Error"})
+        response.status_code = 400
+        return response

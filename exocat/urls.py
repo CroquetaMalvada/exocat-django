@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^base_dades/',views.view_base_dades,name="base dades"),
     url(r'^formularis_localitats_especie/',views.view_formularis_localitats_especie,name="formularis localitats especie"),
-    url(r'^formularis_aca/',views.view_formularis_aca,name="formularis aca"),
+    #url(r'^formularis_aca/',views.view_formularis_aca,name="formularis aca"),
     url(r'^formularis/',views.view_formularis_usuari,name="formularis usuari"),
     url(r'^revisar_citacions_aca/',views.view_revisar_citacions_aca,name="revisar citacions aca"),
     url(r'^mapa/',views.view_mapa,name="mapa"),
@@ -50,6 +50,8 @@ urlpatterns = [
     url('^especies_seleccion/', views.json_especies_de_seleccion),
     #AJAX PARA FORMULARIOS
     url('^ajax_formularis_usuari/', views.json_taula_formularis_usuari),
+    url('^ajax_revisar_citacions_aca/', views.json_taula_revisar_citacions_aca),
+    url('^revisar_citacio_especie_aca/', views.post_revisar_citacions_aca),
 
     #UPLOAD IMAGEN
     url('^upload_imatge_citacions_especie/$', views.view_upload_imatge_citacions_especie),

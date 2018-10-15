@@ -124,6 +124,7 @@ STATIC_URL = '/static/'
 #   os.path.join(BASE_DIR, 'static/'),
 # )
 FILE_UPLOAD_PERMISSIONS = 0644 # Ojo si la version de python es >= 3 entonces es 0o644
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 LOGIN_REDIRECT_URL = '/base_dades/'
 #Esto solo para produccion ya que en produccion se necesita un collectstatic:
