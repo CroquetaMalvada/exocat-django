@@ -13,6 +13,7 @@ from exocatsite.models import *#Grup,Grupespecie,Viaentrada,Viaentradaespecie,Es
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib.gis.geos import GEOSGeometry
+from itertools import chain
 import json, urllib, datetime, os, requests
 from forms import *
 from models import *
@@ -547,6 +548,8 @@ def json_info_especie(request):
     # OJO que los datos de citacions a excepcion de ncitacions no se utilizaran por ahora
     citacions= Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("citacio","localitat","municipi","comarca","provincia","data","autor_s","font")
     ncitacions = citacions.count()
+    #Ahora las citaciones "nuevas"
+    ncitacions = ncitacions + CitacionsEspecie.objects.filter(idspinvasora=id, utmx__isnull=False, utmy__isnull=False, validat="SI").values("utmx").distinct().count()
     # ncitacions = Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).count()
 
     # calcular el numero de masas de agua y el numero de utms de una especie
@@ -559,6 +562,10 @@ def json_info_especie(request):
 
     nutm10000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula").distinct().count()
     nutm1000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula").distinct().count()
+    ###Ahora sumar las utms "nuevas"
+    nutm10000 = nutm10000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, validat="SI").values("utm_10").distinct().count()
+    nutm1000 = nutm1000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, validat="SI").values("utm_1").distinct().count()
+    ###
     # utms10000= PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
     # for utm in utms:
     #     if utm["idquadricula__resolution"]==10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
@@ -712,7 +719,7 @@ def json_info_especie(request):
 #     return HttpResponse(resultado, content_type='application/json;')
 
 #ESPECIES EN UN CUADRO DE 10KM(EN REALIDAD SE OBTIENE UN RECUADRO DE UN CLICK)
-def json_especies_de_cuadro(request):
+def json_especies_de_cuadro(request):# Ojo aqui no hace falta lo de las citaciones nuevas porque se las pasamos en el js
     url=request.GET["url"]
     response=urllib.urlopen(url)
     data = json.loads(response.read())
@@ -731,6 +738,10 @@ def json_especies_de_cuadro(request):
 
         nutm10000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula").distinct().count()
         nutm1000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula").distinct().count()
+
+        ###Ahora sumar las utms "nuevas"
+        nutm10000 = nutm10000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, validat="SI").values("utm_10").distinct().count()
+        nutm1000 = nutm1000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, validat="SI").values("utm_1").distinct().count()
         # utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
         # for utm in utms:
         #     if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
@@ -744,6 +755,8 @@ def json_especies_de_cuadro(request):
 
         #
         ncitacions=Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).count()
+        #Ahora las citaciones "nuevas"
+        ncitacions = ncitacions + CitacionsEspecie.objects.filter(idspinvasora=id, utmx__isnull=False, utmy__isnull=False, validat="SI").values("utmx").distinct().count()
 
         dades=PresenciaSp.objects.filter(idspinvasora=id).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
         nom=dades[0]["idspinvasora__idtaxon__genere"]+" "+dades[0]["idspinvasora__idtaxon__especie"]
@@ -780,6 +793,10 @@ def json_especies_de_seleccion(request,multipoligono=False):
     # quadriculas de 10km que intersectan con el poligono
     quad = Quadricula.objects.filter(geom_4326__intersects=poligono) # quitamos el .filter(resolution=10000)
     especies = PresenciaSp.objects.filter(idquadricula__in=quad).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
+    # para que al juntar especies y especies_2 no salga 2 veces una especie que existe en ambas ponemos el exclude
+    especies_2 = CitacionsEspecie.objects.filter(utm_10__isnull=False, utm_10__in=quad).exclude(idspinvasora__in=especies.values_list('idspinvasora',flat=True)).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
+
+    especies = list(chain(especies, especies_2))
     resultado=[]
     for especie in especies:
         id=especie["idspinvasora"]
@@ -795,6 +812,11 @@ def json_especies_de_seleccion(request,multipoligono=False):
 
         nutm10000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula").distinct().count()
         nutm1000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula").distinct().count()
+
+        ###Ahora sumar las utms "nuevas"
+        nutm10000 = nutm10000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, validat="SI").values("utm_10").distinct().count()
+        nutm1000 = nutm1000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, validat="SI").values("utm_1").distinct().count()
+        ###
         # utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
         # for utm in utms:
         #     if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
@@ -809,7 +831,8 @@ def json_especies_de_seleccion(request,multipoligono=False):
         #
 
         ncitacions = Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).count()
-
+        #Ahora las citaciones "nuevas"
+        ncitacions = ncitacions + CitacionsEspecie.objects.filter(idspinvasora=id, utmx__isnull=False, utmy__isnull=False, validat="SI").values("utmx").distinct().count()
         resultado.append({"nom":especie["idspinvasora__idtaxon__genere"]+" "+especie["idspinvasora__idtaxon__especie"],"id":id,"grup":grup,"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
     if multipoligono:
         return resultado
@@ -943,7 +966,10 @@ def view_formularis_localitats_especie(request):
                     form.validat = "NO"
                 else:
                     if request.user.groups.filter(name="Admins"):
-                        form.validat = "SI"
+                        if request.POST["formulari_validat"] == "SI":
+                            form.validat = "SI"
+                        else:
+                            form.validat = "NO"
                     else:
                         form.validat = "NO"
 
@@ -955,8 +981,11 @@ def view_formularis_localitats_especie(request):
                 #
                 try:
                     if request.POST["tipus_coordenades"] == "1":
-                        punto = GEOSGeometry('POINT(' + request.POST["utmx"] + ' ' + request.POST["utmy"] + ')', srid=4326)
-                        form.geom_4326=punto
+                        punto = GEOSGeometry('POINT(' + request.POST["utmx"] + ' ' + request.POST["utmy"] + ')',srid=23031)
+                        form.geom = punto
+                        # punto2 = punto.transform(4326,clone=True)
+                        # form.geom_4326 = punto2
+                        # punto2 = GEOSGeometry(punto, srid=4326)
                     # punto = 1
                 except:
                     None

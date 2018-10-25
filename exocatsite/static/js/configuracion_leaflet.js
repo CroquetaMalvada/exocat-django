@@ -2,15 +2,22 @@ var mymap;
 var map_info_especie;
 //var map_info_especie_box;
 ///mapa grande
-var wmsLayer_presencia_10000=false;
-var wmsLayer_presencia_1000=false;
+var wmsLayer_presencia_10000_2=false;
+var wmsLayer_presencia_10000_global=false;
+var wmsLayer_presencia_1000_2=false;
+var wmsLayer_presencia_1000_global=false;
 var wmsLayer_citacions=false;
+var wmsLayer_citacions_2=false;
+var wmsLayer_citacions_global=false;
 var wmsLayer_presencia_ma=false;
 var wmsLayer_comarques=false;
 //mapa info especie
 var mapainfo_wmsLayer_presencia_10000=false;
+var mapainfo_wmsLayer_presencia_10000_2=false; //para las citaciones nuevas de "citacions_especie"
 var mapainfo_wmsLayer_presencia_1000=false;
+var mapainfo_wmsLayer_presencia_1000_2=false;
 var mapainfo_wmsLayer_citacions=false;
+var mapainfo_wmsLayer_citacions_2=false;
 var mapainfo_wmsLayer_presencia_ma=false;
 
 var editableLayers=false;
@@ -50,6 +57,13 @@ $(document).ready(function(){
             opacity: 0.5
         });
 
+        wmsLayer_presencia_10000_2 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:PRESENCIA_SP_10000_p_2',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
+        });
+
         wmsLayer_presencia_1000 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:PRESENCIA_SP_1000_p',
             transparent: 'true',
@@ -57,8 +71,22 @@ $(document).ready(function(){
             opacity: 0.5
         });
 
+        wmsLayer_presencia_1000_2 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:PRESENCIA_SP_1000_p_2',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
+        });
+
         wmsLayer_citacions = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:citacions',
+            transparent: 'true',
+            format: 'image/png',
+        //        opacity: 0.5
+        });
+
+        wmsLayer_citacions_2 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:citacions_2',
             transparent: 'true',
             format: 'image/png',
         //        opacity: 0.5
@@ -153,6 +181,13 @@ $(document).ready(function(){
             opacity: 0.5
         });
 
+        mapainfo_wmsLayer_presencia_10000_global = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:PRESENCIA_SP_10000_global',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
+        });
+
         mapainfo_wmsLayer_presencia_1000 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:PRESENCIA_SP_1000_p',
             transparent: 'true',
@@ -160,8 +195,22 @@ $(document).ready(function(){
             opacity: 0.5
         });
 
+        mapainfo_wmsLayer_presencia_1000_global = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:PRESENCIA_SP_1000_global',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
+        });
+
         mapainfo_wmsLayer_citacions = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:citacions',
+            transparent: 'true',
+            format: 'image/png',
+        //        opacity: 0.5
+        });
+
+        mapainfo_wmsLayer_citacions_global = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:citacions_global',
             transparent: 'true',
             format: 'image/png',
         //        opacity: 0.5
@@ -208,9 +257,12 @@ $(document).ready(function(){
                             groupName : "Presencia espècie",
                             expanded  : true,
                             layers    : {
-                                "UTM 10x10km <a id='exportar_presencia_10000'/>" : mapainfo_wmsLayer_presencia_10000,
-                                "UTM 1x1km <a id='exportar_presencia_1000'/>" : mapainfo_wmsLayer_presencia_1000,
-                                "Citacions <a id='exportar_presencia_citacions'/>" : mapainfo_wmsLayer_citacions,
+                                "UTM 10x10km <a id='exportar_presencia_10000'/>" : mapainfo_wmsLayer_presencia_10000_global,
+//                                "<a id='exportar_presencia_10000_2' hidden/>" : mapainfo_wmsLayer_presencia_10000_2,
+                                "UTM 1x1km <a id='exportar_presencia_1000'/>" : mapainfo_wmsLayer_presencia_1000_global,
+//                                "<a id='exportar_presencia_1000_2' hidden/>" : mapainfo_wmsLayer_presencia_1000_2,
+                                "Citacions <a id='exportar_presencia_citacions'/>" : mapainfo_wmsLayer_citacions_global,
+//                                "<a id='exportar_presencia_citacions_2' hidden/>" : mapainfo_wmsLayer_citacions_2,
                                 "Masses d'aigua <a id='exportar_presencia_masses'/>" : mapainfo_wmsLayer_presencia_ma,
                             }
                          }
@@ -237,15 +289,18 @@ $(document).ready(function(){
 	////
 
     // MARCAR OPCIONES DE LOS MAPAS
-    //en el cuadro de control del mapa bueno seleccionamos la apa del open street map(osm) y la de 10km
+    //en el cuadro de control del mapa bueno seleccionamos la api del open street map(osm) y la de 10km
 	control.selectLayer(osm);
 	control.selectLayer(wmsLayer_presencia_10000);
 
     // en el de la info seleccionamos todas las capas ya que se mostraran las de la especie
 	control2.selectLayer(mapainfo_osm);
-	control2.selectLayer(mapainfo_wmsLayer_presencia_10000);
-	control2.selectLayer(mapainfo_wmsLayer_presencia_1000);
-	control2.selectLayer(mapainfo_wmsLayer_citacions);
+	control2.selectLayer(mapainfo_wmsLayer_presencia_10000_global);
+//	control2.selectLayer(mapainfo_wmsLayer_presencia_10000_2);
+	control2.selectLayer(mapainfo_wmsLayer_presencia_1000_global);
+//	control2.selectLayer(mapainfo_wmsLayer_presencia_1000_2);
+	control2.selectLayer(mapainfo_wmsLayer_citacions_global);
+//	control2.selectLayer(mapainfo_wmsLayer_citacions_2);
 	control2.selectLayer(mapainfo_wmsLayer_presencia_ma);
 	//control.selectLayer(wmsLayer_presencia_10000);
 

@@ -367,6 +367,26 @@
             </div>
             <hr>
             <br>
+            {% if user.is_authenticated %}
+                {% for group in user.groups.all %}
+                    {% if group.name == 'Admins' %}
+                        <h4>Validar formulari</h4>
+                        <hr>
+                        <div class="row">
+                            <div class="input-group col-md-6">
+                                <span class="input-group-addon"><b>Validat</b></span>
+                                <!--<i class='fa fa-check'></i>-->
+                                <!--<i class='fa fa-times'></i>-->
+                                <select name="formulari_validat" class="form-control">
+                                    <option value="SI">SI</option>
+                                    <option value="NO">NO</option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
             <div class="row">
                 <div class="input-group col-md-12">
                     <input type="checkbox" id="autoritzacio" name="autoritzacio" unchecked/> <b> * Autoritzo a EXOCAT i al DTES a tenir i utilitzar les meves dades i imatges. Aquestes no s'utilitzarán per a cap fi comercial ni seràn donades a tercers.</b>

@@ -425,7 +425,8 @@ class CitacionsEspecie(models.Model):
     id = models.AutoField(primary_key=True)
     especie = models.CharField(max_length=255, blank=True, null=True)
     # idspinvasora = models.ForeignKey(Especieinvasora, null=True) # FOREIGN
-    idspinvasora = models.CharField(max_length=255, blank=True, null=True)
+    #idspinvasora = models.CharField(max_length=255, blank=True, null=True)
+    idspinvasora = models.ForeignKey(Especieinvasora, models.DO_NOTHING, db_column='idspinvasora', blank=True,null=True)
     data = models.CharField(max_length=100, blank=True, null=True)
 
     comarca = models.CharField(max_length=100, blank=True, null=True)
@@ -438,7 +439,8 @@ class CitacionsEspecie(models.Model):
     utmz = models.FloatField(blank=True, null=True)
     utm_10 = models.CharField(max_length=4, blank=True, null=True) #ej DG89
     utm_1 = models.CharField(max_length=6, blank=True, null=True) #ej DG8391
-    geom_4326 = models.GeometryField(blank=True, null=True)
+    geom = models.TextField(blank=True, null=True)
+    #geom_4326 = models.GeometryField(blank=True, null=True) # se usara el de arriba para mostrar los datos en el mapa
 
     propietari_nom = models.CharField(max_length=255, blank=True, null=True)
     adreca = models.CharField(max_length=255, blank=True, null=True)

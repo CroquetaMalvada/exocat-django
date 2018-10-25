@@ -1,3 +1,10 @@
+var boton_presencia_10000;
+var boton_presencia_10000_2;
+var boton_presencia_1000;
+var boton_presencia_1000_2;
+var boton_citacions;
+var boton_citacions_2;
+
 $(document).ready(function(){
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) { //Actualizamos el mapa cuando el usuario clica en la pestana mapa del dialog
         if($(e.target).attr("value"))
@@ -6,6 +13,32 @@ $(document).ready(function(){
                 obtener_pos_especie();
             }
     });
+
+    ///botones de utms y citaciones
+//    boton_presencia_10000 = $("#exportar_presencia_10000_2").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector");
+//    boton_presencia_10000_2 = $("#exportar_presencia_10000_2").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector");
+//    boton_presencia_1000 = $("#exportar_presencia_1000_2").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector");
+//    boton_presencia_1000_2 = $("#exportar_presencia_1000_2").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector");
+//    boton_citacions = $("#exportar_presencia_citacions").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector");
+//    boton_citacions_2 = $("#exportar_presencia_citacions_2").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector");
+//    //ocultar los botones de overlay de los nuevos datos de citaciones
+//    boton_presencia_10000_2.attr("hidden",true);
+//    boton_presencia_1000_2.attr("hidden",true);
+//    boton_citacions_2.attr("hidden",true);
+//
+//
+//    //que al clicar en la presencia de las utm se aplique tambien en las nuevas
+//    $("#exportar_presencia_10000").closest(".menu-item-checkbox").on('click', function (e) {
+//        boton_presencia_10000_2.trigger("click");
+//    });
+//    $("#exportar_presencia_1000").closest(".menu-item-checkbox").on('click', function (e) {
+//        boton_presencia_1000_2.trigger("click");
+//    });
+//    $("#exportar_presencia_citacions").closest(".menu-item-checkbox").on('click', function (e) {
+//        boton_citacions_2.trigger("click");
+//    });
+
+
 });
 
 function obtener_pos_especie(){
@@ -13,10 +46,13 @@ id=$("#mapa_de_especie").attr("value");
 //    if(wmsLayer_presencia_10000!=false)
 
     // OJO QUE LOS ID CAMBIAN !
-mapainfo_wmsLayer_presencia_10000.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
-mapainfo_wmsLayer_presencia_1000.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
-mapainfo_wmsLayer_citacions.setParams({cql_filter:"idspinvasora='"+id+"'"});
-mapainfo_wmsLayer_presencia_ma.setParams({cql_filter:"idtaxon='"+id+"'"});
+    mapainfo_wmsLayer_presencia_10000_global.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
+//    mapainfo_wmsLayer_presencia_10000_2.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
+    mapainfo_wmsLayer_presencia_1000_global.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
+//    mapainfo_wmsLayer_presencia_1000_2.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
+    mapainfo_wmsLayer_citacions_global.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
+//    mapainfo_wmsLayer_citacions_2.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
+    mapainfo_wmsLayer_presencia_ma.setParams({cql_filter:"idtaxon='"+id+"'"});
 
 
 //    if(wmsLayer_presencia_10000!=false)
@@ -39,8 +75,11 @@ function obtener_especies_geom(){ // OBTENER ESPECIES DE RECTANGULO O FIGURA(aqu
 //    alert("INTERSECTS(geom_4326,"+filtro+")");
     // mostramos las layers(cuadriculas,citacions,rius,etc) que hay en la zona marcada
     wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    //wmsLayer_presencia_10000_2.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
     wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    //wmsLayer_presencia_1000_2.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
     wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    wmsLayer_citacions_2.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
     wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
 
 
@@ -69,12 +108,13 @@ function pasar_wkt(){ // pasa las selecciones/geometrias a wkt
 
 function obtener_especies_pos(latlng){// OBTENER ESPECIES DEL CLICK(aqui se usa la datatable)
 
-///////////// PARTE 1,INDICAR SOBRE QUE CAPAS(CAPA EN ESTE CASO) HAY QUE OBTENER LA POSICION DEL CLICK
+///////////// PARTE 1,INDICAR SOBRE QUE CAPAS HAY QUE OBTENER LA POSICION DEL CLICK
     cargando_datos_mapa(0);
     //mymap.removeLayer(wmsLayer_presencia_10000);
 
     var layers_in_control = [];
     layers_in_control.push(wmsLayer_presencia_10000);
+    layers_in_control.push(wmsLayer_presencia_10000_2);
 //            layers_in_control.push(wmsLayer_presencia_1000);
     if(layers_in_control.length > 0){
         var param_layers = [];
@@ -213,10 +253,12 @@ function obtener_especies_comarca(latlng){// OBTENER ESPECIES DE COMARCA( se usa
                 ///// PARTE 4,CON LA GEOM DE LA COMARCA HACEMOS UN INTERSECTS Y UTILIZAMOS LA MISMA FUNCION QUE LA DE CALCULAR ESPECIES POR SELECCION
                 // mostramos las layers(cuadriculas,citacions,rius,etc) que hay en la zona marcada
                 wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom,"+filtro+")"});
+                //wmsLayer_presencia_10000_2.setParams({cql_filter:"INTERSECTS(geom,"+filtro+")"});
 //                wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom,"+filtro+")"});
 //                wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom,"+filtro+")"});
 //                wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom,"+filtro+")"});
                 mymap.addLayer(wmsLayer_presencia_10000);
+                //mymap.addLayer(wmsLayer_presencia_10000_2);
 //                $.ajax({
 //                    url:"/especies_seleccion/",
 //                    data:{"pol":filtro},
