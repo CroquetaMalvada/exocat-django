@@ -47,12 +47,13 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
             /////
             //// ICONOS PARA EXPORTAR LAS LAYERS
             $("#exportar_presencia_10000").empty();
+            $("#exportar_presencia_10000_transformar").empty();
             $("#exportar_presencia_1000").empty();
             $("#exportar_presencia_citacions").empty();
             $("#exportar_presencia_masses").empty();
             var icons_pres_10000="   [ZIP - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_global&outputFormat=SHAPE-ZIP&format_options=filename:"+nombre+"_UTM10km.zip&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-file-zip-o fa-lg'></i></a>]   [KML - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_global&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_UTM10km&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27' title='Exportar kml' id='exportar_wms_presencia_10000'><i class='fa fa-globe fa-lg'></i></a>]"
             var icons_pres_1000="   [ZIP - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_1000_global&outputFormat=SHAPE-ZIP&format_options=filename:"+nombre+"_UTM1km.zip&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-file-zip-o fa-lg'></i></a>]   [KML - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_1000_global&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_UTM1km&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27' title='Exportar kml' id='exportar_wms_presencia_1000'><i class='fa fa-globe fa-lg'></i></a>]"
-            var icons_pres_citacions="   [ZIP - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:citacions_global&outputFormat=SHAPE-ZIP&format_options=filename:"+nombre+"_citacions.zip&CQL_FILTER=idspinvasora%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-file-zip-o fa-lg'></i></a>]   [KML - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:citacions_global&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_citacions&CQL_FILTER=idspinvasora%3D%27"+data['id']+"%27' title='Exportar kml' id='exportar_wms_citacions'><i class='fa fa-globe fa-lg'></i></a>]"
+            var icons_pres_citacions="   [ZIP - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:citacions_global&outputFormat=SHAPE-ZIP&format_options=filename:"+nombre+"_citacions.zip&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-file-zip-o fa-lg'></i></a>]   [KML - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:citacions_global&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_citacions&CQL_FILTER=IDSPINVASORA%3D%27"+data['id']+"%27' title='Exportar kml' id='exportar_wms_citacions'><i class='fa fa-globe fa-lg'></i></a>]"
             // var icons_pres_citacions="   [WFS - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:citacions&outputFormat=SHAPE-ZIP&format_options=filename:"+nombre+"_citacions_WFS.zip&CQL_FILTER=idspinvasora%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-map fa-lg'></i></a>]   [WMS - <a href='http://exocatdb.creaf.cat/geoserver/wms?service=WMS&version=1.1.0&request=GetMap&layers=SIPAN:citacions&styles=&CQL_FILTER=idspinvasora%3D%27"+data['id']+"%27&bbox=246809.50679615702,4429945.3655678565,531814.7343779552,4804968.5619192235&width=389&height=512&srs=EPSG:23031&format=application/vnd.google-earth.kml+xml' title='Exportar WMS' id='exportar_wms_presencia_10000'><i class='fa fa-globe fa-lg'></i></a>]"
             var icons_pres_masses="   [ZIP - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:presencia_massa_aigua&outputFormat=SHAPE-ZIP&format_options=filename:"+nombre+"_masses_aigua.zip&CQL_FILTER=idtaxon%3D%27"+data['id']+"%27' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-file-zip-o fa-lg'></i></a>]   [KML - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:presencia_massa_aigua&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_masses_aigua.kml&CQL_FILTER=idtaxon%3D%27"+data['id']+"%27' title='Exportar kml' id='exportar_wms_masses'><i class='fa fa-globe fa-lg'></i></a>]"
             $("#exportar_presencia_10000").append(icons_pres_10000);
@@ -104,7 +105,69 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
 
             //        $("#info_observacions").tooltip(); !mejor no usar este tooltip y mostrar la info bajo la imagen para que la gente no tenga que usar el cursor
             $("#dialogdiv").dialog("open");
+            ////resetear posicion y zoom del mapa,desmarcamos la casilla de transformacion y obtednemos los filtros para dicha transformacion
+            map_info_especie.setView([41.666141,1.761932], 8);
+            if($("#exportar_presencia_10000_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").is(":checked")){
+                $("#exportar_presencia_10000_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").trigger("click");
+            }
+            ///OBTENEMOS LOS FILTROS PARA LA OPCION DE TRANSFORMAR
+            $("#loading_control_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").attr("hidden",true);
+//            $("#exportar_presencia_10000_transformar").attr("hidden",true);
+            $("#loading_control_transformar").attr("hidden",false);
+            $("#texto_control_transformar").html("Preparant opció...");
+            $.ajax({
+                type: "POST",
+                data:{"id":$("#mapa_de_especie").attr("value")},
+                url:"/geometries_punts/",
+            //        type:'json',
+            //            beforeSend: function(){  Ojo no utilizar este ya que peta el token
+            //            },
+                success: function (data, status, xhr) {
+                    //console.log(data);
+                    //var wkt = new Wkt.Wkt();
+                    filtros_geometria_punts ="";
+                    var filtros_url_exportar=""; // igual que el anterior pero con %27 en lugar de ' para ponerlo en el href
+                    $.each(data,function(k,v){
+                        //wkt.read( v["geom_4326"] );
+            //                    console.log(v["geom_4326"]);
+            //                    console.log(wkt.write());
+                        //console.log(v);
+                        if (k === (data.length - 1)) {// si es el ultimo elemento de la lista
+                            filtros_geometria_punts=filtros_geometria_punts+"id='"+v+"'"; //filtro=filtro+"INTERSECTS(geom_4326,"+v["geom_4326"]+")";
+                            filtros_url_exportar=filtros_url_exportar+"id=%27"+v+"%27";
+                        }else{
+                            filtros_geometria_punts=filtros_geometria_punts+"id='"+v+"' OR ";
+                            filtros_url_exportar=filtros_url_exportar+"id=%27"+v+"%27 OR ";
+                        }
 
+                        //alert(v["geom_4326"]);
+                    });
+                    $("#loading_control_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").attr("hidden",false);
+                    $("#loading_control_transformar").attr("hidden",true);
+                    //$("#exportar_presencia_10000_transformar").attr("hidden",false);
+                    $("#texto_control_transformar").html("Transformar punts a UTMs 10x10km");
+                    mapainfo_wmsLayer_presencia_10000_transformar.setParams({cql_filter:filtros_geometria_punts});
+                    // para exportar los puntos transformados en 10x10
+                    var icons_pres_10000_transformar="   [ZIP - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_p&outputFormat=SHAPE-ZIP&format_options=filename:"+nombre+"_UTM10km.zip&CQL_FILTER="+filtros_url_exportar+"' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-file-zip-o fa-lg'></i></a>]   [KML - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_p&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_UTM10km&CQL_FILTER="+filtros_url_exportar+"' title='Exportar kml' id='exportar_wms_presencia_10000_transformar'><i class='fa fa-globe fa-lg'></i></a>]"
+                    $("#exportar_presencia_10000_transformar").append(icons_pres_10000_transformar);
+//                    $("#exportar_wms_presencia_10000_transformar").attr("href","http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_p&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_UTM10km&CQL_FILTER="+filtros_url_exportar);
+                    //console.log(filtros_geometria_punts);
+                },
+                error: function (xhr, status, error) {
+                    //alert("error");
+                    $("#loading_control_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").attr("hidden",true);
+                    //$("#exportar_presencia_10000_transformar").attr("hidden",true);
+                    $("#loading_control_transformar").attr("hidden",true);
+                    $("#texto_control_transformar").html("Error al preparar la capa, opció no disponible.");
+                    //chivato_geopunts=false;
+                }//,
+//                complete: function(){
+//                    $("#loading_control_transformar").attr("hidden",true);
+//                    $("#exportar_presencia_10000_transformar").attr("hidden",false);
+//                    $("#texto_control_transformar").html("Transformar punts a UTMs 10x10km");
+//                }
+            });
+//            $("#exportar_presencia_10000_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").attr("checked",false);
         }
 
     });

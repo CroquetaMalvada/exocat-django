@@ -12,6 +12,7 @@ var wmsLayer_citacions_global=false;
 var wmsLayer_presencia_ma=false;
 var wmsLayer_comarques=false;
 //mapa info especie
+var mapainfo_wmsLayer_presencia_10000_transformar=false;
 var mapainfo_wmsLayer_presencia_10000=false;
 var mapainfo_wmsLayer_presencia_10000_2=false; //para las citaciones nuevas de "citacions_especie"
 var mapainfo_wmsLayer_presencia_1000=false;
@@ -187,7 +188,14 @@ $(document).ready(function(){
             format: 'image/png',
             opacity: 0.5
         });
-
+        ///
+        mapainfo_wmsLayer_presencia_10000_transformar = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+            layers: 'SIPAN:PRESENCIA_SP_10000_p',
+            transparent: 'true',
+            format: 'image/png',
+            opacity: 0.5
+        });
+        ///
         mapainfo_wmsLayer_presencia_1000 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
             layers: 'SIPAN:PRESENCIA_SP_1000_p',
             transparent: 'true',
@@ -264,6 +272,14 @@ $(document).ready(function(){
                                 "Citacions <a id='exportar_presencia_citacions'/>" : mapainfo_wmsLayer_citacions_global,
 //                                "<a id='exportar_presencia_citacions_2' hidden/>" : mapainfo_wmsLayer_citacions_2,
                                 "Masses d'aigua <a id='exportar_presencia_masses'/>" : mapainfo_wmsLayer_presencia_ma,
+                            }
+                         },
+                         {
+                            groupName: "Transformar",
+                            expanded: true,
+                            layers    : {
+                                "<i id='loading_control_transformar' class='fa fa-hourglass fa-lg' hidden='true'></i><text id='texto_control_transformar'>Visualitzar capa de transformació</text><a id='exportar_presencia_10000_transformar'/>" : mapainfo_wmsLayer_presencia_10000_transformar,
+                                //"Visualitzar capa de transformació<br/><i id='loading_control_transformar' class='fa fa-hourglass fa-lg' hidden='true'></i><a id='exportar_presencia_10000_transformar'><i class='fa fa-cube fa-lg'></i></a><text id='texto_control_transformar'>Transformar punts a UTMs 10x10km</text>" : mapainfo_wmsLayer_presencia_10000_transformar,
                             }
                          }
                          /*, {

@@ -840,13 +840,72 @@ def json_especies_de_seleccion(request,multipoligono=False):
         resultado = json.dumps(resultado)
         return HttpResponse(resultado, content_type='application/json;')
 
-# FORMULARI CITACIONS DE ESPECIES
+# GEOMETRIAS DE PUNTOS Y UTMS1X1 DE ESPECIE PARA PASARLOS A UTM10X10 EN EL JS
+def json_geometries_punts(request):
+    geometrias=[]
+    id=request.POST["id"]
+    quadriculas = [] # se usara para asegurar que no haya quadriculas repetidas
+    #### citaciones pnutuales
+    # antiguas
+    for cit in Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("geom_4326").distinct():
+        for quad in Quadricula.objects.filter(geom_4326__intersects=cit["geom_4326"].wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+        #quad = Quadricula.objects.get(geom_4326__intersects=cit["geom_4326"].wkt,resolution=10000).values("id","geom_4326")[0]
+            if quad["id"] not in quadriculas:
+                quadriculas.append(quad["id"])
+    # nuevas
+    for cit in CitacionsEspecie.objects.filter(idspinvasora=id, utmx__isnull=False, utmy__isnull=False, geom__isnull = False, validat="SI").values("geom").distinct():
+        for quad in Quadricula.objects.filter(geom_4326__intersects=GEOSGeometry(cit["geom"], srid=4326).wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+            if quad["id"] not in quadriculas:
+                quadriculas.append(quad["id"])
 
-# def form_citacions_especies(request):
-#     form = CitacionsEspeciesForm(request.POST)
-#     if form.is_valid():
-#         form.save()
-#         lista = request.POST[""]
+    # #### utm10x10
+    # # antiguas
+    # for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula__geom_4326").distinct("idquadricula"):
+    #     for quad in Quadricula.objects.filter(geom_4326__intersects=utm["idquadricula__geom_4326"].wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+    #         if quad["id"] not in quadriculas:
+    #             quadriculas.append(quad["id"])
+    #     #geometrias.append({"geom_4326":str(utm["idquadricula__geom_4326"].wkt)})
+    # # nuevas
+    # for utm in CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, geom__isnull = False, validat="SI").values("geom").distinct("utm_10"):
+    #     for quad in Quadricula.objects.filter(geom_4326__intersects=GEOSGeometry(utm["geom"], srid=4326).wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+    #         if quad["id"] not in quadriculas:
+    #             quadriculas.append(quad["id"])
+
+    #### utm1x1
+    # antiguas
+    for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula__geom_4326").distinct("idquadricula"):
+        for quad in Quadricula.objects.filter(geom_4326__intersects=utm["idquadricula__geom_4326"].wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+            if quad["id"] not in quadriculas:
+                quadriculas.append(quad["id"])
+
+    # nuevas
+    for utm in CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, geom__isnull = False, validat="SI").values("geom").distinct("utm_1"):
+        for quad in Quadricula.objects.filter(geom_4326__intersects=GEOSGeometry(utm["geom"], srid=4326).wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+            if quad["id"] not in quadriculas:
+                quadriculas.append(quad["id"])
+    # # nuevas
+    # for cit in CitacionsEspecie.objects.filter(idspinvasora=id, utmx__isnull=False, utmy__isnull=False, geom__isnull = False, validat="SI").values("geom").distinct():
+    #     geom_4326 = GEOSGeometry(cit["geom"], srid=4326)
+    #     geometrias.append({"geom_4326":str(geom_4326)})
+    # #### utm10x10
+    # # antiguas
+    # for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula__geom_4326").distinct("idquadricula"):
+    #     geometrias.append({"geom_4326":str(utm["idquadricula__geom_4326"].wkt)})
+    # # nuevas
+    # for utm in CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, geom__isnull = False, validat="SI").values("geom").distinct("utm_10"):
+    #     geom_4326 = GEOSGeometry(cit["geom"], srid=4326)
+    #     geometrias.append({"geom_4326":str(geom_4326)})
+    # #### utm1x1
+    # # antiguas
+    # for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula__geom_4326").distinct("idquadricula"):
+    #     geometrias.append({"geom_4326":str(utm["idquadricula__geom_4326"].wkt)})
+    # # nuevas
+    # for utm in CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, geom__isnull = False, validat="SI").values("geom").distinct("utm_1"):
+    #     geom_4326 = GEOSGeometry(cit["geom"], srid=4326)
+    #     geometrias.append({"geom_4326":str(geom_4326)})
+
+    resultado = json.dumps(quadriculas)
+    return HttpResponse(resultado, content_type='application/json;')
 
 # FORMULARIOS DEL USUARIO
 @login_required(login_url='/login/')

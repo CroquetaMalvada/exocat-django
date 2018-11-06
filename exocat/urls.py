@@ -48,6 +48,7 @@ urlpatterns = [
     url('^especies_de_cuadro/', views.json_especies_de_cuadro),
     url('^especies_de_comarca/', views.json_especies_de_comarca),
     url('^especies_seleccion/', views.json_especies_de_seleccion),
+    url('^geometries_punts/', views.json_geometries_punts),
     #AJAX PARA FORMULARIOS
     url('^ajax_formularis_usuari/', views.json_taula_formularis_usuari),
     url('^ajax_revisar_citacions_aca/', views.json_taula_revisar_citacions_aca),

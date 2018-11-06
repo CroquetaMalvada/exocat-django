@@ -4,7 +4,10 @@ var boton_presencia_1000;
 var boton_presencia_1000_2;
 var boton_citacions;
 var boton_citacions_2;
+var filtros_geometria_punts;
 
+var geometries_punts; // esta variable contendrá las geometrias de los puntos y utms1x1 por si se le da a la opcion de transformar puntos a utm10x10
+var chivato_geopunts=false; // el chivato que avisa que lo anterior se activo
 $(document).ready(function(){
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) { //Actualizamos el mapa cuando el usuario clica en la pestana mapa del dialog
         if($(e.target).attr("value"))
@@ -38,6 +41,12 @@ $(document).ready(function(){
 //        boton_citacions_2.trigger("click");
 //    });
 
+    ////opcion para transformar puntos en utms 10x10
+    //$("#exportar_presencia_10000_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").attr("hidden",true);
+//    $("#exportar_presencia_10000_transformar").on('click', function (e) {
+//        ver_geometrias_punts();
+//    });
+///
 
 });
 
@@ -53,7 +62,10 @@ id=$("#mapa_de_especie").attr("value");
     mapainfo_wmsLayer_citacions_global.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
 //    mapainfo_wmsLayer_citacions_2.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
     mapainfo_wmsLayer_presencia_ma.setParams({cql_filter:"idtaxon='"+id+"'"});
+    if(chivato_geopunts==false){
+        chivato_geopunts=true;
 
+    }
 
 //    if(wmsLayer_presencia_10000!=false)
 //        mymap.removeLayer(wmsLayer_presencia_10000);
@@ -287,3 +299,11 @@ function obtener_especies_comarca(latlng){// OBTENER ESPECIES DE COMARCA( se usa
 function limpiar_mapa(){
     editableLayers.clearLayers(wmsLayer_presencia_10000);
 }
+
+
+//function ver_geometrias_punts(){
+//    mapainfo_wmsLayer_presencia_10000_transformar.setParams({cql_filter:filtros_geometria_punts});
+//    if($("#exportar_presencia_10000_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").is(":checked")==false){
+//        $("#exportar_presencia_10000_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").trigger("click");
+//    }
+//}
