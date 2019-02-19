@@ -63,6 +63,8 @@ urlpatterns = [
     #GENERAR CSV
     url('^generar_csv_especies/$', views.generar_csv_especies),
 
+    #GENERAR INFORME CSV CON ESPECIES Y CITACIONES DE CADA UTM 10KM
+    url('^generar_csv_informe_utm10/$', views.generar_csv_informe_utm10),
 
 ]
 # solo para desarrollo

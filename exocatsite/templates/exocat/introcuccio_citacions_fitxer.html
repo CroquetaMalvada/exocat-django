@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+{% load static %}
+<head>
+{% block head %} {% include "exocat/head.html" %} {% endblock %}
+<script src="{% static 'js/token_ajax.js' %}" ></script>
+<script src="{% static 'js/datatables_revisar_citacions_aca.js' %}" ></script>
+
+</head>
+<body>
+{% block cabecera %} {% include "exocat/cabecera.html" %} {% endblock %}
+<header>
+    <div class="col-md-6 offset-md-3" background="{% static 'imagenes/img_header.jpg' %}">
+        <img src="{% static 'imagenes/img_header.jpg' %}" width="100%">
+    </div>
+</header>
+<br>
+<div class="container-fluid">
+    <div class="col-md-6 offset-md-3 border border-secondary">
+        <h1 align="center">INTRODUCCIÓ DE CITACIONS PER FITXER</h1>
+        <!--{{ usuari }}<br>-->
+        <!--{% for form in formularis%}-->
+        <!--{{ form.id}} - {{ form.idspinvasora}} - {{ form.usuari}}-->
+        <!--<br>-->
+        <!--{% endfor %}-->
+        <br><br>
+        <div class="col-md-6" align="right">
+            <a id="descargar_plantilla" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA <i class='fa fa-table'></i><i class='fa fa-download'></i></a>
+        </div>
+        <!--<input name="id_form" id="id_form" hidden/>-->
+        <!--<input name="cargar_form" hidden/>-->
+
+    </div>
+</div>
+<!--DIALOGS-->
+
+<!--<style>-->
+<!--.ui-widget-header{-->
+<!--border:none;-->
+<!--background:none;-->
+<!--}-->
+<!--.ui-autocomplete { position: absolute; cursor: default;z-index:1001 !important;}-->
+<!--</style>-->
+<!--&lt;!&ndash;&ndash;&gt;-->
+<!--<div id="dialogrevisar_citacio"  class="container_fluid" title="">-->
+    <!--&lt;!&ndash;<form id="form_exoaqua_revisar" action="/revisar_citacions_aca/" method="post">&ndash;&gt;-->
+        <!--&lt;!&ndash;{% csrf_token %}&ndash;&gt;-->
+        <!--{% csrf_token %}-->
+        <!--<div class="row">-->
+
+            <!--<div class="input-group">-->
+                            <!--<span class="input-group-addon">Assignar espécie a "<b id="nom_de_especie"></b>"</span>-->
+                <!--<input id="especies_autocomplete" valor="" />-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<br>-->
+        <!--&lt;!&ndash;BOTONES&ndash;&gt;-->
+        <!--<div class="row">-->
+            <!--<div class="col-md-6" align="left">-->
+                <!--<a class='btn btn-danger btn-lg' href='#'><i class='fa fa-times'></i> Cancel·lar</a>-->
+                <!--&lt;!&ndash;<input hidden id="ids_especies_filtradas" num_elem="" value="" />&ndash;&gt;-->
+            <!--</div>-->
+
+            <!--<div class="col-md-6" align="right">-->
+                <!--<a id="revisar_especie" class='btn btn-success btn-lg' href='#'><i class='fa fa-check'></i> Revisar</a>-->
+            <!--</div>-->
+
+            <!--&lt;!&ndash;<div class="col-md-4" align="center">&ndash;&gt;-->
+                <!--&lt;!&ndash;<button type="submit" class="btn btn-primary btn-lg" id="boton_filtrar"><i class='fa fa-search'></i> Filtrar</button>&ndash;&gt;-->
+                <!--&lt;!&ndash;<img src="{% static 'imagenes/ajax-loader.gif' %}" id="filtrar_loading"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+        <!--</div>-->
+    <!--&lt;!&ndash;</form>&ndash;&gt;-->
+<!--</div>-->
+</body>
+</html>

@@ -347,6 +347,12 @@ $(document).ready(function(){
 
         });
 
+        // GENERAR CSV CON INFORME DE ESPECIES Y CITACIONES DE CADA UTM 10KM(EL BOTON ESTA EN AREES GEOGRAFIQUES)
+        $("#boton_informe_utm10").click(function(){
+
+            $("#form_generar_csv_informe_utm10").submit();
+        });
+
 
         // ajustar columnas al cargar un tab
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {

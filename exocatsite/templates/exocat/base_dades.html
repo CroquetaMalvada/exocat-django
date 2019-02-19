@@ -293,6 +293,18 @@
            <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Dibuixar un polígon per obtenir info" id="boton_info_poligono" onclick=""><i class="fa fa-star fa-lg"></i>  Polígon</a></div><br>
            <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Clicar en UTM per obtenir info" id="boton_info_clicar" onclick="" style="background-image:none;"><i class="fa fa-crosshairs fa-lg"></i>      UTM</a></div><br>
            <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="Clicar en comarca per obtenir info" id="boton_info_comarques" onclick="" style="background-image:none;"><i class="fa fa-globe fa-lg"></i>  Comarca</a></div><br>
+            {% if user.is_authenticated %}
+                {% for group in user.groups.all %}
+                    {% if group.name == 'Admins' %}
+                        {% if user.username == 'd.martinez' %}
+                            <form id="form_generar_csv_informe_utm10" method="post" action="/generar_csv_informe_utm10/" hidden>
+                                {% csrf_token %}
+                            </form>
+                            <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="CSV amb informaciò sobre totes les UTM's de 10 km" id="boton_informe_utm10" onclick="" style="background-image:none;"><i class="fa fa-building fa-lg"></i>  Informe CSV UTM's 10km</a></div><br>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
            </div>
            <div id="map" class="col-md-6">
 

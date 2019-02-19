@@ -554,3 +554,33 @@ class CitacionsACA(models.Model):
     class Meta:
         managed = True
         db_table = 'citacions_ACA'
+
+
+############################ VISTAS #################################
+class CitacionsGlobal(models.Model):
+    idspinvasora = models.CharField(db_column='IDSPINVASORA', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    nom = models.TextField(blank=True, null=True)
+    link = models.TextField(blank=True, null=True)
+    especie = models.CharField(max_length=100, blank=True, null=True)
+    geom = models.GeometryField(blank=True, null=True)
+    geom_4326 = models.GeometryField(blank=True, null=True)
+
+    # def __str__(self):
+    #     return self.geom_4326
+
+    class Meta:
+        managed = False
+        db_table = 'citacions_global'
+
+                # class citacions_global(models.Model):
+#     #id = models.AutoField(primary_key=True)
+#     #IDSPINVASORA = models.ForeignKey(Especieinvasora, null=True)
+#     IDSPINVASORA = models.CharField(max_length=255, blank=True, null=True)
+#     nom = models.TextField(blank=True, null=True)
+#     especie = models.CharField(max_length=100, blank=True, null=True)
+#     geom = models.GeometryField()
+#     geom_4326 = models.GeometryField()
+#
+#     class Meta:
+#         managed = False
+#         db_table = 'citacions_global'

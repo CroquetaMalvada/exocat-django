@@ -797,6 +797,8 @@ def json_especies_de_seleccion(request,multipoligono=False):
     especies_2 = CitacionsEspecie.objects.filter(utm_10__isnull=False, utm_10__in=quad).exclude(idspinvasora__in=especies.values_list('idspinvasora',flat=True)).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
 
     especies = list(chain(especies, especies_2))
+    #Ojo  pregunta:contar tambien las especies que no se localizaron en utms pero si en una citacion?
+
     resultado=[]
     for especie in especies:
         id=especie["idspinvasora"]
@@ -906,6 +908,132 @@ def json_geometries_punts(request):
 
     resultado = json.dumps(quadriculas)
     return HttpResponse(resultado, content_type='application/json;')
+
+#GENERAR CSV CON EL Nº DE ESPECIES Y DE CITACIONES QUE SE ENCUENTRAN EN CADA UTM10X10
+def generar_csv_informe_utm10(request):
+
+    resultado = HttpResponse(content_type='text/csv')
+    resultado['Content-Disposition'] = 'attachment; filename="InformeUTM10km.csv"'
+
+    writer = csv.writer(resultado, delimiter=str(u';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+    resultado.write(u'\ufeff'.encode('utf8')) # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+    writer.writerow([u'UTM 10km', u'Nº Espècies', 'Nº Citacions en punts',"Notes"])
+
+    utms10 = Quadricula.objects.filter(resolution=10000).values("id","geom_4326").order_by("id")#id='CH14',id='EG09',id='EG02'
+
+    # cursor = connection.cursor()
+    # fetch = []
+    # try:
+    #     # if 'DELETE' in especies or 'delete' in especies or 'UPDATE' in especies or 'update' in especies:# toda precaucion con las querys es poca
+    #     #     raise Http404('Error al generar el csv.')
+    #     # especies = especies.split(",")
+    #     cursor.execute('SELECT c.idspinvasora AS "IDSPINVASORA",'
+    #     " (t.genere::text || ' '::text) || t.especie::text AS nom,"
+    #     " t.especie,"
+    #     " c.geom,"
+    #     " st_transform(c.geom, 4326) AS geom_4326"
+    #     " FROM citacions c,"
+    #     " especieinvasora ei,"
+    #     " taxon t"
+    #     " WHERE ei.id::text = c.idspinvasora::text AND t.id::text = ei.idtaxon::text"
+    #     " UNION ALL"
+    #     ' SELECT ce.idspinvasora AS "IDSPINVASORA",'
+    #     " (t.genere::text || ' '::text) || t.especie::text AS nom,"
+    #     " t.especie,"
+    #     " ce.geom,"
+    #     " st_transform(ce.geom, 4326) AS geom_4326"
+    #     " FROM citacions_especie ce,"
+    #     " especieinvasora ei,"
+    #     " taxon t"
+    #     " WHERE ce.validat::text = 'SI'::text AND ei.id::text = ce.idspinvasora::text AND t.id::text = ei.idtaxon::text AND ce.utmx IS NOT NULL AND ce.utmy IS NOT NULL;"
+    #     )
+    #     #[utm["geom_4326"].wkt]) %s
+    #     fetch = dictfetchall(cursor)
+    #
+    #     # for especie in fetch:
+    #     #     ncit+=1
+    #     #     #writer.writerow([especie["taxon"], especie["grup"], especie["regionativa"], especie["viesentrada"], especie["estatushistoric"], especie["estatuscatalunya"], especie["presentcatalog"],especie["presentreglamenteur"]])
+    #     # return resultado
+    # except:
+    #     raise Http404('Error al generar el csv.')
+    #
+    # finally:
+    #     cursor.close()
+    citglobal = CitacionsGlobal.objects.all()
+    for utm in utms10:
+        nespecies = 0
+        ncit = 0
+
+        # Cojemos todos los tipos de utm's que esten dentro de la zona que abarca la utm(se incluira la propia utm)
+        #
+        # especies = PresenciaSp.objects.filter(idquadricula__in=quad).values("idspinvasora").distinct("idspinvasora")
+        #
+        # # para que al juntar especies y especies_2 no salga 2 veces una especie que existe en ambas ponemos el exclude
+        # especies_2 = CitacionsEspecie.objects.filter(utm_10__isnull=False, utm_10__in=quad).exclude(idspinvasora__in=especies.values_list('idspinvasora',flat=True)).values("idspinvasora").distinct("idspinvasora")#"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"
+        # especies_3 = CitacionsEspecie.objects.filter(utm_1__isnull=False, utm_1__in=quad).exclude(Q(idspinvasora__in=especies.values_list('idspinvasora',flat=True)) | Q(idspinvasora__in=especies_2.values_list('idspinvasora',flat=True))).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie").distinct("idspinvasora")
+        # # especies = PresenciaSp.objects.filter(idquadricula=utm["id"]).values("idspinvasora").distinct("idspinvasora") #,"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"
+        # # para que al juntar especies y especies_2 no salga 2 veces una especie que existe en ambas ponemos el exclude
+        # # especies_2 = CitacionsEspecie.objects.filter(utm_10__isnull=False, utm_10=utm["id"]).values("idspinvasora").distinct("idspinvasora")#,"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"
+        # nespecies = len(list(chain(especies, especies_2, especies_3)))
+
+        ######################
+        #OJO!!!!!! que eso de que empiecen las utm1km por EG09 no significa que esten dentro de la utm10km EG09, los ids no tienen relacion entre ellos!
+        #1 guaramos las utm de 1km que hay dentro de la utm10 en quad gracias al contained
+        quad = Quadricula.objects.filter(geom_4326__contained=utm["geom_4326"].wkt,resolution=1000).order_by("id")#quad = Quadricula.objects.filter(id__startswith=utm["id"],resolution=1000).order_by("id")#utms de 1km dentro de la utm de 10
+        #2 obtenemos las especies que hay en la utm 10 y las que han sido localizadas en utms de 1 km dentro de esa utm10
+        especies = PresenciaSp.objects.filter(idquadricula=utm["id"]).values("idspinvasora").distinct("idspinvasora") #,"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"
+        especies_2 = PresenciaSp.objects.filter(idquadricula__in=quad).exclude(idspinvasora__in=especies.values_list('idspinvasora',flat=True)).values("idspinvasora").distinct("idspinvasora") #,"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"
+        #3 unimos la lista(pusimos antes los exclude para evitar que se repitan especies al unirlas)
+        especies = list(chain(especies, especies_2))
+        #4 Repetimos el proceso pero con las localizaciones mediante formularios
+        especies_3 = CitacionsEspecie.objects.filter(utm_10__isnull=False, utm_10=utm["id"]).exclude(idspinvasora__in=especies).values("idspinvasora").distinct("idspinvasora")#,"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"especies.values_list('idspinvasora',flat=True)
+        especies = list(chain(especies, especies_3))
+        especies_4 = CitacionsEspecie.objects.filter(utm_1__isnull=False, utm_1__in=quad).exclude(idspinvasora__in=especies).values("idspinvasora").distinct("idspinvasora")#,"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"
+        #5 una vez todas las listas estan unidas,usamos el len para obtener el nº de especies total
+        especies_total=list(chain(especies, especies_4))
+        nespecies = len(especies_total)
+
+        #######################
+
+
+        # especies = PresenciaSp.objects.filter(idquadricula=utm["id"]).values("idspinvasora").distinct("idspinvasora") #,"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"
+        # especies_2 = PresenciaSp.objects.filter(idquadricula_in=quad).values("idspinvasora").distinct("idspinvasora") #,"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"
+        # # para que al juntar especies y especies_2 no salga 2 veces una especie que existe en ambas ponemos el exclude
+        # especies_3 = CitacionsEspecie.objects.filter(utm_10__isnull=False, utm_10=utm["id"]).values("idspinvasora").distinct("idspinvasora")#,"idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie"
+        # nespecies = len(list(chain(especies, especies_2)))
+
+
+        #cits = V_citacions_global.objects.filter(geom_4326__intersects=utm["geom_4326"].wkt).values("id")
+        #6 Ahora no solo contamos la citaciones que se encuentran en la utm sino que ademas anadimos al nº de especies, las especies que se encuentren unicamente en una citacion puntual dentro de esa utm
+        cits=citglobal.filter(geom_4326__intersects=utm["geom_4326"].wkt)
+        ncit=cits.count()
+        especies_de_citacions= cits.distinct("idspinvasora").values_list("idspinvasora",flat=True)
+        nespecies_de_citacions= Especieinvasora.objects.filter(id__in=especies_de_citacions).exclude(id__in=especies_total).count()
+        nespecies+=nespecies_de_citacions
+        #ncit = len(list(cits))
+        #resultado.append({"utm":utm["idquadricula"],"nespecies":nespecies,"ncit":ncit})
+        #una pequeña comprovacion para ver que no haya duplicidad
+        for sp in especies_de_citacions:
+            if sp in especies_total:
+                writer.writerow("#Error")
+        #7 Finalmente anadimos el resultado,pero si se cumple el punto 6 y hay especies solo en citaciones,lo comunicaremos con una nota en el csv
+        if nespecies_de_citacions>0:
+            mensaje=u"*De les "+str(nespecies)+u" espècies,n'hi han "+str(nespecies_de_citacions)+u" localitzades únicament en punts dins de la utm."
+            writer.writerow([utm["id"], nespecies, ncit,mensaje])
+        else:
+            writer.writerow([utm["id"],nespecies,ncit,""])
+
+        # #codigo de testeo:
+        # if(utm["id"]=='EH00'):
+        #     ncit=0
+    #especies y citaciones sin asignar en alguna utm
+    # nespecies_noassign=citglobal.exclude(idspinvasora__in=PresenciaSp.objects.all().values_list('idspinvasora',flat=True)).count()
+    #
+    # writer.writerow("","","","*Nota: Hi ha especies",nespecies_noassign)
+    # #
+    return resultado
+    #resultado_final = json.dumps(resultado)
+    # return HttpResponse(resultado_final, content_type='application/json;')
 
 # FORMULARIOS DEL USUARIO
 @login_required(login_url='/login/')
