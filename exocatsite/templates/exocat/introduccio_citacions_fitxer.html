@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+{% load static %}
+<head>
+{% block head %} {% include "exocat/head.html" %} {% endblock %}
+<script src="{% static 'js/token_ajax.js' %}" ></script>
+<!--Jquery file upload-->
+<!--<script type="text/javascript" src="{% static 'js-externos/jquery_file_upload/js/vendor/jquery.ui.widget.js' %}"></script>-->
+<!--<script type="text/javascript" src="{% static 'js-externos/jquery_file_upload/js/jquery.iframe-transport.js' %}"></script>-->
+<!--<script type="text/javascript" src="{% static 'js-externos/jquery_file_upload/js/jquery.fileupload.js' %}"></script>-->
+
+<script src="{% static 'js/funciones_introduccio_fitxer.js' %}" ></script>
+
+</head>
+<body>
+{% block cabecera %} {% include "exocat/cabecera.html" %} {% endblock %}
+<header>
+    <div class="col-md-6 offset-md-3" background="{% static 'imagenes/img_header.jpg' %}">
+        <img src="{% static 'imagenes/img_header.jpg' %}" width="100%">
+    </div>
+</header>
+<br>
+<div class="container-fluid">
+    <div class="col-md-6 offset-md-3 border border-secondary">
+        <h1 align="center">INTRODUCCIÓ DE CITACIONS PER FITXER</h1>
+        <!--{{ usuari }}<br>-->
+        <!--{% for form in formularis%}-->
+        <!--{{ form.id}} - {{ form.idspinvasora}} - {{ form.usuari}}-->
+        <!--<br>-->
+        <!--{% endfor %}-->
+        <br>
+        <!--<div class="col-md-6" align="right">-->
+        <div id="contenedor_instrucciones_fichero" class="border border-secondary">
+            "INSTRUCCIONES"<br>
+            <form id="form_generar_csv_plantilla_citaciones" method="post" action="/generar_plantilla_citacions/" hidden>
+                {% csrf_token %}
+                <input id="tipo" name="tipo" value="" hidden/>
+            </form>
+            <div class="row">
+                <div class="col-md-6" align="left">
+                    <a id="descargar_plantilla_1" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA EXCEL <i class='fa fa-table'></i>  <i class='fa fa-download'></i></a>
+                </div>
+                <div class="col-md-6" align="right">
+                    <a id="descargar_plantilla_2" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA CSV <i class='fa fa-table'></i>  <i class='fa fa-download'></i></a>
+                </div>
+            </div>
+
+        </div>
+        <div id="informe_colgar_fichero" class="border border-secondary" hidden>
+            <div id="div_errores">
+                <h4 class="text-danger" align="center"><i class='fa fa-exclamation-circle' style="color:red"></i> INFORME D'ERRORS</h4><br>
+                <list id="lista_errores"></list>
+                <br>
+            </div>
+
+        </div>
+        <br><br><br>
+        <div class="row">
+            <!--<button type="button" class="btn btn-primary js-upload-photos">-->
+                      <!--<span class="glyphicon glyphicon-cloud-upload"></span> Pujar Arxiu-->
+            <!--</button><br>-->
+            <div class="col-md-4" align="left">
+                <a id="boton_instrucciones_colgar_csv_citaciones" class='btn btn-lg' href='#'> <i class='fa fa-3x fa-list'></i> Instruccions</a>
+            </div>
+            <div class="col-md-4" align="center">
+                <a id="boton_colgar_csv_citaciones" class='btn btn-lg' href='#'> <i class='fa fa-3x fa-upload'></i> Penjar Arxiu</a>
+                <form id="form_colgar_csv_citaciones" enctype="multipart/form-data" method="post">
+                    <input id="colgar_csv_citaciones" hidden type="file" name="fitxer" token="{{ csrf_token }}" method="post">
+                </form>
+                <!--<input id="colgar_csv_citaciones" hidden type="file" name="fitxer" data-url="/upload_citaciones_csv/" data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}' method="post">-->
+            </div>
+            <div class="col-md-4" align="right">
+                <a id="boton_informe_colgar_csv_citaciones" class='btn btn-lg' href='#'> <i class='fa fa-3x fa-file-text'></i> Resultats</a>
+            </div>
+            <br><br><br>
+        </div>
+        <form action="/upload_citaciones_csv/" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <input type="file" name="csv_file" />
+            <input type="submit" value="Upload" />
+
+        </form>
+        <!--</div>-->
+        <!--<input name="id_form" id="id_form" hidden/>-->
+        <!--<input name="cargar_form" hidden/>-->
+
+    </div>
+</div>
+<!--DIALOGS-->
+
+<!--<style>-->
+<!--.ui-widget-header{-->
+<!--border:none;-->
+<!--background:none;-->
+<!--}-->
+<!--.ui-autocomplete { position: absolute; cursor: default;z-index:1001 !important;}-->
+<!--</style>-->
+<!--&lt;!&ndash;&ndash;&gt;-->
+<!--<div id="dialogrevisar_citacio"  class="container_fluid" title="">-->
+    <!--&lt;!&ndash;<form id="form_exoaqua_revisar" action="/revisar_citacions_aca/" method="post">&ndash;&gt;-->
+        <!--&lt;!&ndash;{% csrf_token %}&ndash;&gt;-->
+        <!--{% csrf_token %}-->
+        <!--<div class="row">-->
+
+            <!--<div class="input-group">-->
+                            <!--<span class="input-group-addon">Assignar espécie a "<b id="nom_de_especie"></b>"</span>-->
+                <!--<input id="especies_autocomplete" valor="" />-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<br>-->
+        <!--&lt;!&ndash;BOTONES&ndash;&gt;-->
+        <!--<div class="row">-->
+            <!--<div class="col-md-6" align="left">-->
+                <!--<a class='btn btn-danger btn-lg' href='#'><i class='fa fa-times'></i> Cancel·lar</a>-->
+                <!--&lt;!&ndash;<input hidden id="ids_especies_filtradas" num_elem="" value="" />&ndash;&gt;-->
+            <!--</div>-->
+
+            <!--<div class="col-md-6" align="right">-->
+                <!--<a id="revisar_especie" class='btn btn-success btn-lg' href='#'><i class='fa fa-check'></i> Revisar</a>-->
+            <!--</div>-->
+
+            <!--&lt;!&ndash;<div class="col-md-4" align="center">&ndash;&gt;-->
+                <!--&lt;!&ndash;<button type="submit" class="btn btn-primary btn-lg" id="boton_filtrar"><i class='fa fa-search'></i> Filtrar</button>&ndash;&gt;-->
+                <!--&lt;!&ndash;<img src="{% static 'imagenes/ajax-loader.gif' %}" id="filtrar_loading"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+        <!--</div>-->
+    <!--&lt;!&ndash;</form>&ndash;&gt;-->
+<!--</div>-->
+</body>
+</html>

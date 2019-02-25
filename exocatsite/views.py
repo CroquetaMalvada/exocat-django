@@ -14,7 +14,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib.gis.geos import GEOSGeometry
 from itertools import chain
-import json, urllib, datetime, os, requests
+import json, urllib, datetime, os, requests, codecs, csv, unicodecsv
+#para generar un excel
+try:
+    import cStringIO as StringIO
+except:
+    import StringIO
+#from xlsxwriter.workbook import Workbook
+from openpyxl import  Workbook, load_workbook
+from openpyxl.writer.excel import save_virtual_workbook #util para el httpresponse
+#Tuto de openpyxl en https://medium.com/aubergine-solutions/working-with-excel-sheets-in-python-using-openpyxl-4f9fd32de87f
+#
 from forms import *
 from models import *
 
@@ -132,7 +142,7 @@ def json_taula_especies(request):
         # if especie.idtaxon.varietat is not None:
         #     varietat = varietat+str(especie.idtaxon.varietat)
         # if especie.idtaxon.subvarietat is not None:
-        #     varietat = varietat+" - "+str(especie.idtaxon.subvarietat)
+        #     varietat = varietat+' ", '+str(especie.idtaxon.subvarietat)
         #
         # # #nombres vulgares *descartado por ahora
         # # nomsvulgars=""
@@ -466,71 +476,247 @@ def generar_csv_especies(request):
     finally:
         cursor.close()
 
-    # for especie in Especieinvasora.objects.filter(id__in=especies.split(',')):
-    #     #especie = Especieinvasora.objects.get(id=id_especie).values_list('idtaxon__genere','idtaxon__especie','idtaxon__subespecie')
-    #     #especie = get_object_or_404(Especieinvasora,id=id_especie)
-    #     id = especie.id
-    #
-    #     # nombre de la especie(se juntan el genere con especie y subespecie)
-    #     taxon = ""
-    #     genere = especie.idtaxon.genere
-    #     especiestr = especie.idtaxon.especie
-    #     subespeciestr = especie.idtaxon.subespecie
-    #     if especiestr is not None:
-    #         taxon = genere + " " + especiestr
-    #     if subespeciestr is not None:
-    #         taxon = genere + u" [Subespècie: " + subespeciestr + " ]"
-    #
-    #     # grupo
-    #     grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
-    #     if grup == None:
-    #         grup = ""
-    #
-    #     # regio nativa
-    #     regionativa = especie.regio_nativa
-    #     if regionativa == None:
-    #         regionativa = ""
-    #
-    #     # via entrada
-    #     viesentrada = u""
-    #     for via in Viaentradaespecie.objects.filter(idespecieinvasora=id):
-    #         if viesentrada == '':
-    #             viesentrada = viesentrada + via.idviaentrada.viaentrada
-    #         else:
-    #             viesentrada = viesentrada + ', ' + via.idviaentrada.viaentrada
-    #
-    #     # estatus general/historic
+
+#GENERAR UNA PLANTILLA CSV PARA LA INTRODUCCION DE CITACIONES
+def generar_csv_plantilla_citaciones(request):
+    # f = BytesIO()
+    # w = csv.writer(f, encoding='utf-8')
+    # _ = w.writerow([u'ést', u'ñgfdgdf'])
+    # _ = f.seek(0)
+    # r = csv.reader(f, encoding='utf-8')
+    # next(r) == [u'é', u'ñ']
+    #buffer = io.BytesIO()
+    #writer = csv.writer(buffer, quoting=csv.QUOTE_ALL)
+    #writer.writerow([u'Taxon', u'Grup', u'Regio nativa', u'Vies d"entrada', u'Estatus general', u'Estatus Catalunya',u'Present al "Catalogo"', u'Present al Reglament Europeu'])
+    #writer.writerow({'id','NAME','ABBREVIATION','ADDRESS'})
+    #writer.writerow([u'\/Obligatori\/', u'\/', '\/', u'\/Obligatori un dels 3\/', u'\/', u'',u'', u'', u'', u'\/Obligatori\/', u'\/Obligatori\/', ''])
+    if request.POST["tipo"]=="1": # SI ES UN EXCEL
+        #----------------- intento 1
+        # output = StringIO.StringIO()
+        #
+        # book = Workbook(output)
+        # sheet = book.add_worksheet("citacions")
+        # sheet.write(u'ESPÈCIE', u'COORDENADA UTM-X', u'COORDENADA UTM-Y', u"UTM 1 KM", u'UTM 10 KM', u'localitat',u'municipi', u'comarca', u'provincia', u'DATA', u'AUTOR/S', 'observacions')
+        # book.close()
+        #
+        # output.seek(0)
+        # resultado = HttpResponse(content_type='application/vnd.ms-excel')
+        # resultado['Content-Disposition'] = 'attachment; filename="PlantillaCitacions.xlsx"'
+        # workbook = Workbook(resultado)
+        # worksheet = workbook.add_worksheet()
+        #
+        # worksheet.write('A1', 'Hello world')
+        #
+        # #workbook.close()
+        # return resultado
+        # ----------------- intento 2
+        # output = BytesIO()
+        #
+        # workbook = Workbook(output, {'in_memory': True})
+        # worksheet = workbook.add_worksheet()
+        # # + Info en https://xlsxwriter.readthedocs.io/worksheet.html
+        # worksheet.write(0, 0, u'ESPÈCIE')
+        # worksheet.write(0, 1, u'COORDENADA UTM-X')
+        # worksheet.write(0, 2, u'COORDENADA UTM-Y')
+        # worksheet.write(0, 3, u'UTM 1 KM')
+        # worksheet.write(0, 4, u'UTM 10 KM')
+        # worksheet.write(0, 5, u'localitat')
+        # worksheet.write(0, 6, u'municipi')
+        # worksheet.write(0, 7, u'comarca')
+        # worksheet.write(0, 8, u'provincia')
+        # worksheet.write(0, 9, u'DATA')
+        # worksheet.write(0, 10, u'AUTOR/S')
+        # worksheet.write(0, 11, u'observacions')
+        # workbook.close()
+        #
+        # output.seek(0)
+        #
+        # response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        # response['Content-Disposition'] = "attachment; filename=PlantillaCitacions.xlsx"
+        #
+        # output.close()
+        #
+        # return response
+        # ----------------- intento 3
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.append([u'ESPÈCIE', u'COORDENADA UTM-X', u'COORDENADA UTM-Y', u"UTM 1 KM", u'UTM 10 KM', u'localitat',u'municipi', u'comarca', u'provincia', u'DATA', u'AUTOR/S', 'observacions'])
+        response = HttpResponse(content=save_virtual_workbook(workbook), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=PlantillaCitacions.xlsx'
+        return response
+
+    else: # SI ES UN CSV
+        resultado = HttpResponse(content_type='text/csv')
+        resultado['Content-Disposition'] = 'attachment; filename="PlantillaCitacions.csv"'
+
+        writer = csv.writer(resultado, delimiter=str(";"), dialect='excel') #  quoting=csv.QUOTE_ALL,writer = csv.writer(resultado, delimiter=str(';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+        resultado.write(u'\ufeff'.encode('utf8')) # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+        writer.writerow([u'ESPÈCIE', u'COORDENADA UTM-X', u'COORDENADA UTM-Y', u"UTM 1 KM", u'UTM 10 KM', u'localitat',u'municipi', u'comarca', u'provincia', u'DATA', u'AUTOR/S', 'observacions'])#, "*Nota: Els camps en majúscules son obligatoris. Excepte els de les UTM's ja que només serà necessari omplir un dels 3."
+        #writer.writerow([u'CAMPS OBLIGATORIS:',u'Espècie', u'(Opció 1)Coordenada UTM-X', u'(Opció 1)Coordenada UTM-Y', u"(Opció 2)UTM 1km", u'(Opció 3)UTM 10km', u'Data', u'Autor/s', u'',u'CAMPS OPCIONALS:',u'Localitat',u'Municipi', u'Comarca', u'Provincia', 'Observacions'])
+        return resultado
+    return []
+
+#UPLOAD CITACIONES EN CSV
+def upload_citaciones_csv(request):
+    resultado = []
+    errores=0
+    errorlist=[]
+    lineas_error_especie=""
+    lineas_error_coordenadas = ""
+    lineas_error_data = ""
+    lineas_error_autor = ""
+    nlinea=0
+    # try:
+    #     csvfile = request.FILES['csv_file']
+    #     dialect = csv.Sniffer().sniff(codecs.EncodedFile(csvfile, "latin-1").read(1024))
+    #     csvfile.open()
+    #     reader = csv.reader(codecs.EncodedFile(csvfile, "latin-1"), delimiter=str(";"), dialect=dialect)
+    # except:
     #     try:
-    #         estatushistoric = especie.idestatushistoric.nom
+    #         csvfile = request.FILES['csv_file']
+    #         dialect = csv.Sniffer().sniff(codecs.EncodedFile(csvfile, "utf-8").read(1024))
+    #         csvfile.open()
+    #         reader = csv.reader(codecs.EncodedFile(csvfile, "utf-8"), delimiter=str(","), dialect=dialect)
     #     except:
-    #         estatushistoric = ""
-    #
-    #     # estatus catalunya
-    #     try:
-    #         estatuscatalunya = especie.idestatuscatalunya.nom
-    #     except:
-    #         estatuscatalunya = ""
-    #
-    #     # present catalog
-    #     presentcatalog = especie.present_catalogo
-    #     if presentcatalog == "S":
-    #         presentcatalog = "Si"
-    #     else:
-    #         presentcatalog = "No"
-    #
-    #     # present reglament
-    #     presentreglamenteur = especie.reglament_ue
-    #     if presentreglamenteur == "S":
-    #         presentreglamenteur = "Si"
-    #     else:
-    #         presentreglamenteur = "No"
-    #
-    #     writer.writerow([taxon, grup, regionativa, viesentrada, estatushistoric, estatuscatalunya, presentcatalog, presentreglamenteur])
-    #
-    #
-    # return resultado
+    #         return JsonResponse({"error": True, 'errormessage': 'Error: Hi han caracters incompatibles dintre del fitxer.'})
+
+    # try:
+    if request.POST:
+        file= request.FILES['fitxer']
+        tipo=0; #1=excel xlsx 2=csv
+        # if not file.name.endswith(".csv"):
+        #     return JsonResponse({"error": True, 'errormessage': 'Error: El fitxer ha de ser un ".CSV"'})
+        #
+        # decoded_file = file.read().decode('utf-8')
+        # lines=decoded_file.split("\n")
+
+        #### Primero averiguamos el tipo de fixhero que es
+        if not file.name.endswith(".xlsx"):
+            if not file.name.endswith(".csv"):
+                return JsonResponse({"error": True, 'errores': 'Error: El fitxer ha de ser un ".CSV"'})
+            else:
+                tipo=2
+        else:
+            tipo=1
+        #############
+        ##Ahora,segun el tipo de archivo lo leemos
+        if tipo==1:
+            reader=load_workbook(file.name)
+            sheet=reader.active
+            # b1=sheet['B1']
+            # b2 = sheet['B2']
+            reader=sheet
+        if tipo==2:
+            try:
+                reader=unicodecsv.reader(file, encoding='utf8', delimiter=str(';'))#, encoding='latin-1', delimiter=str('\t')
+                #reader=unicodecsv.reader(file, encoding='utf-8', delimiter=str(csv.Sniffer().sniff(file.read(1024)).delimiter))#, encoding='latin-1', delimiter=str('\t')
+
+            except:
+                reader = unicodecsv.reader(file, encoding='latin-1', delimiter=str(';'))
+            #reader=unicodecsv.reader(file, encoding='latin-1', delimiter=str(csv.Sniffer().sniff(file.read(1024)).delimiter))#, encoding='latin-1', delimiter=str('\t')
+        #reader=unicodecsv.reader(request.FILES['fitxer'], encoding='latin-1', delimiter=str(','))#, encoding='latin-1', delimiter=str('\t')
+        # if not reader.dialect.delimiter=="\t":
+        #     return JsonResponse({"error": True, 'errores': 'Error: Hi han caracters incompatibles dintre del fitxer.'})
+        for line in reader: #Miramos todas las lineas en busca de errores
+            if nlinea>0:#Evitamos analizar la primera linea
+                # fields=line.split(str("\t"))
+                # data_dict = {}
+                if tipo == 1:
+                    especie = line[0].value
+                    utmx = line[1].value
+                    utmy = line[2].value
+                    utm1 = line[3].value
+                    utm10 = line[4].value
+                    localitat = line[5].value
+                    municipi = line[6].value
+                    comarca = line[7].value
+                    provincia = line[8].value
+                    data = line[9].value
+                    autor = line[10].value
+                    observacions = line[11].value
+                else:
+                    especie=line[0]
+                    utmx=line[1]
+                    utmy=line[2]
+                    utm1=line[3]
+                    utm10=line[4]
+                    localitat=line[5]
+                    municipi=line[6]
+                    comarca=line[7]
+                    provincia=line[8]
+                    data=line[9]
+                    autor=line[10]
+                    observacions=line[11]
+
+                #####COMPROBAR QUE ESTEN LOS CAMPOS OBLIGATORIOS
+                #Especie
+                if especie =="" or especie is None:
+                    errores+=1
+                    lineas_error_especie+=str(nlinea+1)+' ", '
+                    #lineas_error_especie.append(nlinea+1)
+                    #errorlist.append("El camp 'Espécie' està buit o es incorrecte.")
+                #Comprobar que al menos uno de los de coordenadas tenga algo
+                if utmx=="" or utmy=="" or utmx is None or utmy is None:
+                    if utm1=="" or utm1 is None:
+                        if utm10=="" or utm10 is None:
+                            errores+=1
+                            lineas_error_coordenadas+=str(nlinea+1)+' ", '
+                            #lineas_error_coordenadas.append(nlinea + 1)
+                            #errorlist.append("Es obligatori posar al menys un del 3 tipus de coordenades.")
+                #Data
+                if data =="" or data is None:
+                    errores += 1
+                    lineas_error_data+=str(nlinea+1)+' ", '
+                    #lineas_error_data.append(nlinea + 1)
+                    #errorlist.append("El camp 'Data' està buit o es incorrecte.")
+                else:
+                    errodata=0
+                    try:
+                        data=datetime.datetime.strptime(data, '%d-%m-%Y') #no hace falta quitar lo del time porque esto es solo para comprovar que este bien escrito
+                    except:
+                        try:
+                            data=datetime.datetime.strptime(data, '%Y-%m-%d')
+                            data = datetime.datetime.strptime(data, '%d-%m-%Y')
+                        except:
+                            errores+=1
+                            lineas_error_data+=str(nlinea+1)+' ", '
+                            #lineas_error_data.append(nlinea + 1)
+                            #errorlist.append("El format del camp 'Data' es incorrecte.")
+                #Autor
+                if autor=="" or autor is None:
+                    errores+=1
+                    lineas_error_autor+=str(nlinea+1)+' ", '
+                    #lineas_error_autor.append(nlinea + 1)
+                    #errorlist.append("El camp 'Autor/s' està buit o es incorrecte.")
+
+            nlinea+=1
+        #Ahora anadimos el error general de cada campo si hay lineas de fallo en el mismo
+        if lineas_error_especie != "":
+            errorlist.append("El camp <b>'Espécie'</b> està buit o es incorrecte en les següents línies: <hr>"+'" '+lineas_error_especie)
+        if lineas_error_coordenadas != "":
+            errorlist.append("Error de coordenades en les següents línies: <hr>"+'" '+lineas_error_coordenadas)
+        if lineas_error_data != "":
+            errorlist.append("El camp <b>'Data'</b> està buit o té un format incorrecte(recomenable posar 'dia-mes-any') en les següents línies: <hr>"+'" '+lineas_error_data)
+        if lineas_error_autor != "":
+            errorlist.append("El camp <b>'Autor/s'</b> està buit o es incorrecte en les següents línies: <hr>"+'" '+lineas_error_especie)
 
 
+        #decoded_file = file.read().decode('utf-8').splitlines()
+        #reader = csv.DictReader(decoded_file)
+
+        # for row in reader:
+        #     row[0]
+        #     resultado = {"error": True, 'errormessage': 'Error: El fitxer ha de ser una imatge.'}
+
+    # except:
+    #     return JsonResponse({"error": True, 'errormessage': "Error: Hi hagut un problema al llegir l'arxiu."})
+    #return JsonResponse(resultado)
+    try:
+        resultado = {"errores":errores,"listado_errores":errorlist}
+        resultado = json.dumps(resultado)
+        return HttpResponse(resultado, content_type='application/json;')
+    except:
+        return []
 
 # INFO DE UNA ESPECIE
 def json_info_especie(request):
@@ -1408,6 +1594,13 @@ def view_revisar_citacions_aca(request):
 
     context = {'especies_autocomplete':especies_autocomplete,'titulo': "REVISAR CITACIONS EXOAQUA", 'usuari': request.user.username}
     return render(request, 'exocat/revisar_citacions_aca.html', context)
+
+# VIEW PARA INTRODUCIR CITACIONES MEDIANTE FICHEROS
+@login_required(login_url='/login/')
+def view_introduccio_citacions_fitxer(request):
+    context = {'titulo': "INTRODUIR CITACIONS FITXER", 'usuari': request.user.username}
+    return render(request, 'exocat/introduccio_citacions_fitxer.html', context)
+
 
 # AJAX DE LES CITACIONS DE EXOAQUA PER REVISAR
 @login_required(login_url='/login/')

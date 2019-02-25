@@ -31,6 +31,7 @@ urlpatterns = [
     #url(r'^formularis_aca/',views.view_formularis_aca,name="formularis aca"),
     url(r'^formularis/',views.view_formularis_usuari,name="formularis usuari"),
     url(r'^revisar_citacions_aca/',views.view_revisar_citacions_aca,name="revisar citacions aca"),
+    url(r'^introduccio_citacions_fitxer/',views.view_introduccio_citacions_fitxer,name="introduccio citacions fitxer"),
     url(r'^mapa/',views.view_mapa,name="mapa"),
     # AJAX SELECTS BASE DE DADES
     url('^ajax_varietat_select/', views.json_select_varietat),
@@ -66,6 +67,11 @@ urlpatterns = [
     #GENERAR INFORME CSV CON ESPECIES Y CITACIONES DE CADA UTM 10KM
     url('^generar_csv_informe_utm10/$', views.generar_csv_informe_utm10),
 
+    #GENERAR PLANTILLA CSV
+    url('^generar_plantilla_citacions/$', views.generar_csv_plantilla_citaciones),
+
+    #UPLOAD ARCHIVO CITACIONES
+    url('^upload_citaciones_csv/$', views.upload_citaciones_csv),
 ]
 # solo para desarrollo
 if settings.DEBUG:
