@@ -6,25 +6,25 @@ $(document).ready(function(){
 
     $("#descargar_plantilla_1").click(function(){
         $("#tipo").attr("value",1);
-        $("#form_generar_csv_plantilla_citaciones").submit();
+        $("#form_generar_fichero_plantilla_citaciones").submit();
     });
     $("#descargar_plantilla_2").click(function(){
         $("#tipo").attr("value",2);
-        $("#form_generar_csv_plantilla_citaciones").submit();
+        $("#form_generar_fichero_plantilla_citaciones").submit();
     });
-    $("#boton_colgar_csv_citaciones").click(function(){
-        $("#colgar_csv_citaciones").click();
+    $("#boton_colgar_fichero_citaciones").click(function(){
+        $("#colgar_fichero_citaciones").click();
     });
-    $("#colgar_csv_citaciones").change(function(){
-        $("#form_colgar_csv_citaciones").submit();
+    $("#colgar_fichero_citaciones").change(function(){
+        $("#form_colgar_fichero_citaciones").submit();
     });
 
-    $("#form_colgar_csv_citaciones").on("submit",function(e){
+    $("#form_colgar_fichero_citaciones").on("submit",function(e){
         e.preventDefault();
-        var datos= new FormData(document.getElementById("form_colgar_csv_citaciones"));
-        datos.append("csrfmiddlewaretoken",$("#colgar_csv_citaciones").attr("token"));
+        var datos= new FormData(document.getElementById("form_colgar_fichero_citaciones"));
+        datos.append("csrfmiddlewaretoken",$("#colgar_fichero_citaciones").attr("token"));
         $.ajax({
-            url:"/upload_citaciones_csv/",
+            url:"/upload_citaciones_fichero/",
             type:"POST",
             dataType:"json",
             data:datos,
@@ -33,8 +33,9 @@ $(document).ready(function(){
             processData:false,
             success:function(data){
                 //alert(data["errores"]);
-                console.log(data);
+                //console.log(data);
                 if(data["errores"]>0){
+                    $("#boton_informe_colgar_fichero_citaciones").removeClass("disabled");
                     alert("Error al pujar l'arxiu. Es motrarà l'informe d'errors a continuació.");
                     $("#lista_errores").html("");
                     $.each(data["listado_errores"],function(index,error){
@@ -43,18 +44,26 @@ $(document).ready(function(){
                         );
                     })
                     mostrar_informe();
+                }else{
+                    $("#boton_informe_colgar_fichero_citaciones").removeClass("disabled");
+                    alert("Fitxer de citacions processat amb éxit.");
+                    $("#lista_errores").html("");
+                    $("#lista_errores").append(
+                            '<div class="alert alert-success">'+data["mensaje_exito"]+'</div>'
+                    );
+                    mostrar_informe();
                 }
                 //alert("hola");
 
                 //console.log("hola");
             },
             error:function(){
-                alert("Error");
+                alert("Error al pujar l'arxiu.");
             }
         });
     });
 
-//    $('#colgar_csv_citaciones').fileupload({
+//    $('#colgar_fichero_citaciones').fileupload({
 //        dataType: 'json',
 //        done: function (e, data) {
 //            $.each(data.result.files, function (index, file) {

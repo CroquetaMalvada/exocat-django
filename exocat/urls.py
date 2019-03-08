@@ -67,11 +67,11 @@ urlpatterns = [
     #GENERAR INFORME CSV CON ESPECIES Y CITACIONES DE CADA UTM 10KM
     url('^generar_csv_informe_utm10/$', views.generar_csv_informe_utm10),
 
-    #GENERAR PLANTILLA CSV
-    url('^generar_plantilla_citacions/$', views.generar_csv_plantilla_citaciones),
+    #GENERAR PLANTILLA CSV/EXCEL
+    url('^generar_plantilla_citacions/$', views.generar_fichero_plantilla_citaciones),
 
     #UPLOAD ARCHIVO CITACIONES
-    url('^upload_citaciones_csv/$', views.upload_citaciones_csv),
+    url('^upload_citaciones_fichero/$', views.upload_citaciones_fichero),
 ]
 # solo para desarrollo
 if settings.DEBUG:

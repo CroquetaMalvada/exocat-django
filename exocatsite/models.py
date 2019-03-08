@@ -64,7 +64,18 @@ class Citacions(models.Model):
     ind_ha = models.FloatField(blank=True, null=True)
     ind_capt = models.IntegerField(blank=True, null=True)
     geom = models.TextField(blank=True, null=True)  # This field type is a guess.
-    geom_4326 = models.GeometryField()  # modificado
+    # ------------------------------------------------- MODIFICADO
+    geom_4326 = models.GeometryField()
+    id_paquet = models.CharField(max_length=255, blank=True, null=True)
+    hash = models.CharField(max_length=5450, blank=True, null=True)
+    usuari = models.CharField(max_length=255, blank=True, null=True)
+    origen_dades = models.CharField(max_length=100, blank=True, null=True)
+    utm1 = models.CharField(max_length=100, blank=True, null=True)
+    utm10 = models.CharField(max_length=100, blank=True, null=True)
+
+    ##Al final la tabla presencia_sp no tiene un id asi que haremos la comprobacion mediante la quadricula de utm10/1 y el idspinvasora
+    # id_presencia_utm10 = models.CharField(max_length=100, blank=True, null=True)#ForeignKey(PresenciaSp) # on_delete=models.CASCADE) db_column
+    # id_presencia_utm1 = models.CharField(max_length=100, blank=True, null=True)#ForeignKey(PresenciaSp)
 
     class Meta:
         managed = False
@@ -298,7 +309,7 @@ class Regionativa(models.Model):
         db_table = 'regionativa'
 
 class PresenciaSp(models.Model):
-    idquadricula = models.ForeignKey('Quadricula', models.DO_NOTHING, db_column='idquadricula', blank=True, null=True)
+    idquadricula = models.ForeignKey('Quadricula', models.DO_NOTHING, db_column='idquadricula', primary_key=True) #La ponemos como pk porque sino django intentara acceder a una columna "id" que no existe
     idspinvasora = models.ForeignKey(Especieinvasora, models.DO_NOTHING, db_column='idspinvasora', blank=True, null=True)
 
     class Meta:

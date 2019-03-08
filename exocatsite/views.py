@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+from uuid import uuid4
+
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
@@ -14,7 +17,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib.gis.geos import GEOSGeometry
 from itertools import chain
-import json, urllib, datetime, os, requests, codecs, csv, unicodecsv
+import json, urllib, datetime, os, requests, codecs, csv, unicodecsv, uuid
 #para generar un excel
 try:
     import cStringIO as StringIO
@@ -350,7 +353,7 @@ def filtrar_especies(campos):
     # APLICAMOS LOS FILTROS:
 
     especies= Especieinvasora.objects.filter(
-        # para el nombre(campo especie) !Ojo __icontains no es sensible a mayusculas a diferencia de __contains!
+        # para el nombre(campo especie) !Ojo __icontains no es sensible a mayusculas a diferencia de __icontains!
         filtro_nombre(),# incluye el genere,especie,subespecie y varietat
         # filtro_genere(),
         # filtro_especie(),
@@ -408,7 +411,10 @@ def json_taula_especies_filtres(request):
                 genere = genere + u" [Subespècie: " + subespeciestr + " ]"
 
             # grupo
-            grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
+            if Grupespecie.objects.filter(idespecieinvasora=id).exists():
+                grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
+            else:
+                grup = "Deconegut"
 
             resultado.append({'id': id, 'especie': genere, 'grup': grup})  # ,'nomsvulgars':nomsvulgars,'habitat':habitat
         # para el input de ids para el csv
@@ -478,7 +484,7 @@ def generar_csv_especies(request):
 
 
 #GENERAR UNA PLANTILLA CSV PARA LA INTRODUCCION DE CITACIONES
-def generar_csv_plantilla_citaciones(request):
+def generar_fichero_plantilla_citaciones(request):
     # f = BytesIO()
     # w = csv.writer(f, encoding='utf-8')
     # _ = w.writerow([u'ést', u'ñgfdgdf'])
@@ -557,10 +563,11 @@ def generar_csv_plantilla_citaciones(request):
     return []
 
 #UPLOAD CITACIONES EN CSV
-def upload_citaciones_csv(request):
+def upload_citaciones_fichero(request):
     resultado = []
     errores=0
     errorlist=[]
+    mensaje_exito=u""
     lineas_error_especie=""
     lineas_error_coordenadas = ""
     lineas_error_data = ""
@@ -592,114 +599,379 @@ def upload_citaciones_csv(request):
 
         #### Primero averiguamos el tipo de fixhero que es
         if not file.name.endswith(".xlsx"):
-            if not file.name.endswith(".csv"):
-                return JsonResponse({"error": True, 'errores': 'Error: El fitxer ha de ser un ".CSV"'})
+            if not file.name.endswith(".xls"):
+                if not file.name.endswith(".csv"):
+                    errores+=1
+                    errorlist.append('El fitxer ha de ser un ".xlsx" o un ".csv"')
+                    #return JsonResponse({"error": True, 'errores': 'Error: El fitxer ha de ser un ".xlsx" o un ".csv"'})
+                else:
+                    tipo=2
             else:
-                tipo=2
+                errores+=1
+                errorlist.append('El format ".xls" es antic i està obsolet (Excel 1997-2003). Intenta guardar-ho amb una versió del Excel superior al 2003 per que tingui la extensió ".xlsx"')
+                #return JsonResponse({"error": True, 'errores': 'Error: El format ".xls" es antic i està obsolet (Excel 1997-2003). Intenta guardar-ho amb una versió del Excel superior al 2003 per que tingui la extensió ".xlsx"'})
         else:
             tipo=1
         #############
-        ##Ahora,segun el tipo de archivo lo leemos
-        if tipo==1:
-            reader=load_workbook(file.name)
-            sheet=reader.active
-            # b1=sheet['B1']
-            # b2 = sheet['B2']
-            reader=sheet
-        if tipo==2:
-            try:
-                reader=unicodecsv.reader(file, encoding='utf8', delimiter=str(';'))#, encoding='latin-1', delimiter=str('\t')
-                #reader=unicodecsv.reader(file, encoding='utf-8', delimiter=str(csv.Sniffer().sniff(file.read(1024)).delimiter))#, encoding='latin-1', delimiter=str('\t')
+        ##Ahora, si no hay errores de formato, segun el tipo de archivo lo leemos
+        if errores==0:
+            if tipo==1:
+                reader=load_workbook(file.name)
+                sheet=reader.active
+                # b1=sheet['B1']
+                # b2 = sheet['B2']
+                reader=sheet
+            if tipo==2:
+                try:
+                    reader=unicodecsv.reader(file, encoding='utf8', delimiter=str(';'))#, encoding='latin-1', delimiter=str('\t')
+                    #reader=unicodecsv.reader(file, encoding='utf-8', delimiter=str(csv.Sniffer().sniff(file.read(1024)).delimiter))#, encoding='latin-1', delimiter=str('\t')
 
-            except:
-                reader = unicodecsv.reader(file, encoding='latin-1', delimiter=str(';'))
-            #reader=unicodecsv.reader(file, encoding='latin-1', delimiter=str(csv.Sniffer().sniff(file.read(1024)).delimiter))#, encoding='latin-1', delimiter=str('\t')
-        #reader=unicodecsv.reader(request.FILES['fitxer'], encoding='latin-1', delimiter=str(','))#, encoding='latin-1', delimiter=str('\t')
-        # if not reader.dialect.delimiter=="\t":
-        #     return JsonResponse({"error": True, 'errores': 'Error: Hi han caracters incompatibles dintre del fitxer.'})
-        for line in reader: #Miramos todas las lineas en busca de errores
-            if nlinea>0:#Evitamos analizar la primera linea
-                # fields=line.split(str("\t"))
-                # data_dict = {}
-                if tipo == 1:
-                    especie = line[0].value
-                    utmx = line[1].value
-                    utmy = line[2].value
-                    utm1 = line[3].value
-                    utm10 = line[4].value
-                    localitat = line[5].value
-                    municipi = line[6].value
-                    comarca = line[7].value
-                    provincia = line[8].value
-                    data = line[9].value
-                    autor = line[10].value
-                    observacions = line[11].value
-                else:
-                    especie=line[0]
-                    utmx=line[1]
-                    utmy=line[2]
-                    utm1=line[3]
-                    utm10=line[4]
-                    localitat=line[5]
-                    municipi=line[6]
-                    comarca=line[7]
-                    provincia=line[8]
-                    data=line[9]
-                    autor=line[10]
-                    observacions=line[11]
+                except:
+                    reader = unicodecsv.reader(file, encoding='latin-1', delimiter=str(';'))
+                #reader=unicodecsv.reader(file, encoding='latin-1', delimiter=str(csv.Sniffer().sniff(file.read(1024)).delimiter))#, encoding='latin-1', delimiter=str('\t')
+            #reader=unicodecsv.reader(request.FILES['fitxer'], encoding='latin-1', delimiter=str(','))#, encoding='latin-1', delimiter=str('\t')
+            # if not reader.dialect.delimiter=="\t":
+            #     return JsonResponse({"error": True, 'errores': 'Error: Hi han caracters incompatibles dintre del fitxer.'})
+            for line in reader: #Miramos todas las lineas en busca de errores
+                if nlinea > 0 and any(cell.value for cell in line): # Evitamos analizar la primera linea si es una cabecera y aquellas filas que esten vacias
+                    if tipo == 1:
+                        especie = line[0].value
+                        utmx = line[1].value
+                        utmy = line[2].value
+                        utm1 = line[3].value
+                        utm10 = line[4].value
+                        localitat = line[5].value
+                        municipi = line[6].value
+                        comarca = line[7].value
+                        provincia = line[8].value
+                        data = line[9].value #Ojo que el openpyxl suele transformarlo en datetime
+                        autor = line[10].value
+                        observacions = line[11].value
 
-                #####COMPROBAR QUE ESTEN LOS CAMPOS OBLIGATORIOS
-                #Especie
-                if especie =="" or especie is None:
-                    errores+=1
-                    lineas_error_especie+=str(nlinea+1)+' ", '
-                    #lineas_error_especie.append(nlinea+1)
-                    #errorlist.append("El camp 'Espécie' està buit o es incorrecte.")
-                #Comprobar que al menos uno de los de coordenadas tenga algo
-                if utmx=="" or utmy=="" or utmx is None or utmy is None:
-                    if utm1=="" or utm1 is None:
-                        if utm10=="" or utm10 is None:
-                            errores+=1
-                            lineas_error_coordenadas+=str(nlinea+1)+' ", '
-                            #lineas_error_coordenadas.append(nlinea + 1)
-                            #errorlist.append("Es obligatori posar al menys un del 3 tipus de coordenades.")
-                #Data
-                if data =="" or data is None:
-                    errores += 1
-                    lineas_error_data+=str(nlinea+1)+' ", '
-                    #lineas_error_data.append(nlinea + 1)
-                    #errorlist.append("El camp 'Data' està buit o es incorrecte.")
-                else:
-                    errodata=0
-                    try:
-                        data=datetime.datetime.strptime(data, '%d-%m-%Y') #no hace falta quitar lo del time porque esto es solo para comprovar que este bien escrito
-                    except:
                         try:
-                            data=datetime.datetime.strptime(data, '%Y-%m-%d')
-                            data = datetime.datetime.strptime(data, '%d-%m-%Y')
+                            data=str(data.date())
+                        except:
+                            data=data
+                    else:
+                        especie=line[0]
+                        utmx=line[1]
+                        utmy=line[2]
+                        utm1=line[3]
+                        utm10=line[4]
+                        localitat=line[5]
+                        municipi=line[6]
+                        comarca=line[7]
+                        provincia=line[8]
+                        data=line[9]
+                        autor=line[10]
+                        observacions=line[11]
+
+                    #Los campos vacios ponerlos como string "" para evitar problemas con el encode
+                    # if especie is None:
+                    #    especie=""
+                    # if utmx is None or utmy is None:
+                    #    utmx=""
+                    #    utmy=""
+                    # if utm1 is None:
+                    #    utm1=""
+                    # if utm10 is None:
+                    #    utm10=""
+                    # if localitat is None:
+                    #    localitat=""
+                    # if municipi is None:
+                    #    municipi=""
+                    # if comarca is None:
+                    #     comarca=""
+                    # if provincia is None:
+                    #     provincia=""
+                    # if observacions is None:
+                    #     observacions=""
+                    # #
+                    #####COMPROBAR QUE ESTEN LOS CAMPOS OBLIGATORIOS
+                    #Especie
+                    if especie =="" or especie is None:
+                        errores+=1
+                        lineas_error_especie+=str(nlinea+1)+' ", '
+
+                    # encontrar el id_especie en funcion de la especie proporcionada
+                    else:
+                        try:
+                            taxonencontrado=0
+                            array_especie = especie.split(" ")
+                            if len(array_especie)>2:# si tiene subespecie
+                                idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie__icontains=array_especie[2]).first().id
+                                taxonencontrado = 1
+                            else: # ponemos que subespecie sea None ya que hay especies con mas de una subespecie,y puede devolver multiples taxons
+                                idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie=None).first().id
+                                taxonencontrado = 1
+                            idspinvasora = Especieinvasora.objects.get(idtaxon=idtaxon).id
                         except:
                             errores+=1
-                            lineas_error_data+=str(nlinea+1)+' ", '
-                            #lineas_error_data.append(nlinea + 1)
-                            #errorlist.append("El format del camp 'Data' es incorrecte.")
-                #Autor
-                if autor=="" or autor is None:
-                    errores+=1
-                    lineas_error_autor+=str(nlinea+1)+' ", '
-                    #lineas_error_autor.append(nlinea + 1)
-                    #errorlist.append("El camp 'Autor/s' està buit o es incorrecte.")
+                            if taxonencontrado == 1:
+                                errorlist.append("L’espècie '' "+especie+" '' existeix a la base dades pero no consta com a espècie invasora. Contacta amb <a href='mailto:suport.exocat@creaf.uab.cat'>suport.exocat@creaf.uab.cat</a> per a mes info.")
+                            else:
+                                errorlist.append("No s’ha trobat l’espècie '' "+especie+" '' a la base de dades. Comprova que estigui ben escrit o contacta amb <a href='mailto:suport.exocat@creaf.uab.cat'>suport.exocat@creaf.uab.cat</a>")
+                    #Comprobar que al menos uno de los de coordenadas tenga algo y que las de 1 y 10km existan!
+                    vacios=0
+                    if utmx=="" or utmy=="" or utmx is None or utmy is None:
+                        vacios+=1
+                    if utm1=="" or utm1 is None:
+                        vacios+=1
+                    if utm10=="" or utm10 is None:
+                        vacios+=1
+                    if vacios==3:
+                        errores+=1
+                        lineas_error_coordenadas+=str(nlinea+1)+' ", '
+                    else:# si hay por lo menos uno de los 3 relleno:
+                        erroresutm=0
+                        if (utmx != "" and utmy != "") and (utmx is not None and utmy is not None):
+                            try:
+                                punto = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=23031)
+                                punto2 = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=4326)
+                            except:
+                                erroresutm+=1
+                        if utm10 != "" and utm10 is not None:
+                            if not Quadricula.objects.filter(id=utm10, resolution=10000).exists():
+                                erroresutm+=1
+                        if utm1 != "" and utm1 is not None:
+                            if not Quadricula.objects.filter(id=utm1,resolution=1000).exists():
+                                erroresutm+=1
+                        if erroresutm>0:
+                            errores += 1
+                            lineas_error_coordenadas += str(nlinea + 1) + ' ", '
 
-            nlinea+=1
-        #Ahora anadimos el error general de cada campo si hay lineas de fallo en el mismo
-        if lineas_error_especie != "":
-            errorlist.append("El camp <b>'Espécie'</b> està buit o es incorrecte en les següents línies: <hr>"+'" '+lineas_error_especie)
-        if lineas_error_coordenadas != "":
-            errorlist.append("Error de coordenades en les següents línies: <hr>"+'" '+lineas_error_coordenadas)
-        if lineas_error_data != "":
-            errorlist.append("El camp <b>'Data'</b> està buit o té un format incorrecte(recomenable posar 'dia-mes-any') en les següents línies: <hr>"+'" '+lineas_error_data)
-        if lineas_error_autor != "":
-            errorlist.append("El camp <b>'Autor/s'</b> està buit o es incorrecte en les següents línies: <hr>"+'" '+lineas_error_especie)
+                    #Data
+                    if data =="" or data is None:
+                        errores += 1
+                        lineas_error_data+=str(nlinea+1)+' ", '
+                    else:
+                        errordata=0
+                        #separador -
+                        try:
+                            data=datetime.datetime.strptime(data, '%d-%m-%Y').date().strftime('%d-%m-%Y') #no hace falta quitar lo del time porque esto es solo para comprovar que este bien escrito
+                        except:
+                            try:
+                                data= datetime.datetime.strptime(data, '%Y-%m-%d').date().strftime('%d-%m-%Y')
+                            except:
+                                errordata+=1
 
+                        #separador /
+                        if errordata == 1:
+                            try:
+                                data=datetime.datetime.strptime(data, '%d/%m/%Y').date().strftime('%d-%m-%Y') #no hace falta quitar lo del time porque esto es solo para comprovar que este bien escrito
+                            except:
+                                try:
+                                    data= datetime.datetime.strptime(data, '%Y/%m/%d').date().strftime('%d-%m-%Y')
+                                except:
+                                    errordata+=1
+
+                        #
+                        if errordata>1:
+                            errores += 1
+                            lineas_error_data += str(nlinea + 1) + ' ", '
+                            data=str(data)
+                         #FORMATEAR FECHA
+                        errordata = 0
+                        # separador -
+                        try:
+                           data = datetime.datetime.strptime(data, '%d-%m-%Y').date().strftime('%d-%m-%Y')  # no hace falta quitar lo del time porque esto es solo para comprovar que este bien escrito
+                        except:
+                           try:
+                               data = datetime.datetime.strptime(data, '%Y-%m-%d').date().strftime('%d-%m-%Y')
+                           except:
+                               errordata += 1
+                        # separador /
+                        if errordata == 1:
+                           try:
+                               data = datetime.datetime.strptime(data, '%d/%m/%Y').date().strftime('%d-%m-%Y')  # no hace falta quitar lo del time porque esto es solo para comprovar que este bien escrito
+                           except:
+                               try:
+                                   data = datetime.datetime.strptime(data, '%Y/%m/%d').date().strftime('%d-%m-%Y')
+                               except:
+                                   errordata += 1
+                        if(errordata>1):
+                           data=str(data)
+
+                        #############
+
+                    #Autor
+                    if autor=="" or autor is None:
+                        errores+=1
+                        lineas_error_autor+=str(nlinea+1)+' ", '
+                        #lineas_error_autor.append(nlinea + 1)
+                        #errorlist.append("El camp 'Autor/s' està buit o es incorrecte.")
+
+                nlinea+=1
+            #Ahora anadimos el error general de cada campo si hay lineas de fallo en el mismo
+            if lineas_error_especie != "":
+                errorlist.append("El camp <b>'Espécie'</b> està buit o es incorrecte en les següents files: <hr>"+'" '+lineas_error_especie)
+            if lineas_error_coordenadas != "":
+                errorlist.append("Error de coordenades en les següents files: <hr>"+'" '+lineas_error_coordenadas)
+            if lineas_error_data != "":
+                errorlist.append("El camp <b>'Data'</b> està buit o té un format incorrecte(recomenable posar 'dia-mes-any') en les següents files: <hr>"+'" '+lineas_error_data)
+            if lineas_error_autor != "":
+                errorlist.append("El camp <b>'Autor/s'</b> està buit o es incorrecte en les següents files: <hr>"+'" '+lineas_error_especie)
+
+            # Finalmente insertamos los datos en la DB(si,es necesario repetir muchas cosas ya que la insercion se ahce DESPUES de haberlo comprobado, es decir, o todo bien o no se cuelga nada)
+            if errores == 0:
+                try:
+                    id_paquete = datetime.datetime.now().strftime('%Y%m-%d%H-%M%S-') + str(uuid4())
+                    hash = ""
+                    usuario = request.user.username
+                    nlinea=0
+                    lineasexistentes = ""
+                    lineasanadidas=0
+                    if tipo == 1:
+                       origen = "Fitxer Excel .xlsx"
+                    else:
+                       origen = "Fitxer CSV"
+                    for line in reader:  # Miramos todas las lineas en busca de errores
+                        if nlinea>0 and any(cell.value for cell in line): # Evitamos analizar la primera linea si es una cabecera y aquellas filas que esten vacias
+                            if tipo == 1:
+                               especie = line[0].value
+                               utmx = line[1].value
+                               utmy = line[2].value
+                               utm1 = line[3].value
+                               utm10 = line[4].value
+                               localitat = line[5].value
+                               municipi = line[6].value
+                               comarca = line[7].value
+                               provincia = line[8].value
+                               data = line[9].value
+                               autor = line[10].value
+                               observacions = line[11].value
+
+                               try:
+                                   data = str(data.date())
+                               except:
+                                   data = str(data)
+                            else:
+                               especie = line[0]
+                               utmx = line[1]
+                               utmy = line[2]
+                               utm1 = line[3]
+                               utm10 = line[4]
+                               localitat = line[5]
+                               municipi = line[6]
+                               comarca = line[7]
+                               provincia = line[8]
+                               data = line[9]
+                               autor = line[10]
+                               observacions = line[11]
+
+                            # ID de especie
+                            array_especie = especie.split(" ")
+                            if len(array_especie)>2:# si tiene subespecie
+                                idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie__icontains=array_especie[2]).first().id
+                            else: # ponemos que subespecie sea None ya que hay especies con mas de una subespecie,y puede devolver multiples taxons
+                                idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie=None).first().id
+                            idspinvasora = Especieinvasora.objects.get(idtaxon=idtaxon).id
+                            #FORMATEAR FECHA
+                            errordata = 0
+                            # separador -
+                            try:
+                               data = datetime.datetime.strptime(data, '%d-%m-%Y').date().strftime('%d-%m-%Y')  # no hace falta quitar lo del time porque esto es solo para comprovar que este bien escrito
+                            except:
+                               try:
+                                   data = datetime.datetime.strptime(data, '%Y-%m-%d').date().strftime('%d-%m-%Y')
+                               except:
+                                   errordata += 1
+                            # separador /
+                            if errordata == 1:
+                               try:
+                                   data = datetime.datetime.strptime(data, '%d/%m/%Y').date().strftime('%d-%m-%Y')  # no hace falta quitar lo del time porque esto es solo para comprovar que este bien escrito
+                               except:
+                                   try:
+                                       data = datetime.datetime.strptime(data, '%Y/%m/%d').date().strftime('%d-%m-%Y')
+                                   except:
+                                       errordata += 1
+                            if(errordata>1):
+                               data=str(data)
+
+                            #############
+                            #Los campos vacios ponerlos como string "" para evitar problemas con el encode
+                            if utmx is None or utmy is None:
+                               utmx=""
+                               utmy=""
+                            if utm1 is None:
+                               utm1=""
+                            if utm10 is None:
+                               utm10=""
+                            if localitat is None:
+                               localitat=""
+                            if municipi is None:
+                               municipi=""
+                            if comarca is None:
+                                comarca=""
+                            if provincia is None:
+                                provincia=""
+                            if observacions is None:
+                                observacions=""
+                            #
+                            hash=str(especie)+str(utmx)+str(utmy)+str(utm1)+str(utm10)+str(localitat.encode("utf-8"))+str(municipi.encode("utf-8"))+str(comarca.encode("utf-8"))+str(provincia.encode("utf-8"))+str(data)+str(autor.encode("utf-8"))+str(observacions.encode("utf-8"))
+                            #mirar si hay duplicidad de citacion por el hash
+                            if Citacions.objects.filter(hash=hash).exists():
+                                lineasexistentes += str(nlinea + 1) + ' ", '
+                            else:
+                                #Ahora mirar que se pueda pasar las utms
+                                punto=None
+                                punto4326=None
+                                if (utmx != "" and utmy != "") and (utmx is not None and utmy is not None):
+                                    try:
+                                        punto = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=23031)
+                                        punto4326 = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=4326)
+                                    except:
+                                        errores+=1
+                                        errorlist.append("Error al transformar les coordenades utm x i utmy. Assegurat de que estiguin ben escrites i en un format correcte.")
+                                # Finalmente anadir dicha linea a la base de datos si no esta duplicada
+                                if errores == 0:
+                                    try:
+                                        # idutm10=""
+                                        # idutm1 = ""
+                                        # if utm10 != "":
+                                        #     if not PresenciaSp.objects.filter(idquadricula=Quadricula.objects.get(id=utm10, resolution=10000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).exists():#si no existe ya una relacion de x especia a x quadricula:
+                                        #         presencia = PresenciaSp(idquadricula=Quadricula.objects.get(id=utm10, resolution=10000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora))
+                                        #         presencia.save()
+                                        #         idutm10=presencia.id
+                                        #     else:
+                                        #         idutm10=PresenciaSp.objects.get(idquadricula=Quadricula.objects.get(id=utm10, resolution=10000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).id
+                                        # if utm1 != "":
+                                        #     if not PresenciaSp.objects.filter(idquadricula=Quadricula.objects.get(id=utm1, resolution=1000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).exists():#si no existe ya una relacion de x especia a x quadricula:
+                                        #         presencia = PresenciaSp(idquadricula=Quadricula.objects.get(id=utm1, resolution=1000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora))
+                                        #         presencia.save()
+                                        #         idutm1=presencia.id
+                                        #     else:
+                                        #         idutm1=PresenciaSp.objects.get(idquadricula=Quadricula.objects.get(id=utm1, resolution=1000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).id
+
+                                        #Creamos en presencia_sp las relaciones de especies y quads si no existen
+                                        if utm10 != "":
+                                            if not PresenciaSp.objects.filter(idquadricula=Quadricula.objects.get(id=utm10, resolution=10000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).exists():#si no existe ya una relacion de x especia a x quadricula:
+                                                    presencia = PresenciaSp(idquadricula=Quadricula.objects.get(id=utm10, resolution=10000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora))
+                                                    presencia.save()
+                                        if utm1 != "":
+                                            if not PresenciaSp.objects.filter(idquadricula=Quadricula.objects.get(id=utm1, resolution=1000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).exists():#si no existe ya una relacion de x especia a x quadricula:
+                                                    presencia = PresenciaSp(idquadricula=Quadricula.objects.get(id=utm1, resolution=1000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora))
+                                                    presencia.save()
+                                        #
+                                        citacio = Citacions(especie=especie,utmx=utmx,utmy=utmy,utm1=utm1,utm10=utm10,localitat=localitat,municipi=municipi,comarca=comarca,provincia=provincia,data=data,autor_s=autor,observacions=observacions,id_paquet=id_paquete,hash=hash,usuari=usuario,origen_dades=origen,geom=punto,geom_4326=punto4326,idspinvasora=idspinvasora)
+                                        citacio.save()
+                                        lineasanadidas+=1
+                                    except:
+                                        errores+=1
+                                        errorlist.append("Error de base de dades. Contacteu amb l'administrador o torna-ho a provar mes tard.")
+                                ###
+                        nlinea+=1
+                    if lineasanadidas==0:
+                        errores+=1
+                        errorlist.append("Error. Totes les citacions del fitxer ja existeixen a la base de dades.")
+                    else:
+                        if lineasexistentes != "":
+                            mensaje_exito = "Fitxer carregat correctament, "+str(lineasanadidas)+" noves citacions afegides.<br> <b><i class='fa fa-exclamation-triangle' style='color:orange''></i>NOTA</b>: Les citacions de les següents línies no s’han afegit degut a que ja existeixen a la base de dades:<hr> "+' " '+str(lineasexistentes)
+                        else:
+                            mensaje_exito = "Fitxer carregat correctament, " + str(lineasanadidas) + " noves citacions afegides."
+                except:
+                    usuario = "None"
+            ###
 
         #decoded_file = file.read().decode('utf-8').splitlines()
         #reader = csv.DictReader(decoded_file)
@@ -712,7 +984,7 @@ def upload_citaciones_csv(request):
     #     return JsonResponse({"error": True, 'errormessage': "Error: Hi hagut un problema al llegir l'arxiu."})
     #return JsonResponse(resultado)
     try:
-        resultado = {"errores":errores,"listado_errores":errorlist}
+        resultado = {"errores":errores,"listado_errores":errorlist,"mensaje_exito":mensaje_exito}
         resultado = json.dumps(resultado)
         return HttpResponse(resultado, content_type='application/json;')
     except:

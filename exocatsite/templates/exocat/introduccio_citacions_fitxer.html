@@ -30,20 +30,54 @@
         <!--{% endfor %}-->
         <br>
         <!--<div class="col-md-6" align="right">-->
-        <div id="contenedor_instrucciones_fichero" class="border border-secondary">
-            "INSTRUCCIONES"<br>
-            <form id="form_generar_csv_plantilla_citaciones" method="post" action="/generar_plantilla_citacions/" hidden>
+        <div id="contenedor_instrucciones_fichero" >
+            <!--"INSTRUCCIONES"<br>-->
+            <h4 align="center">INSTRUCCIONS</h4><!--class="border border-secondary"-->
+            Per a la intrudcció de dades, el fitxer ha de complir els següents requeriments:
+            <ol>
+                <li>El format del fitxer ha de ser <b>.xlsx</b>(Excel) o <b>.csv</b></li>
+                <li><b>La primera fila</b> del fitxer ha de ser una capçalera amb els següents camps i en el mateix ordre: <br>
+                    <ul><b>
+                        <li>Espècie</li>
+                        <li>Coordenada UTM-X</li>
+                        <li>Coordenada UTM-Y</li>
+                        <li>UTM 1km</li>
+                        <li>UTM 10 km</li>
+                        <li>Localitat</li>
+                        <li>Municipi</li>
+                        <li>Comarca</li>
+                        <li>Provincia</li>
+                        <li>Data</li>
+                        <li>Autor/s</li>
+                        <li>Observacions</li>
+                    </b></ul>
+                </li>
+                <li>Els següents camps son <b>obligatoris</b>:
+                    <ul>
+                        <li><b>Espècie</b></li>
+                        <li><b>Data</b></li>
+                        <li><b>Autor/s</b></li>
+                        <li>"<b>Coordenades utm-x/utm-y</b>" o "<b>Utm 1km</b>" o "<b>Utm 10km</b>" <b>*Nota:</b> Només es obligatori omplir-ne un dels tres.</li>
+                    </ul>
+                </li>
+                <!--<li>En el cas de "Coordenades utm-x/utm-y", "Utm 1km" i "Utm 10km" no es obligatori omplir-ne els tres camps, <b>pero si que ho serà</b> omplir-ne com a mínim un dels tres.</li>-->
+                <!--<li>La resta de camps <b>obligatoris</b> son "Espècie", "Data" i "Autor/s".</li>-->
+                <li>En el cas de pujar un fitxer .csv , es important que el delimitador/separador de camps sigui el caràcter <b>punt y coma(;)</b>.</li>
+            </ol>
+            Si vols, pots descarregar les següents plantilles amb l'estructura recomenada, on podràs posar les teves dades:<br><br>
+            <form id="form_generar_fichero_plantilla_citaciones" method="post" action="/generar_plantilla_citacions/" hidden>
                 {% csrf_token %}
                 <input id="tipo" name="tipo" value="" hidden/>
             </form>
             <div class="row">
-                <div class="col-md-6" align="left">
+                <div class="col-md-5 offset-md-1" align="left">
                     <a id="descargar_plantilla_1" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA EXCEL <i class='fa fa-table'></i>  <i class='fa fa-download'></i></a>
                 </div>
-                <div class="col-md-6" align="right">
+                <div class="col-md-5 " align="right">
                     <a id="descargar_plantilla_2" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA CSV <i class='fa fa-table'></i>  <i class='fa fa-download'></i></a>
                 </div>
             </div>
+            <br><br>
 
         </div>
         <div id="informe_colgar_fichero" class="border border-secondary" hidden>
@@ -54,33 +88,33 @@
             </div>
 
         </div>
-        <br><br><br>
+        <br>
         <div class="row">
             <!--<button type="button" class="btn btn-primary js-upload-photos">-->
                       <!--<span class="glyphicon glyphicon-cloud-upload"></span> Pujar Arxiu-->
             <!--</button><br>-->
             <div class="col-md-4" align="left">
-                <a id="boton_instrucciones_colgar_csv_citaciones" class='btn btn-lg' href='#'> <i class='fa fa-3x fa-list'></i> Instruccions</a>
+                <a id="boton_instrucciones_colgar_fichero_citaciones" class='btn btn-lg' href='#' onclick="mostrar_instrucciones();"> <i class='fa fa-3x fa-list'></i> Instruccions</a>
             </div>
             <div class="col-md-4" align="center">
-                <a id="boton_colgar_csv_citaciones" class='btn btn-lg' href='#'> <i class='fa fa-3x fa-upload'></i> Penjar Arxiu</a>
-                <form id="form_colgar_csv_citaciones" enctype="multipart/form-data" method="post">
-                    <input id="colgar_csv_citaciones" hidden type="file" name="fitxer" token="{{ csrf_token }}" method="post">
+                <a id="boton_colgar_fichero_citaciones" class='btn btn-lg' href='#'> <i class='fa fa-3x fa-upload'></i> Penjar Arxiu</a>
+                <form id="form_colgar_fichero_citaciones" enctype="multipart/form-data" method="post">
+                    <input id="colgar_fichero_citaciones" hidden type="file" name="fitxer" token="{{ csrf_token }}" method="post">
                 </form>
-                <!--<input id="colgar_csv_citaciones" hidden type="file" name="fitxer" data-url="/upload_citaciones_csv/" data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}' method="post">-->
+                <!--<input id="colgar_fichero_citaciones" hidden type="file" name="fitxer" data-url="/upload_citaciones_fichero/" data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}' method="post">-->
             </div>
             <div class="col-md-4" align="right">
-                <a id="boton_informe_colgar_csv_citaciones" class='btn btn-lg' href='#'> <i class='fa fa-3x fa-file-text'></i> Resultats</a>
+                <a id="boton_informe_colgar_fichero_citaciones" class='btn btn-lg disabled' href='#' onclick="mostrar_informe();"> <i class='fa fa-3x fa-file-text'></i> Resultats</a>
             </div>
             <br><br><br>
         </div>
-        <form action="/upload_citaciones_csv/" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
+        <!--<form action="/upload_citaciones_fichero/" method="post" enctype="multipart/form-data">-->
+            <!--{% csrf_token %}-->
 
-            <input type="file" name="csv_file" />
-            <input type="submit" value="Upload" />
+            <!--<input type="file" name="fichero_file" />-->
+            <!--<input type="submit" value="Upload" />-->
 
-        </form>
+        <!--</form>-->
         <!--</div>-->
         <!--<input name="id_form" id="id_form" hidden/>-->
         <!--<input name="cargar_form" hidden/>-->
