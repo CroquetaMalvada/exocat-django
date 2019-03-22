@@ -32,7 +32,8 @@ urlpatterns = [
     url(r'^formularis/',views.view_formularis_usuari,name="formularis usuari"),
     url(r'^revisar_citacions_aca/',views.view_revisar_citacions_aca,name="revisar citacions aca"),
     url(r'^introduccio_citacions_fitxer/',views.view_introduccio_citacions_fitxer,name="introduccio citacions fitxer"),
-    url(r'^mapa/',views.view_mapa,name="mapa"),
+    url(r'^administrar_citacions_fitxer/',views.view_administrar_citacions_fitxer,name="administrar citacions fitxer"),
+    # url(r'^mapa/',views.view_mapa,name="mapa"),
     # AJAX SELECTS BASE DE DADES
     url('^ajax_varietat_select/', views.json_select_varietat),
     url('^ajax_grups_select/', views.json_select_groups),
@@ -41,7 +42,7 @@ urlpatterns = [
     url('^ajax_estatus_catalunya_select/', views.json_select_estatus_cat),
     url('^ajax_estatus_historic_select/', views.json_select_estatus_historic),
     url('^ajax_regionativa_select/', views.json_select_regionativa),
-    #AJAX DATATABLES
+    #AJAX DATATABLES ESPECIES
     url('^ajax_taula_especies/', views.json_taula_especies),
     url('^ajax_taula_especies_filtres/', views.json_taula_especies_filtres), #Para los filtros
     url('^ajax_mostrar_info_especies/', views.json_info_especie),
@@ -72,6 +73,13 @@ urlpatterns = [
 
     #UPLOAD ARCHIVO CITACIONES
     url('^upload_citaciones_fichero/$', views.upload_citaciones_fichero),
+
+    #AJAX ARCHIVOS CITACIONES
+    url('^ajax_citaciones_fichero/', views.json_taula_citacions_fitxer),
+    url('^ajax_mostrar_info_citaciones_fichero/', views.json_info_citacions_fitxer),
+
+    #AJAX JSON VACIO
+    url(r'^json_vacio/$', views.json_vacio, name='cont_json_vacio'),
 ]
 # solo para desarrollo
 if settings.DEBUG:

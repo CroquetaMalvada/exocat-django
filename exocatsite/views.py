@@ -54,13 +54,13 @@ def index(request):
 
 # Base de dades per consultar especies
 def view_base_dades(request):
-    context = {'especies_invasores': "", 'titulo': "ESPECIES INVASORES"}
+    context = {'especies_invasores': "", 'titulo': "ESPÈCIES INVASORES"}
     return render(request, 'exocat/base_dades.html', context)
 
-# mapa
-def view_mapa(request):
-    # context = {'especies_invasores': "", 'titulo': "ESPECIES INVASORES"}
-    return render(request, 'exocat/mapa.html')
+# # mapa
+# def view_mapa(request):
+#     # context = {'especies_invasores': "", 'titulo': "ESPECIES INVASORES"}
+#     return render(request, 'exocat/mapa.html')
 
 # JSON DE FILTRES
 def json_select_varietat(request):# Ojo la varietat no esta en un tabla aparte,la extraigo de los taxons y le hago un distinct(esto puede quedar feo si se anaden muchos y con nombres similares)
@@ -139,52 +139,7 @@ def json_taula_especies(request):
 
         #grupo
         grup=Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
-
-        # #variedad(se junta con subvariedad)
-        # varietat=""
-        # if especie.idtaxon.varietat is not None:
-        #     varietat = varietat+str(especie.idtaxon.varietat)
-        # if especie.idtaxon.subvarietat is not None:
-        #     varietat = varietat+' ", '+str(especie.idtaxon.subvarietat)
-        #
-        # # #nombres vulgares *descartado por ahora
-        # # nomsvulgars=""
-        # # # for nomv in Nomvulgartaxon.objects.filter(idtaxon=especie.idtaxon):
-        # # #     nomsvulgars=nomsvulgars+nomv.idnomvulgar.nomvulgar+","
-        # #
-        # # #habitat !Ojo de momento esta tabla esta vacia en la bdd
-        # # # habitat=Habitatespecie.objects.get(idspinvasora=especie.id).idspinvasora.habitat
-        #
-        # #Estatus Catalunya
-        # estatuscat= especie.idestatuscatalunya.nom
-        #
-        # #Region nativa
-        # try:# hacemos try porque hay algunos en los que es nulo(?) y peta
-        #     regionativa=Regionativa.objects.get(idespecieinvasora=especie.id).idzonageografica.nom
-        # except:
-        #     regionativa=""#"Desconeguda"
-        #
-        # # Via de entrada
-        # viaentrada=''
-        # for via in Viaentradaespecie.objects.filter(idespecieinvasora=especie.id):
-        #     if viaentrada=='':
-        #         viaentrada= viaentrada+str(via.idviaentrada.viaentrada)
-        #     else:
-        #         viaentrada = viaentrada+', '+ str(via.idviaentrada.viaentrada)
-        #
-        # # Estatus Historic
-        # try:
-        #     estatushistoric = especie.idestatushistoric.nom
-        # except:
-        #     estatushistoric = ""
-        #
-        # # Presente en el 'Catálogo espanol de especies exoticas invasoras'
-        # present=especie.present_catalogo
-
-        # # viaentrada=Viaentradaespecie.objects.get(idespecieinvasora=especie.id).idviaentrada.viaentrada
         resultado.append({'id':id,'especie': genere,'grup':grup}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
-        #resultado.append({'id':str(especie.id),'especie': genere,'grup':grup, 'varietat':varietat, 'regionativa':regionativa, 'estatuscat':estatuscat,'viaentrada':viaentrada, 'estatushistoric':estatushistoric, 'present':present}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
-        #resultado.append({'id':"",'especie':"",'grup':"", 'varietat':"", 'regionativa':"", 'estatuscat':"",'viaentrada':"", 'estatushistoric':"", 'present':""}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
 
     # para el input de ids para el csv
     for especie in especies:
@@ -414,7 +369,7 @@ def json_taula_especies_filtres(request):
             if Grupespecie.objects.filter(idespecieinvasora=id).exists():
                 grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
             else:
-                grup = "Deconegut"
+                grup = "Desconegut"
 
             resultado.append({'id': id, 'especie': genere, 'grup': grup})  # ,'nomsvulgars':nomsvulgars,'habitat':habitat
         # para el input de ids para el csv
@@ -452,8 +407,8 @@ def generar_csv_especies(request):
     resultado.write(u'\ufeff'.encode('utf8')) # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
     writer.writerow([u'Taxon', u'Grup', 'Regió nativa', u"Vies d'entrada", u'Estatus general', u'Estatus Catalunya',u'Present al "Catálogo"', u'Present al Reglament Europeu'])
 
-    cursor = connection.cursor()
     try:
+        cursor = connection.cursor()
         if 'DELETE' in especies or 'delete' in especies or 'UPDATE' in especies or 'update' in especies:# toda precaucion con las querys es poca
             raise Http404('Error al generar el csv.')
         especies = especies.split(",")
@@ -475,6 +430,7 @@ def generar_csv_especies(request):
 
         for especie in fetch:
             writer.writerow([especie["taxon"], especie["grup"], especie["regionativa"], especie["viesentrada"], especie["estatushistoric"], especie["estatuscatalunya"], especie["presentcatalog"],especie["presentreglamenteur"]])
+        cursor.close()
         return resultado
     except:
         raise Http404('Error al generar el csv.')
@@ -989,6 +945,68 @@ def upload_citaciones_fichero(request):
         return HttpResponse(resultado, content_type='application/json;')
     except:
         return []
+
+# VIEW PARA VER LAS CITACIONES INTRODUCICAS POR FICHERO
+@login_required(login_url='/login/')
+def view_administrar_citacions_fitxer(request):
+    context = {'titulo': "ADMINISTRAR CITACIONS FITXER", 'usuari': request.user.username}
+    return render(request, 'exocat/administrar_citacions_fitxer.html', context)
+
+#AJAX PARA DATATABLES DE CITACIONES FICHERO
+@login_required(login_url='/login/')
+def json_taula_citacions_fitxer(request):
+    fitxers_citacions=[]
+    if request.user.is_authenticated():
+        if request.user.groups.filter(name="Admins"):
+            citacions=Citacions.objects.filter(id_paquet__isnull=False).distinct("id_paquet")
+
+            for cit in citacions:
+                try:
+                    id_paquet=cit.id_paquet
+                    usuari = cit.usuari
+                    origen = cit.origen_dades
+                    if origen == 'volcado_automatico_natusfera':
+                        data=cit.id_paquet[10:21]
+                    else:
+                        data=cit.id_paquet[7:9]+"-"+cit.id_paquet[4:6]+"-"+cit.id_paquet[0:4]+" (Hora:"+cit.id_paquet[9:11]+":"+cit.id_paquet[12:14]+")"
+                    #if id_paquet is not None and data is not None and usuari is not None and origen is not None:
+                    #poner if origen != excel o csv
+                    fitxers_citacions.append({"id_paquet":id_paquet,"data":data,"usuari":usuari,"origen":origen})
+                except:
+                    fitxers_citacions.append({"id_paquet": "##ERROR##", "data": "##ERROR##", "usuari": "##ERROR##", "origen": "##ERROR##"})
+
+    resultado = json.dumps(fitxers_citacions)
+    return HttpResponse(resultado, content_type='application/json;')
+
+#AJAX PARA INFO DE CITACIONES FICHERO
+@login_required(login_url='/login/')
+def json_info_citacions_fitxer(request):
+    list_citacions=[]
+    id=request.GET["id"]
+    if request.user.is_authenticated():
+        if request.user.groups.filter(name="Admins"):
+            citacions=Citacions.objects.filter(id_paquet=id)
+            for cit in citacions:
+                try:
+                    especie=cit.especie
+                    coordenada_x=cit.utmx
+                    coordenada_y=cit.utmy
+                    utm1km=cit.utm1
+                    utm10km=cit.utm10
+                    localitat=cit.localitat
+                    municipi=cit.municipi
+                    comarca=cit.comarca
+                    provincia=cit.provincia
+                    data=cit.data
+                    autor_s=cit.autor_s
+                    observacions=cit.observacions
+                    list_citacions.append({"especie":especie,"coordenada_x":coordenada_x,"coordenada_y":coordenada_y,"utm1km":utm1km,"utm10km":utm10km,"localitat":localitat,"municipi":municipi,"comarca":comarca,"provincia":provincia,"data":data,"autor_s":autor_s,"observacions":observacions})
+                except:
+                    list_citacions.append({"especie":"##ERROR##","coordenada_x":"##ERROR##","coordenada_y":"##ERROR##","utm1km":"##ERROR##","utm10km":"##ERROR##","localitat":"##ERROR##","municipi":"##ERROR##","comarca":"##ERROR##","provincia":"##ERROR##","data":"##ERROR##","autor_s":"##ERROR##","observacions":"##ERROR##"})
+
+    resultado = json.dumps(list_citacions)
+    return HttpResponse(resultado, content_type='application/json;')
+
 
 # INFO DE UNA ESPECIE
 def json_info_especie(request):
@@ -1722,22 +1740,6 @@ def view_formularis_localitats_especie(request):
     context={'form':form,'especies':especies,'id_imatge_principal':id_imatge_principal,'ids_imatges':ids_imatges,'nuevo':nuevo,'id_form':id_form}
     return render(request,'exocat/formularis_localitats_especie.html',context)
 
-# Formulario de ACA para las citacions !no utilizable de momento
-# @login_required(login_url='/login/')
-# def view_formularis_aca(request):
-#     if request.method == 'POST':
-#         form = CitacionsACAForm(request.POST)
-#         # check whether it's valid:
-#         if form.is_valid():
-#             # process the data in form.cleaned_data as required
-#             # ...
-#             # redirect to a new URL:
-#             return HttpResponseRedirect('/thanks/')
-#     else:
-#         form = CitacionsACAForm()
-#     context={'form':form}
-#     return render(request,'exocat/formularis_aca.html',context)
-
 # @login_required(login_url='/login/')
 def view_upload_imatge_citacions_especie(request):
 
@@ -1916,3 +1918,7 @@ def post_revisar_citacions_aca(request):
         response = JsonResponse({"error": "Error"})
         response.status_code = 400
         return response
+
+#JSON VACIO
+def json_vacio(request):
+    return HttpResponse([{}], content_type='application/json;')

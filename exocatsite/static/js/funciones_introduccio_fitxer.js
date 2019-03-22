@@ -1,4 +1,5 @@
 $(document).ready(function(){
+    $("#fitxer_loading").hide();
     //descolutamos el informe y lo ocultamos con la funcion
     $("#informe_colgar_fichero").removeAttr("hidden");
     mostrar_instrucciones();
@@ -20,6 +21,8 @@ $(document).ready(function(){
     });
 
     $("#form_colgar_fichero_citaciones").on("submit",function(e){
+        $("#boton_colgar_fichero_citaciones").hide();
+        $("#fitxer_loading").show();
         e.preventDefault();
         var datos= new FormData(document.getElementById("form_colgar_fichero_citaciones"));
         datos.append("csrfmiddlewaretoken",$("#colgar_fichero_citaciones").attr("token"));
@@ -53,13 +56,14 @@ $(document).ready(function(){
                     );
                     mostrar_informe();
                 }
-                //alert("hola");
-
-                //console.log("hola");
+                $("#boton_colgar_fichero_citaciones").show();
+                $("#fitxer_loading").hide();
             },
             error:function(){
                 alert("Error al pujar l'arxiu.");
-            }
+                $("#boton_colgar_fichero_citaciones").show();
+                $("#fitxer_loading").hide();
+            },
         });
     });
 

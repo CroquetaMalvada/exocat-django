@@ -12,6 +12,7 @@
 <script src="{% static 'js/funciones_introduccio_fitxer.js' %}" ></script>
 
 </head>
+<title>{{ titulo }}</title>
 <body>
 {% block cabecera %} {% include "exocat/cabecera.html" %} {% endblock %}
 <header>
@@ -35,7 +36,15 @@
             <h4 align="center">INSTRUCCIONS</h4><!--class="border border-secondary"-->
             Per a la intrudcció de dades, el fitxer ha de complir els següents requeriments:
             <ol>
-                <li>El format del fitxer ha de ser <b>.xlsx</b>(Excel) o <b>.csv</b></li>
+                {% if user.is_authenticated %}
+                    {% for group in user.groups.all %}
+                        {% if group.name == 'Admins' %}
+                            <li>El format del fitxer ha de ser <b>.xlsx</b>(Excel) o <b>.csv</b></li>
+                        {% else %}
+                            <li>El format del fitxer ha de ser <b>.xlsx</b></li>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
                 <li><b>La primera fila</b> del fitxer ha de ser una capçalera amb els següents camps i en el mateix ordre: <br>
                     <ul><b>
                         <li>Espècie</li>
@@ -62,21 +71,40 @@
                 </li>
                 <!--<li>En el cas de "Coordenades utm-x/utm-y", "Utm 1km" i "Utm 10km" no es obligatori omplir-ne els tres camps, <b>pero si que ho serà</b> omplir-ne com a mínim un dels tres.</li>-->
                 <!--<li>La resta de camps <b>obligatoris</b> son "Espècie", "Data" i "Autor/s".</li>-->
-                <li>En el cas de pujar un fitxer .csv , es important que el delimitador/separador de camps sigui el caràcter <b>punt y coma(;)</b>.</li>
+                {% if user.is_authenticated %}
+                    {% for group in user.groups.all %}
+                        {% if group.name == 'Admins' %}
+                            <li>En el cas de pujar un fitxer .csv , es important que el delimitador/separador de camps sigui el caràcter <b>punt y coma(;)</b>.</li>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
             </ol>
             Si vols, pots descarregar les següents plantilles amb l'estructura recomenada, on podràs posar les teves dades:<br><br>
             <form id="form_generar_fichero_plantilla_citaciones" method="post" action="/generar_plantilla_citacions/" hidden>
                 {% csrf_token %}
                 <input id="tipo" name="tipo" value="" hidden/>
             </form>
-            <div class="row">
-                <div class="col-md-5 offset-md-1" align="left">
-                    <a id="descargar_plantilla_1" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA EXCEL <i class='fa fa-table'></i>  <i class='fa fa-download'></i></a>
-                </div>
-                <div class="col-md-5 " align="right">
-                    <a id="descargar_plantilla_2" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA CSV <i class='fa fa-table'></i>  <i class='fa fa-download'></i></a>
-                </div>
-            </div>
+            {% if user.is_authenticated %}
+                {% for group in user.groups.all %}
+                    {% if group.name == 'Admins' %}
+                        <div class="row">
+                            <div class="col-md-5 offset-md-1" align="left">
+                                <a id="descargar_plantilla_1" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA EXCEL <i class='fa fa-table'></i>  <i class='fa fa-download'></i></a>
+                            </div>
+                            <div class="col-md-5 " align="right">
+                                <a id="descargar_plantilla_2" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA CSV <i class='fa fa-table'></i>  <i class='fa fa-download'></i></a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="row">
+                            <div class="col-md-6 offset-md-3" align="center">
+                                <a id="descargar_plantilla_1" class='btn btn-success btn-lg' href='#'> DESCARREGAR PLANTILLA EXCEL <i class='fa fa-table'></i>  <i class='fa fa-download'></i></a>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
             <br><br>
 
         </div>
@@ -98,6 +126,7 @@
             </div>
             <div class="col-md-4" align="center">
                 <a id="boton_colgar_fichero_citaciones" class='btn btn-lg' href='#'> <i class='fa fa-3x fa-upload'></i> Penjar Arxiu</a>
+                <img src="{% static 'imagenes/ajax-loader.gif' %}" id="fitxer_loading"/>
                 <form id="form_colgar_fichero_citaciones" enctype="multipart/form-data" method="post">
                     <input id="colgar_fichero_citaciones" hidden type="file" name="fitxer" token="{{ csrf_token }}" method="post">
                 </form>
