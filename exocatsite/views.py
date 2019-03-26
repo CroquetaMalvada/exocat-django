@@ -572,7 +572,7 @@ def upload_citaciones_fichero(request):
         ##Ahora, si no hay errores de formato, segun el tipo de archivo lo leemos
         if errores==0:
             if tipo==1:
-                reader=load_workbook(file.name)
+                reader=load_workbook(file)
                 sheet=reader.active
                 # b1=sheet['B1']
                 # b2 = sheet['B2']
