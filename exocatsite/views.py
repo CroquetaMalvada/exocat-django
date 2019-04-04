@@ -429,7 +429,10 @@ def generar_csv_especies(request):
         fetch = dictfetchall(cursor)
 
         for especie in fetch:
-            writer.writerow([especie["taxon"], especie["grup"], especie["regionativa"], especie["viesentrada"], especie["estatushistoric"], especie["estatuscatalunya"], especie["presentcatalog"],especie["presentreglamenteur"]])
+            subesp=""
+            if especie["subespecie"] is not None:
+                subesp=" [subespecie: "+ especie["subespecie"]+" ]"
+            writer.writerow([especie["taxon"]+subesp, especie["grup"], especie["regionativa"], especie["viesentrada"], especie["estatushistoric"], especie["estatuscatalunya"], especie["presentcatalog"],especie["presentreglamenteur"]])
         cursor.close()
         return resultado
     except:
@@ -664,7 +667,7 @@ def upload_citaciones_fichero(request):
                         except:
                             errores+=1
                             if taxonencontrado == 1:
-                                errorlist.append("L’espècie '' "+especie+" '' existeix a la base dades pero no consta com a espècie invasora. Contacta amb <a href='mailto:suport.exocat@creaf.uab.cat'>suport.exocat@creaf.uab.cat</a> per a mes info.")
+                                errorlist.append("El nom de l’espècie '' "+especie+" '' existeix a la base dades pero no consta com a espècie exótica. Comprova que no has escrit un sinónim o contacta amb <a href='mailto:suport.exocat@creaf.uab.cat'>suport.exocat@creaf.uab.cat</a> per a mes info.")
                             else:
                                 errorlist.append("No s’ha trobat l’espècie '' "+especie+" '' a la base de dades. Comprova que estigui ben escrit o contacta amb <a href='mailto:suport.exocat@creaf.uab.cat'>suport.exocat@creaf.uab.cat</a>")
                     #Comprobar que al menos uno de los de coordenadas tenga algo y que las de 1 y 10km existan!
@@ -682,8 +685,14 @@ def upload_citaciones_fichero(request):
                         erroresutm=0
                         if (utmx != "" and utmy != "") and (utmx is not None and utmy is not None):
                             try:
-                                punto = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=23031)
-                                punto2 = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=4326)
+                                punto_25831 = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=25831)
+                                punto_23031 = punto_25831.transform(23031, True)
+                                punto_4326 = punto_25831.transform(4326, True)
+
+
+                                #punto2 = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=4326)
+                                # punto = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')', srid=23031)
+                                # punto2 = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')', srid=4326)
                             except:
                                 erroresutm+=1
                         if utm10 != "" and utm10 is not None:
@@ -870,35 +879,21 @@ def upload_citaciones_fichero(request):
                                 lineasexistentes += str(nlinea + 1) + ' ", '
                             else:
                                 #Ahora mirar que se pueda pasar las utms
-                                punto=None
-                                punto4326=None
+                                punto_23031=None
+                                punto_4326=None
                                 if (utmx != "" and utmy != "") and (utmx is not None and utmy is not None):
                                     try:
-                                        punto = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=23031)
-                                        punto4326 = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=4326)
+                                        punto_25831 = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=25831)
+                                        punto_23031 = punto_25831.transform(23031, True)
+                                        punto_4326 = punto_25831.transform(4326, True)
+                                        # punto = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=23031)
+                                        # punto4326 = GEOSGeometry('POINT(' + str(utmx) + ' ' + str(utmy) + ')',srid=4326)
                                     except:
                                         errores+=1
-                                        errorlist.append("Error al transformar les coordenades utm x i utmy. Assegurat de que estiguin ben escrites i en un format correcte.")
+                                        errorlist.append("Error al transformar les coordenades utm x i utmy. Assegurat de que estiguin ben escrites i en format ETRS89.")
                                 # Finalmente anadir dicha linea a la base de datos si no esta duplicada
                                 if errores == 0:
                                     try:
-                                        # idutm10=""
-                                        # idutm1 = ""
-                                        # if utm10 != "":
-                                        #     if not PresenciaSp.objects.filter(idquadricula=Quadricula.objects.get(id=utm10, resolution=10000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).exists():#si no existe ya una relacion de x especia a x quadricula:
-                                        #         presencia = PresenciaSp(idquadricula=Quadricula.objects.get(id=utm10, resolution=10000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora))
-                                        #         presencia.save()
-                                        #         idutm10=presencia.id
-                                        #     else:
-                                        #         idutm10=PresenciaSp.objects.get(idquadricula=Quadricula.objects.get(id=utm10, resolution=10000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).id
-                                        # if utm1 != "":
-                                        #     if not PresenciaSp.objects.filter(idquadricula=Quadricula.objects.get(id=utm1, resolution=1000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).exists():#si no existe ya una relacion de x especia a x quadricula:
-                                        #         presencia = PresenciaSp(idquadricula=Quadricula.objects.get(id=utm1, resolution=1000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora))
-                                        #         presencia.save()
-                                        #         idutm1=presencia.id
-                                        #     else:
-                                        #         idutm1=PresenciaSp.objects.get(idquadricula=Quadricula.objects.get(id=utm1, resolution=1000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).id
-
                                         #Creamos en presencia_sp las relaciones de especies y quads si no existen
                                         if utm10 != "":
                                             if not PresenciaSp.objects.filter(idquadricula=Quadricula.objects.get(id=utm10, resolution=10000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora)).exists():#si no existe ya una relacion de x especia a x quadricula:
@@ -909,7 +904,7 @@ def upload_citaciones_fichero(request):
                                                     presencia = PresenciaSp(idquadricula=Quadricula.objects.get(id=utm1, resolution=1000),idspinvasora=Especieinvasora.objects.get(id=idspinvasora))
                                                     presencia.save()
                                         #
-                                        citacio = Citacions(especie=especie,utmx=utmx,utmy=utmy,utm1=utm1,utm10=utm10,localitat=localitat,municipi=municipi,comarca=comarca,provincia=provincia,data=data,autor_s=autor,observacions=observacions,id_paquet=id_paquete,hash=hash,usuari=usuario,origen_dades=origen,geom=punto,geom_4326=punto4326,idspinvasora=idspinvasora)
+                                        citacio = Citacions(especie=especie,utmx=utmx,utmy=utmy,utm1=utm1,utm10=utm10,localitat=localitat,municipi=municipi,comarca=comarca,provincia=provincia,data=data,autor_s=autor,observacions=observacions,id_paquet=id_paquete,hash=hash,usuari=usuario,origen_dades=origen,geom=punto_23031,geom_4326=punto_4326,idspinvasora=idspinvasora)
                                         citacio.save()
                                         lineasanadidas+=1
                                     except:
@@ -1644,8 +1639,17 @@ def view_formularis_localitats_especie(request):
                 #
                 try:
                     if request.POST["tipus_coordenades"] == "1":
-                        punto = GEOSGeometry('POINT(' + request.POST["utmx"] + ' ' + request.POST["utmy"] + ')',srid=23031)
-                        form.geom = punto
+                        punto_25831 = GEOSGeometry('POINT(' + request.POST["utmx"] + ' ' + request.POST["utmy"] + ')',srid=25831)
+                        punto_23031 = punto_25831.transform(23031, True)
+                        punto_4326 = punto_25831.transform(4326, True)
+                        form.geom = punto_23031
+                        form.geom_4326 = punto_4326
+
+
+
+                        # punto = GEOSGeometry('POINT(' + request.POST["utmx"] + ' ' + request.POST["utmy"] + ')',srid=23031)
+                        # form.geom = punto
+
                         # punto2 = punto.transform(4326,clone=True)
                         # form.geom_4326 = punto2
                         # punto2 = GEOSGeometry(punto, srid=4326)

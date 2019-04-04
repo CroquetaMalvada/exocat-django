@@ -22,7 +22,7 @@
         <div class="btn-group">
             <!--href="/base_dades" -->
             <!--href="/mapa"-->
-            <a href="http://exocat.creaf.cat/" class="btn btn-secondary btn-lg" role="button" >Pàgina principal</a>
+            <a href="http://exocat.creaf.cat/" class="btn btn-secondary btn-lg" role="button" ><i class='fa fa-backward'></i>     Pàgina principal</a>
             {% if user.is_authenticated %}
                 {% for group in user.groups.all %}
                     {% if group.name == 'Admins' %}
@@ -67,18 +67,20 @@
                         </div>
                     {% else %}
                         <!--Si esta autenticado pero no es admin-->
-                        <a href="/formularis/" class="btn btn-secondary btn-lg" role="button" >Administrar els meus formularis</a>
-                        <a href="/formularis_localitats_especie/" class="btn btn-secondary btn-lg" role="button" >Formulari de citació</a>
-                        <a href="/introduccio_citacions_fitxer/" class="btn btn-secondary btn-lg" role="button" >Citacions per fitxer</a>
+                        <a href="/formularis/" class="btn btn-secondary btn-lg" role="button" ><i class='fa fa-wpforms'></i>     Administrar els meus formularis</a>
+                        <a href="/formularis_localitats_especie/" class="btn btn-secondary btn-lg" role="button" ><i class='fa fa-table'></i>     Formulari de citació</a>
+                        <a href="/introduccio_citacions_fitxer/" class="btn btn-secondary btn-lg" role="button" ><i class='fa fa-upload'></i>     Citacions per fitxer</a>
                     {% endif %}
                 {% endfor %}
-                <a href="/base_dades/" class="btn btn-secondary btn-lg" role="button" >Base de dades</a>
-                <a href="/logout/" role="button" class="btn btn-secondary btn-lg">Tancar Sessió</a>
+                <a href="/base_dades/" class="btn btn-secondary btn-lg" role="button" ><i class='fa fa-newspaper-o'></i>     Base de dades</a>
+                <a class="btn btn-secondary btn-lg" role="button" title="Clica per contactar amb suport.exocat@creaf.uab.cat." href='mailto:suport.exocat@creaf.uab.cat'><i class='fa fa-info-circle'></i>     Ajuda i suport</a>
+                <a href="/logout/" role="button" class="btn btn-secondary btn-lg"><i class='fa fa-user-circle'></i>     Tancar Sessió</a>
             {% else %}
                 <!--Si es un usuario anonimo-->
-                <a href="/formularis_localitats_especie/" class="btn btn-secondary btn-lg" role="button" >Formulari de citació</a>
-                <a href="/base_dades/" class="btn btn-secondary btn-lg" role="button" >Base de dades</a>
-                <a href="/login/" role="button" class="btn btn-secondary btn-lg opcion_cabecera">Iniciar Sessió</a>
+                <a href="/formularis_localitats_especie/" class="btn btn-secondary btn-lg" role="button" ><i class='fa fa-map-marker'></i>     Formulari de citació</a>
+                <a href="/base_dades/" class="btn btn-secondary btn-lg" role="button" ><i class='fa fa-newspaper-o'></i>     Base de dades</a>
+                <a class="btn btn-secondary btn-lg" role="button" title="Clica per contactar amb suport.exocat@creaf.uab.cat." href='mailto:suport.exocat@creaf.uab.cat'><i class='fa fa-info-circle'></i>     Ajuda i suport</a>
+                <a href="/login/" role="button" class="btn btn-secondary btn-lg opcion_cabecera"><i class='fa fa-user-circle'></i>     Iniciar Sessió</a>
             {% endif %}
 
         </div>

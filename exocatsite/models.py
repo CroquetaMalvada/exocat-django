@@ -451,6 +451,7 @@ class CitacionsEspecie(models.Model):
     utm_10 = models.CharField(max_length=4, blank=True, null=True) #ej DG89
     utm_1 = models.CharField(max_length=6, blank=True, null=True) #ej DG8391
     geom = models.TextField(blank=True, null=True)
+    geom_4326 = models.TextField(blank=True, null=True)
     #geom_4326 = models.GeometryField(blank=True, null=True) # se usara el de arriba para mostrar los datos en el mapa
 
     propietari_nom = models.CharField(max_length=255, blank=True, null=True)
