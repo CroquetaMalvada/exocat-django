@@ -891,6 +891,9 @@ def upload_citaciones_fichero(request):
                                     except:
                                         errores+=1
                                         errorlist.append("Error al transformar les coordenades utm x i utmy. Assegurat de que estiguin ben escrites i en format ETRS89.")
+                                else:# El excel los pone como strings "" si estan vacios,asi que los pasamos a null porque el models pide float y no strins
+                                    utmx=None
+                                    utmy=None
                                 # Finalmente anadir dicha linea a la base de datos si no esta duplicada
                                 if errores == 0:
                                     try:
