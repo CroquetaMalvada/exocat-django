@@ -137,7 +137,7 @@ class Especieinvasora(models.Model):
 
     idtaxon = models.ForeignKey('Taxon', models.DO_NOTHING,related_name='id_taxon', db_column='idtaxon', blank=True, null=True)
     idestatushistoric = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatushistoric', db_column='idestatushistoric', blank=True, null=True) # modificado
-    idestatuscatalunya = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatus_atalunya', db_column='idestatuscatalunya', blank=True, null=True)# modificado
+    idestatuscatalunya = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatuscatalunya', db_column='idestatuscatalunya', blank=True, null=True)# modificado
     idimatgeprincipal = models.ForeignKey('Imatges', models.DO_NOTHING,related_name='id_imatge_principal', db_column='idimatgeprincipal', blank=True, null=True)
     idestatusgeneral = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatusgeneral', db_column='idestatusgeneral', blank=True, null=True)# modificado
 

@@ -140,8 +140,8 @@ $(document).ready(function(){
 
         taula_especies_map = $("#table_info_map").DataTable({
                     columnDefs:[
-                        { "width": "5%", "targets": [6] },
-                        { "width": "15%", "targets": [0,1,2,3,4,5] }
+                        { "width": "9%", "targets": [7] },
+                        { "width": "13%", "targets": [0,1,2,3,4,5,6] }
                     ],
                     dom: 'Bfrtip',
                     buttons:[{
@@ -152,7 +152,7 @@ $(document).ready(function(){
                             text: '<span aria-hidden="true"><i class="fa fa-print fa-lg"></i> Imprimir</span>',
                             autoPrint: true,
                             exportOptions: {
-                                columns: [0,1,2,3,4,5],
+                                columns: [0,1,2,3,4,5,6],
                             }
                     },{
                         extend: 'excel',
@@ -166,14 +166,14 @@ $(document).ready(function(){
                         title: function(){return  "Informació de area geogràfica"},
                         text: '<span aria-hidden="true"><i class="fa fa-file-pdf-o fa-lg"></i> PDF</span>',
                         exportOptions: {
-                            columns: [0,1,2,3,4,5],
+                            columns: [0,1,2,3,4,5,6],
                         }
                     },{
                         extend: 'csv',
                         filename: function(){return  "Informació de area geogràfica"},
                         text: '<span aria-hidden="true"><i class="fa fa-table fa-lg"></i> CSV</span>',
                         exportOptions: {
-                            columns: [0,1,2,3,4,5],
+                            columns: [0,1,2,3,4,5,6],
                         }
                     }],
                     order: [[ 0, "asc" ]],
@@ -410,6 +410,7 @@ function rellenar_table_especies_click(data){ // esta funcion se llama en funcio
         taula_especies_map.row.add([
             this.nom,
             this.grup,
+            this.estatus_cat,
             this.nutm10000,
             this.nutm1000,
             this.ncitacions,
@@ -430,6 +431,7 @@ function rellenar_table_especies_seleccion(data){ // esta funcion se llama en fu
         taula_especies_map.row.add([
             this.nom,
             this.grup,
+            this.estatus_cat,
             this.nutm10000,
             this.nutm1000,
             this.ncitacions,
@@ -445,6 +447,7 @@ function rellenar_table_resum_localitats_especie(data){ // esta funcion se llama
     //taula_resum_localitats_especie.columns(0).clear();
     taula_resum_localitats_especie.cell(0,1).data(data["genere"]+" "+data["especie"]);
     //taula_resum_localitats_especie.cell(1,1).data(data["grup"]);
+    taula_resum_localitats_especie.cell(1,1).data(data["estatus_cat"]);
     taula_resum_localitats_especie.cell(1,1).data(data["nutm10000"]);
     taula_resum_localitats_especie.cell(2,1).data(data["nutm1000"]);
     taula_resum_localitats_especie.cell(3,1).data(data["ncitacions"]);
