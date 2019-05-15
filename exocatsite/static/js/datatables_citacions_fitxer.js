@@ -42,6 +42,8 @@ $(document).ready(function(){
     //        content:$("#dialogdiv"),
     });
 
+
+    $.fn.dataTable.moment( 'DD-MM-YYYY' ); ///para definir el formato estandar de fechas en las tables(depende de datetime-moment.js y moment.min.js)
     taula_citacions_fitxer = $("#taula_citacions_fitxer").DataTable({
 //                    processing:true,
 //                    serverSide:true,
@@ -53,6 +55,7 @@ $(document).ready(function(){
                 },
                 "deferRender": true,
                 columns:[
+                    {'data':{'data':'data'},"render": function(data){return data["data"].substring(0,10);}}, //.replace(/-/g,".")
                     {'data': 'data'},
                     {'data': 'usuari'},
                     {'data': 'origen'},
@@ -60,10 +63,13 @@ $(document).ready(function(){
 //                        {'data':{'id':'id'},"render": function(data){return '<form action="/formularis_localitats_especie/" method="get"><input value="'+data["id"]+'" hidden/><button class="btn btn-info" title="EDITAR FORMULARI"><i class="fa fa-eye fa-lg"></i></form>';}}
                 ],
                 columnDefs:[
-//                        {"visible":false,"targets":[0]},
-                    { "width": "5%", "targets": [3] }
+                    {"visible":false,"targets":[0]},
+//                    { type: 'de_date', targets: 0 },
+                    { "orderData":[ 0 ],   "targets": [ 1 ] }, //ordenar por la fecha autentica al clicar en la fecha que ve el usuario
+                    { "width": "5%", "targets": [4] }//,
+
                 ],
-//                order: [[ 1, "asc" ]],
+                order: [[ 0, "desc" ]],
                 scrollY:        '80vh',
                 scrollCollapse: true,
                 searching:true,

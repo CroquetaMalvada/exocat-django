@@ -42,7 +42,7 @@ $(document).ready(function(){
 
     // Si se esta cargando especies:
 
-
+    $.fn.dataTable.moment( 'DD-MM-YYYY' ); ///para definir el formato estandar de fechas en las tables(depende de datetime-moment.js y moment.min.js)
     taula_revisar_citacions_aca = $("#taula_citacions_revisar").DataTable({
 //                    processing:true,
 //                    serverSide:true,

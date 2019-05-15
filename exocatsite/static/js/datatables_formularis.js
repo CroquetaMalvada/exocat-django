@@ -29,7 +29,7 @@ $(document).ready(function(){
 
     // Si se esta cargando especies:
 
-
+    $.fn.dataTable.moment( 'DD-MM-YYYY' ); ///para definir el formato estandar de fechas en las tables(depende de datetime-moment.js y moment.min.js)
     taula_formularis_usuari = $("#taula_formularis_usuari").DataTable({
 //                    processing:true,
 //                    serverSide:true,
