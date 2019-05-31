@@ -353,6 +353,12 @@ $(document).ready(function(){
             $("#form_generar_csv_informe_utm10").submit();
         });
 
+         //GENERAR INFORME CSV CON ESPECIES Y TODAS LAS UTMS10KM DONDE HA SIDO ENCONTRADA(TAMBIEN SE CUENTAN COMO UTMS10 AQUELLAS QUE TENGAN UNA DE 1KM O UNA CITACION DENTRO)(EL BOTON ESTA EN AREES GEOGRAFIQUES)
+        $("#boton_informe_especies_utm10").click(function(){
+
+            $("#form_generar_csv_informe_especies_utm10").submit();
+        });
+
 
         // ajustar columnas al cargar un tab
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {

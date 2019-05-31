@@ -302,6 +302,10 @@
                                 {% csrf_token %}
                             </form>
                             <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="CSV amb informaciò sobre totes les UTM's de 10 km" id="boton_informe_utm10" onclick="" style="background-image:none;"><i class="fa fa-building fa-lg"></i>  Informe CSV UTM's 10km</a></div><br>
+                            <form id="form_generar_csv_informe_especies_utm10" method="post" action="/generar_csv_informe_especies_utm10/" hidden>
+                                {% csrf_token %}
+                            </form>
+                            <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="CSV amb informaciò sobre totes les espècies i les UTM's de 10 km on s'han trobat" id="boton_informe_especies_utm10" onclick="" style="background-image:none;"><i class="fa fa-building fa-lg"></i>  CSV Espècies en UTM10</a></div><br>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
