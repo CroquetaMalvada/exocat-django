@@ -1566,69 +1566,72 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
     #OJO quitar el[:20] ya que es para desarrollo para solo cojer el top 20
     especies = Especieinvasora.objects.all().values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#[:20]
     for especie in especies:
-        #1 obtenemos el nombre y lo encadenamos con la subespecie si la tiene
-        # nombre de la especie(se juntan el genere con especie y subespecie)
-        id = especie["id"]
-        genere = especie["idtaxon__genere"]
-        especiestr = especie["idtaxon__especie"]
-        subespeciestr = especie["idtaxon__subespecie"]
-        if especiestr is not None:
-            genere = genere + " " + especiestr
-        if subespeciestr is not None:
-            genere = genere + u" [Subespècie: " + subespeciestr + " ]"
+        try:
+            #1 obtenemos el nombre y lo encadenamos con la subespecie si la tiene
+            # nombre de la especie(se juntan el genere con especie y subespecie)
+            id = especie["id"]
+            genere = especie["idtaxon__genere"]
+            especiestr = especie["idtaxon__especie"]
+            subespeciestr = especie["idtaxon__subespecie"]
+            if especiestr is not None:
+                genere = genere + " " + especiestr
+            if subespeciestr is not None:
+                genere = genere + u" [Subespècie: " + subespeciestr + " ]"
 
-        utms10 = []
-        utms10_and_info = []
-        utms1 = []
-        citacions = []
+            utms10 = []
+            utms10_and_info = []
+            utms1 = []
+            citacions = []
 
-        comentari=""
-        #2 Miramos las UTMs de 10km donde ha sido localizado:
-        #2.1 Primero en presenciasp para obtener las viejas
-        for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula__id","idspinvasora","idquadricula__resolution").distinct("idquadricula__id"):
-            utms10.append(utm["idquadricula__id"])
-            utms10_and_info.append({"utm":utm["idquadricula__id"],"comentari":comentari})
-        #2.2 Luego en las utms10 que se anadieron por fichero
-        for utm in Citacions.objects.filter(idspinvasora=id,utm10__isnull=False).exclude(utm10__in=utms10).values("utm10"):
-            utms10.append(utm["utm10"])
-            utms10_and_info.append({"utm":utm["idquadricula__id"], "comentari":comentari})
-        #2.3 Finalmente en las citaciones por formulario
-        for utm in CitacionsEspecie.objects.filter(idspinvasora=id,utm_10__isnull=False).exclude(utm_10__in=utms10).values("utm_10"):
-            utms10.append(utm["utm_10"])
-            utms10_and_info.append({"utm":utm["utm_10"], "comentari":comentari})
+            comentari=""
+            #2 Miramos las UTMs de 10km donde ha sido localizado:
+            #2.1 Primero en presenciasp para obtener las viejas
+            for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula__id","idspinvasora","idquadricula__resolution").distinct("idquadricula__id"):
+                utms10.append(utm["idquadricula__id"])
+                utms10_and_info.append({"utm":utm["idquadricula__id"],"comentari":comentari})
+            #2.2 Luego en las utms10 que se anadieron por fichero
+            for utm in Citacions.objects.filter(idspinvasora=id,utm10__isnull=False).exclude(utm10__in=utms10).values("utm10"):
+                utms10.append(utm["utm10"])
+                utms10_and_info.append({"utm":utm["idquadricula__id"], "comentari":comentari})
+            #2.3 Finalmente en las citaciones por formulario
+            for utm in CitacionsEspecie.objects.filter(idspinvasora=id,utm_10__isnull=False).exclude(utm_10__in=utms10).values("utm_10"):
+                utms10.append(utm["utm_10"])
+                utms10_and_info.append({"utm":utm["utm_10"], "comentari":comentari})
 
-        #3 Miramos las UTMs de 1 km y a partir de ahí obtenemos las UTMs de 10km que contengan dichas utms
-        #3.1 Primero en presenciasp
-        for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula__id","idspinvasora","idquadricula__resolution").distinct("idquadricula__id"):
-            utms1.append(utm["idquadricula__id"])
-        #3.2 Luego en las que se anadieron por fichero
-        for utm in Citacions.objects.filter(idspinvasora=id,utm1__isnull=False).exclude(utm1__in=utms1).values("utm1"):
-            utms1.append(utm["utm1"])
-        #3.3 Finalmente en las de formularios
-        for utm in CitacionsEspecie.objects.filter(idspinvasora=id,utm_1__isnull=False).exclude(utm_1__in=utms1).values("utm_1"):
-            utms1.append(utm["utm_1"])
+            #3 Miramos las UTMs de 1 km y a partir de ahí obtenemos las UTMs de 10km que contengan dichas utms
+            #3.1 Primero en presenciasp
+            for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula__id","idspinvasora","idquadricula__resolution").distinct("idquadricula__id"):
+                utms1.append(utm["idquadricula__id"])
+            #3.2 Luego en las que se anadieron por fichero
+            for utm in Citacions.objects.filter(idspinvasora=id,utm1__isnull=False).exclude(utm1__in=utms1).values("utm1"):
+                utms1.append(utm["utm1"])
+            #3.3 Finalmente en las de formularios
+            for utm in CitacionsEspecie.objects.filter(idspinvasora=id,utm_1__isnull=False).exclude(utm_1__in=utms1).values("utm_1"):
+                utms1.append(utm["utm_1"])
 
-        #4 Miramos las citaciones en puntos y al igual que con las de 1km,obtenemos la UTM10 que lo contiene a traves de la geometria
-        #4.1 Obtenemos la geometria de todos los puntos de dicha especie
-        for cit in CitacionsGlobal.objects.filter(idspinvasora=id).values("geom_4326"):
-            citacions.append(cit["geom_4326"])
+            #4 Miramos las citaciones en puntos y al igual que con las de 1km,obtenemos la UTM10 que lo contiene a traves de la geometria
+            #4.1 Obtenemos la geometria de todos los puntos de dicha especie
+            for cit in CitacionsGlobal.objects.filter(idspinvasora=id).values("geom_4326"):
+                citacions.append(cit["geom_4326"])
 
-        #5 Comprobamos las utms1 y que utms de 10km las tienen en su interior
-        for utm in Quadricula.objects.filter(id__in=utms1).values("id","geom_4326"):
-            for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=utm["geom_4326"].wkt).exclude(id__in=utms10).values("id"):
-                utms10.append(utm10["id"])
-                comentari = "*Concretament a la UTM de 1km " + utm["id"]
-                utms10_and_info.append({"utm":utm10["id"], "comentari":comentari})
+            #5 Comprobamos las utms1 y que utms de 10km las tienen en su interior
+            for utm in Quadricula.objects.filter(id__in=utms1).values("id","geom_4326"):
+                for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=utm["geom_4326"].wkt).exclude(id__in=utms10).values("id"):
+                    utms10.append(utm10["id"])
+                    comentari = "*Concretament a la UTM de 1km " + utm["id"]
+                    utms10_and_info.append({"utm":utm10["id"], "comentari":comentari})
 
-        #6 Por ultimo hacemos lo mismo con las citaciones puntuales
-        for cit in citacions:
-            for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=cit.wkt).exclude(id__in=utms10).values("id"):
-                utms10.append(utm10["id"])
-                comentari = "*Concretament a una citació puntual"
-                utms10_and_info.append({"utm": utm10["id"], "comentari": comentari})
+            #6 Por ultimo hacemos lo mismo con las citaciones puntuales
+            for cit in citacions:
+                for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=cit.wkt).exclude(id__in=utms10).values("id"):
+                    utms10.append(utm10["id"])
+                    comentari = "*Concretament a una citació puntual"
+                    utms10_and_info.append({"utm": utm10["id"], "comentari": comentari})
 
-        for utm in utms10_and_info:
-            writer.writerow([genere, utm["utm"], utm["comentari"]])
+            for utm in utms10_and_info:
+                writer.writerow([genere, utm["utm"], utm["comentari"]])
+        except:
+            writer.writerow(["#####ERROR AMB LA ESPÈCIE: "+especie["id"]])
 
 
     return resultado
