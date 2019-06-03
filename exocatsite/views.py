@@ -1564,7 +1564,7 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
     #utms1 = Quadricula.objects.filter(resolution=1000).values("id","geom_4326").order_by("id")
     #citglobal = CitacionsGlobal.objects.all()
     #OJO quitar el[:20] ya que es para desarrollo para solo cojer el top 20
-    especies = Especieinvasora.objects.filter(id="Alte_phil").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#[:20]
+    especies = Especieinvasora.objects.all().values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#[:20]
     for especie in especies:
         try:
             #1 obtenemos el nombre y lo encadenamos con la subespecie si la tiene
