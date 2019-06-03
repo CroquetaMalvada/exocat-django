@@ -1564,7 +1564,7 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
     #utms1 = Quadricula.objects.filter(resolution=1000).values("id","geom_4326").order_by("id")
     #citglobal = CitacionsGlobal.objects.all()
     #OJO quitar el[:20] ya que es para desarrollo para solo cojer el top 20
-    especies = Especieinvasora.objects.all().values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#[:20]
+    especies = Especieinvasora.objects.filter(id='Ludw_pepl').values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#[:20]
     for especie in especies:
         try:
             #1 obtenemos el nombre y lo encadenamos con la subespecie si la tiene
@@ -1611,7 +1611,7 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
 
             #4 Miramos las citaciones en puntos y al igual que con las de 1km,obtenemos la UTM10 que lo contiene a traves de la geometria
             #4.1 Obtenemos la geometria de todos los puntos de dicha especie
-            for cit in CitacionsGlobal.objects.filter(idspinvasora=id).values("geom_4326"):
+            for cit in CitacionsGlobal.objects.filter(idspinvasora=id,geom_4326__isnull=False).values("geom_4326"):
                 citacions.append(cit["geom_4326"])
 
             #5 Comprobamos las utms1 y que utms de 10km las tienen en su interior
