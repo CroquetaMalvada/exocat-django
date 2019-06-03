@@ -1564,7 +1564,7 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
     #utms1 = Quadricula.objects.filter(resolution=1000).values("id","geom_4326").order_by("id")
     #citglobal = CitacionsGlobal.objects.all()
     #OJO quitar el[:20] ya que es para desarrollo para solo cojer el top 20
-    especies = Especieinvasora.objects.all().values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#[:20]
+    especies = Especieinvasora.objects.filter(id="Alte_phil").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#[:20]
     for especie in especies:
         try:
             #1 obtenemos el nombre y lo encadenamos con la subespecie si la tiene
@@ -1590,11 +1590,11 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
                 utms10.append(utm["idquadricula__id"])
                 utms10_and_info.append({"utm":utm["idquadricula__id"],"comentari":comentari})
             #2.2 Luego en las utms10 que se anadieron por fichero
-            for utm in Citacions.objects.filter(idspinvasora=id,utm10__isnull=False).exclude(utm10__in=utms10).values("utm10"):
+            for utm in Citacions.objects.filter(idspinvasora=id,utm10__isnull=False).exclude(Q(utm10__in=utms10) | Q(utm10='')).values("utm10"):
                 utms10.append(utm["utm10"])
                 utms10_and_info.append({"utm":utm["idquadricula__id"], "comentari":comentari})
             #2.3 Finalmente en las citaciones por formulario
-            for utm in CitacionsEspecie.objects.filter(idspinvasora=id,utm_10__isnull=False).exclude(utm_10__in=utms10).values("utm_10"):
+            for utm in CitacionsEspecie.objects.filter(idspinvasora=id,utm_10__isnull=False).exclude(Q(utm_10__in=utms10) | Q(utm_10='')).values("utm_10"):
                 utms10.append(utm["utm_10"])
                 utms10_and_info.append({"utm":utm["utm_10"], "comentari":comentari})
 
@@ -1603,10 +1603,10 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
             for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula__id","idspinvasora","idquadricula__resolution").distinct("idquadricula__id"):
                 utms1.append(utm["idquadricula__id"])
             #3.2 Luego en las que se anadieron por fichero
-            for utm in Citacions.objects.filter(idspinvasora=id,utm1__isnull=False).exclude(utm1__in=utms1).values("utm1"):
+            for utm in Citacions.objects.filter(idspinvasora=id,utm1__isnull=False).exclude(Q(utm1__in=utms1) | Q(utm1='')).values("utm1"):
                 utms1.append(utm["utm1"])
             #3.3 Finalmente en las de formularios
-            for utm in CitacionsEspecie.objects.filter(idspinvasora=id,utm_1__isnull=False).exclude(utm_1__in=utms1).values("utm_1"):
+            for utm in CitacionsEspecie.objects.filter(idspinvasora=id,utm_1__isnull=False).exclude(Q(utm_1__in=utms1) | Q(utm_1='')).values("utm_1"):
                 utms1.append(utm["utm_1"])
 
             #4 Miramos las citaciones en puntos y al igual que con las de 1km,obtenemos la UTM10 que lo contiene a traves de la geometria
@@ -1625,7 +1625,7 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
             for cit in citacions:
                 for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=cit.wkt).exclude(id__in=utms10).values("id"):
                     utms10.append(utm10["id"])
-                    comentari = "*Concretament a una citació puntual"
+                    comentari = "*Concretament a una citació puntual dins d'aquesta UTM."
                     utms10_and_info.append({"utm": utm10["id"], "comentari": comentari})
 
             for utm in utms10_and_info:
