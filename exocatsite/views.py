@@ -1563,13 +1563,14 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
 
     #utms1 = Quadricula.objects.filter(resolution=1000).values("id","geom_4326").order_by("id")
     #citglobal = CitacionsGlobal.objects.all()
-    #OJO quitar el[:20] ya que es para desarrollo para solo cojer el top 20
-    especies = Especieinvasora.objects.all().values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#[:20]
+    #OJO quitar el[:20] ya que es para desarrollo para solo cojer el top 20 o .reverse()[:20] para los 20 ultimos
+    especies = Especieinvasora.objects.all().values("id","idtaxon","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#.reverse()[:1000]#[:20]filter(id='Bacc_hali')
     for especie in especies:
         try:
             #1 obtenemos el nombre y lo encadenamos con la subespecie si la tiene
             # nombre de la especie(se juntan el genere con especie y subespecie)
             id = especie["id"]
+            id_taxon= especie["idtaxon"]
             genere = especie["idtaxon__genere"]
             especiestr = especie["idtaxon__especie"]
             subespeciestr = especie["idtaxon__subespecie"]
@@ -1621,12 +1622,49 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
                     comentari = "*Concretament a la UTM de 1km " + utm["id"]
                     utms10_and_info.append({"utm":utm10["id"], "comentari":comentari})
 
-            #6 Por ultimo hacemos lo mismo con las citaciones puntuales
+            #6 Hacemos lo mismo con las citaciones puntuales
             for cit in citacions:
                 for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=cit.wkt).exclude(id__in=utms10).values("id"):
                     utms10.append(utm10["id"])
                     comentari = "*Concretament a una citació puntual dins d'aquesta UTM."
                     utms10_and_info.append({"utm": utm10["id"], "comentari": comentari})
+
+            #7 Por ultimo miramos las amsas de agua de esa especie y con que utms de 10km colisiona(OJO que se usa el idtaxon y no el id)
+            id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+            if id_exoaqua: # si existe una relacion de exoaqua-exocat de dicha especie
+                id_exoaqua=id_exoaqua[0]["id_exoaqua"] # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
+                for massa in MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).values("id_localitzacio"):
+                    try:
+                        nom_massa=MassesAigua.objects.get(id=massa["id_localitzacio"]).nom
+                        geom_massa = MassesAigua.objects.get(id=massa["id_localitzacio"]).geom
+                        #geom_4326 = geom_massa.transform(4326, True)
+                        #geom_4326 = GEOSGeometry(geom_massa, srid=4326).wkt
+                        for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__intersects=geom_massa).exclude(id__in=utms10).values("id"):
+                            utms10.append(utm10["id"])
+                            comentari = "*Concretament a la massa d'aigua '"+nom_massa+"'."
+                            utms10_and_info.append({"utm": utm10["id"], "comentari": comentari})
+                    except:
+                        None
+
+
+                        # for id_massa in id_massesaigua:
+                        #     try:
+                        #         massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+                        #         nom=massa.nom
+                        #     except:
+                        #         nom="# Sense Dades #"
+                        #     try:
+                        #         massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+                        #         tipus=massa.id_categor
+                        #     except:
+                        #         tipus="# Sense Dades #"
+                        #     try:
+                        #         massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+                        #         conca=ConquesPrincipals.objects.filter(id=massa.idconca).values("nom_conca").first()
+                        #     except:
+                        #         conca="# Sense Dades #"
+                        #
+                        #     massesaigua.append({"nom":nom,"tipus":tipus,"conca":conca})
 
             for utm in utms10_and_info:
                 writer.writerow([genere, utm["utm"], utm["comentari"]])
