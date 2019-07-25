@@ -61,7 +61,7 @@ id=$("#mapa_de_especie").attr("value");
 //    mapainfo_wmsLayer_presencia_1000_2.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
     mapainfo_wmsLayer_citacions_global.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
 //    mapainfo_wmsLayer_citacions_2.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
-    mapainfo_wmsLayer_presencia_ma.setParams({cql_filter:"idtaxon='"+id+"'"});
+    mapainfo_wmsLayer_presencia_ma.setParams({cql_filter:"IDSPINVASORA='"+id+"'"});
     if(chivato_geopunts==false){
         chivato_geopunts=true;
 
@@ -85,14 +85,17 @@ function obtener_especies_geom(){ // OBTENER ESPECIES DE RECTANGULO O FIGURA(aqu
     cargando_datos_mapa(0);
     var filtro= pasar_wkt();
 //    alert("INTERSECTS(geom_4326,"+filtro+")");
-    // mostramos las layers(cuadriculas,citacions,rius,etc) que hay en la zona marcada
-    wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-    //wmsLayer_presencia_10000_2.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-    wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-    //wmsLayer_presencia_1000_2.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-    wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-    wmsLayer_citacions_2.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-    wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    // mostramos las layers(cuadriculas,citacions,rius,etc) que hay dentro de la zona marcada
+    wmsLayer_presencia_10000.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+    wmsLayer_presencia_1000.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+    wmsLayer_citacions.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+    //wmsLayer_citacions_2.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+    wmsLayer_presencia_ma.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+//    wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+//    wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+//    wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+//    wmsLayer_citacions_2.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+//    wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
 
 
     $.ajax({

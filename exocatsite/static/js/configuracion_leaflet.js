@@ -52,49 +52,49 @@ $(document).ready(function(){
         var osm = new L.TileLayer(osmUrl, {attribution: osmAttrib});
 
         wmsLayer_presencia_10000 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:PRESENCIA_SP_10000_p',
+            layers: 'SIPAN:PRESENCIA_SP_10000_global',//'SIPAN:PRESENCIA_SP_10000_p',
             transparent: 'true',
             format: 'image/png',
             opacity: 0.5
         });
 
-        wmsLayer_presencia_10000_2 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:PRESENCIA_SP_10000_p_2',
-            transparent: 'true',
-            format: 'image/png',
-            opacity: 0.5
-        });
+//        wmsLayer_presencia_10000_2 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+//            layers: 'SIPAN:PRESENCIA_SP_10000_p_2',
+//            transparent: 'true',
+//            format: 'image/png',
+//            opacity: 0.5
+//        });
 
         wmsLayer_presencia_1000 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:PRESENCIA_SP_1000_p',
+            layers: 'SIPAN:PRESENCIA_SP_1000_global',//'SIPAN:PRESENCIA_SP_1000_p',
             transparent: 'true',
             format: 'image/png',
             opacity: 0.5
         });
 
-        wmsLayer_presencia_1000_2 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:PRESENCIA_SP_1000_p_2',
-            transparent: 'true',
-            format: 'image/png',
-            opacity: 0.5
-        });
+//        wmsLayer_presencia_1000_2 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+//            layers: 'SIPAN:PRESENCIA_SP_1000_p_2',
+//            transparent: 'true',
+//            format: 'image/png',
+//            opacity: 0.5
+//        });
 
         wmsLayer_citacions = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:citacions',
+            layers: 'SIPAN:citacions_global',//'SIPAN:citacions',
             transparent: 'true',
             format: 'image/png',
         //        opacity: 0.5
         });
 
-        wmsLayer_citacions_2 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:citacions_2',
-            transparent: 'true',
-            format: 'image/png',
-        //        opacity: 0.5
-        });
+//        wmsLayer_citacions_2 = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
+//            layers: 'SIPAN:citacions_2',
+//            transparent: 'true',
+//            format: 'image/png',
+//        //        opacity: 0.5
+//        });
 
         wmsLayer_presencia_ma = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:presencia_massa_aigua',
+            layers: 'SIPAN:PRESENCIA_SP_MASSA_AIGUA',//'SIPAN:presencia_massa_aigua',
             transparent: 'true',
             format: 'image/png',
         //        opacity: 0.5
@@ -225,7 +225,7 @@ $(document).ready(function(){
         });
 
         mapainfo_wmsLayer_presencia_ma = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:presencia_massa_aigua',
+            layers: 'SIPAN:PRESENCIA_SP_MASSA_AIGUA',//'SIPAN:presencia_massa_aigua',
             transparent: 'true',
             format: 'image/png',
         //        opacity: 0.5

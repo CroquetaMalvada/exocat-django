@@ -584,6 +584,57 @@ class CitacionsGlobal(models.Model):
         managed = False
         db_table = 'citacions_global'
 
+class PresenciaSP10000Global(models.Model):
+    idspinvasora = models.CharField(db_column='IDSPINVASORA', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    nom = models.TextField(blank=True, null=True)
+    link = models.TextField(blank=True, null=True)
+    idquad = models.CharField(max_length=100, blank=True, null=True)
+    especie = models.CharField(max_length=100, blank=True, null=True)
+    quadre = models.GeometryField(blank=True, null=True)
+    geom_4326 = models.GeometryField(blank=True, null=True)
+
+
+    # def __str__(self):
+    #     return self.geom_4326
+
+    class Meta:
+        managed = False
+        db_table = 'PRESENCIA_SP_10000_global'
+
+
+class PresenciaSP1000Global(models.Model):
+    idspinvasora = models.CharField(db_column='IDSPINVASORA', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    nom = models.TextField(blank=True, null=True)
+    link = models.TextField(blank=True, null=True)
+    idquad = models.CharField(max_length=100, blank=True, null=True)
+    especie = models.CharField(max_length=100, blank=True, null=True)
+    quadre = models.GeometryField(blank=True, null=True)
+    geom_4326 = models.GeometryField(blank=True, null=True)
+
+
+    # def __str__(self):
+    #     return self.geom_4326
+
+    class Meta:
+        managed = False
+        db_table = 'PRESENCIA_SP_1000_global'
+
+class PresenciaSPMassaAigua(models.Model):
+    idspinvasora = models.CharField(db_column='IDSPINVASORA', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    nom = models.TextField(blank=True, null=True)
+    especie = models.CharField(max_length=100, blank=True, null=True)
+    idmassa = models.CharField(max_length=100, blank=True, null=True)
+    geom = models.GeometryField(blank=True, null=True)
+    geom_4326 = models.GeometryField(blank=True, null=True)
+
+
+    # def __str__(self):
+    #     return self.geom_4326
+
+    class Meta:
+        managed = False
+        db_table = 'PRESENCIA_SP_MASSA_AIGUA'
+
                 # class citacions_global(models.Model):
 #     #id = models.AutoField(primary_key=True)
 #     #IDSPINVASORA = models.ForeignKey(Especieinvasora, null=True)

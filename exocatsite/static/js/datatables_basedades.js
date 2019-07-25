@@ -457,7 +457,7 @@ function rellenar_table_resum_localitats_especie(data){ // esta funcion se llama
     taula_resum_localitats_especie.cell(1,1).data(data["nutm10000"]);
     taula_resum_localitats_especie.cell(2,1).data(data["nutm1000"]);
     taula_resum_localitats_especie.cell(3,1).data(data["ncitacions"]);
-    taula_resum_localitats_especie.cell(4,1).data(data["nmassesaigua"]);
+    taula_resum_localitats_especie.cell(4,1).data(data["nmassesaigua"]+data["nmassesaigua_identificades"]);
     taula_resum_localitats_especie.cell(5,1).data(data["nutm10000"]+data["nutm1000"]+data["ncitacions"]+data["nmassesaigua"]);
     $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust().draw();///IMPORTANTE sirve para alinear correctamente las cabezeras de las datatables,ya que con divs que estan hidden no se alineaban automaticamente
 //    $(data["citacions"]).each(function(){
