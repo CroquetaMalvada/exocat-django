@@ -190,7 +190,7 @@ $(document).ready(function(){
         });
         ///
         mapainfo_wmsLayer_presencia_10000_transformar = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:PRESENCIA_SP_10000_p',
+            layers: 'SIPAN:PRESENCIA_SP_10000_global',
             transparent: 'true',
             format: 'image/png',
             opacity: 0.5
@@ -275,7 +275,7 @@ $(document).ready(function(){
                             }
                          },
                          {
-                            groupName: "Transformar",
+                            groupName: "",
                             expanded: true,
                             layers    : {
                                 "<i id='loading_control_transformar' class='fa fa-hourglass fa-lg' hidden='true'></i><text id='texto_control_transformar'>Visualitzar capa de transformació</text><a id='exportar_presencia_10000_transformar'/>" : mapainfo_wmsLayer_presencia_10000_transformar,

@@ -86,11 +86,12 @@ function obtener_especies_geom(){ // OBTENER ESPECIES DE RECTANGULO O FIGURA(aqu
     var filtro= pasar_wkt();
 //    alert("INTERSECTS(geom_4326,"+filtro+")");
     // mostramos las layers(cuadriculas,citacions,rius,etc) que hay dentro de la zona marcada
-    wmsLayer_presencia_10000.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
-    wmsLayer_presencia_1000.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
-    wmsLayer_citacions.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+    //wmsLayer_presencia_10000.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+    wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
     //wmsLayer_citacions_2.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
-    wmsLayer_presencia_ma.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+    wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
 //    wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
 //    wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
 //    wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
@@ -126,10 +127,10 @@ function obtener_especies_pos(latlng){// OBTENER ESPECIES DEL CLICK(aqui se usa 
 ///////////// PARTE 1,INDICAR SOBRE QUE CAPAS HAY QUE OBTENER LA POSICION DEL CLICK
     cargando_datos_mapa(0);
     //mymap.removeLayer(wmsLayer_presencia_10000);
-
+    //alert("funciona");
     var layers_in_control = [];
-    layers_in_control.push(wmsLayer_presencia_10000);
-    layers_in_control.push(wmsLayer_presencia_10000_2);
+    layers_in_control.push(wmsLayer_presencia_10000); //Ojo que ahora wmsLayer_presencia_10000 tiene asociado el global,por tanto no hace falta la 2
+    //layers_in_control.push(wmsLayer_presencia_10000_2);
 //            layers_in_control.push(wmsLayer_presencia_1000);
     if(layers_in_control.length > 0){
         var param_layers = [];

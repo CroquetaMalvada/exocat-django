@@ -588,7 +588,7 @@ class PresenciaSP10000Global(models.Model):
     idspinvasora = models.CharField(db_column='IDSPINVASORA', max_length=255, blank=True, null=True)  # Field name made lowercase.
     nom = models.TextField(blank=True, null=True)
     link = models.TextField(blank=True, null=True)
-    idquad = models.CharField(max_length=100, blank=True, null=True)
+    idquad = models.ForeignKey('Quadricula', models.DO_NOTHING, db_column='idquad')
     especie = models.CharField(max_length=100, blank=True, null=True)
     quadre = models.GeometryField(blank=True, null=True)
     geom_4326 = models.GeometryField(blank=True, null=True)
@@ -606,7 +606,7 @@ class PresenciaSP1000Global(models.Model):
     idspinvasora = models.CharField(db_column='IDSPINVASORA', max_length=255, blank=True, null=True)  # Field name made lowercase.
     nom = models.TextField(blank=True, null=True)
     link = models.TextField(blank=True, null=True)
-    idquad = models.CharField(max_length=100, blank=True, null=True)
+    idquad = models.ForeignKey('Quadricula', models.DO_NOTHING, db_column='idquad')
     especie = models.CharField(max_length=100, blank=True, null=True)
     quadre = models.GeometryField(blank=True, null=True)
     geom_4326 = models.GeometryField(blank=True, null=True)

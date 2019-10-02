@@ -1081,7 +1081,8 @@ def json_info_especie(request):
             nmassesaigua_identificades= "("+str(nmassesaigua_identificades)+" identificades al mapa)"
         else:
             nmassesaigua_identificades=""
-
+    else:
+        nmassesaigua_identificades=""
     #
 
     for nomv in Nomvulgartaxon.objects.filter(idtaxon=id_taxon):
@@ -1203,65 +1204,137 @@ def json_especies_de_cuadro(request):# Ojo aqui no hace falta lo de las citacion
     response=urllib.urlopen(url)
     data = json.loads(response.read())
     resultado=[]
-    for especie in data["features"]:
+    id_quad=data["features"][0]["properties"]["idquad"]
+    quadre=Quadricula.objects.get(id=id_quad)
+    geom=quadre.geom_4326
+
+    #1 Obtener citaciones dentro ed la utm 10
+    utms10 = PresenciaSP10000Global.objects.filter(idquad=id_quad).values("idspinvasora").order_by("idspinvasora").annotate(nutms10=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
+    utms1 = PresenciaSP1000Global.objects.filter(geom_4326__intersects=geom).values("idspinvasora").order_by("idspinvasora").annotate(nutms1=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
+    citacions = CitacionsGlobal.objects.filter(geom_4326__intersects=geom).values("idspinvasora").order_by("idspinvasora").annotate(ncitacions=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
+    masses = PresenciaSPMassaAigua.objects.filter(geom_4326__intersects=geom).values("idspinvasora").order_by("idspinvasora").annotate(nmassesaigua=Count("idspinvasora"))#.distinct("idspinvasora")
+
+    #2 Unir las listas
+    lista = list(chain(utms10,utms1,citacions,masses))
+
+    #3
+    comb={}
+    for dict in lista:
+        if dict["idspinvasora"] in comb:
+            comb[dict["idspinvasora"]].update(dict)
+        else:
+            comb[dict["idspinvasora"]] = {"idspinvasora":dict["idspinvasora"],"nutms1":0,"nutms10":0,"ncitacions":0,"nmassesaigua":0}
+            comb[dict["idspinvasora"]].update(dict)
+
+    lista=[]
+    for value in comb.itervalues():
+        lista.append({"idspinvasora":value["idspinvasora"],"nutms1":value["nutms1"],"nutms10":value["nutms10"],"ncitacions":value["ncitacions"],"nmassesaigua":value["nmassesaigua"],"nutms10totals":0})
+    resultado = []
+
+    #4
+    for esp in lista:
+        id = esp["idspinvasora"]
+        #if id==u'Aix_gale':
+            #None
+        id_taxon = Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
         try:
-            id=especie["properties"]["IDSPINVASORA"]
-            id_taxon=Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
-            # calcular el numero de masas de agua y el numero de utms de una especie
-            id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
-
-            try:
-                subesp = Taxon.objects.get(id=id_taxon).subespecie
-                if subesp is None:
-                    subesp = ""
-                else:
-                    subesp = " [subespècie: " + subesp + " ]"
-            except:
-                subesp=""
-            try:
-                grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
-            except:
-                grup ="Desconegut"
-
-
-            massesaigua = []
-            nmassesaigua = 0
-
-            nutm1000 = 0
-            nutm10000 = 0
-
-            nutm10000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula").distinct().count()
-            nutm1000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula").distinct().count()
-
-            ###Ahora sumar las utms "nuevas"
-            nutm10000 = nutm10000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, validat="SI").values("utm_10").distinct().count()
-            nutm1000 = nutm1000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, validat="SI").values("utm_1").distinct().count()
-            # utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
-            # for utm in utms:
-            #     if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
-            #         nutm10000 = nutm10000 + 1
-            #     if utm["idquadricula__resolution"] == 1000:
-            #         nutm1000 = nutm1000 + 1
-
-            if id_exoaqua:  # si existe una relacion de exoaqua-exocat de dicha especie
-                id_exoaqua = id_exoaqua[0]["id_exoaqua"]  # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
-                nmassesaigua = MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).count()  # Ojo mirar bien esto!!!
-
-            #
-            ncitacions=Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).count()
-            #Ahora las citaciones "nuevas"
-            ncitacions = ncitacions + CitacionsEspecie.objects.filter(idspinvasora=id, utmx__isnull=False, utmy__isnull=False, validat="SI").values("utmx").distinct().count()
-
-            dades=PresenciaSp.objects.filter(idspinvasora=id).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie","idspinvasora__idestatuscatalunya__nom").distinct("idspinvasora")
-            nom=dades[0]["idspinvasora__idtaxon__genere"]+" "+dades[0]["idspinvasora__idtaxon__especie"]+subesp
-            # estatuscat=""
-            # try:
-            #     estatuscat=dades[0]["idspinvasora__idestatuscatalunya__nom"]
-            # except:
-            #     estatuscat = "Desconegut"
-            resultado.append({"nom":nom,"id":dades[0]["idspinvasora"],"grup":grup,"estatus_cat":dades[0]["idspinvasora__idestatuscatalunya__nom"],"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
+            genere_especie = Taxon.objects.get(id=id_taxon).genere + " " + Taxon.objects.get(id=id_taxon).especie
         except:
-            resultado.append({"nom":dades[0]["idspinvasora__idtaxon__genere"]+" "+dades[0]["idspinvasora__idtaxon__especie"],"id":"####ERROR####","grup":"####ERROR####","estatus_cat":"####ERROR####","nutm1000":"####ERROR####","nutm10000":"####ERROR####","ncitacions":"####ERROR####","nmassesaigua":"####ERROR####"})
+            genere = "##ERROR##"
+        try:
+            subesp = Taxon.objects.get(id=id_taxon).subespecie
+            if subesp is None:
+                subesp = ""
+            else:
+                subesp = " [subespècie: " + subesp + " ]"
+        except:
+            subesp = ""
+        try:
+            grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
+        except:
+            grup ="Desconegut"
+
+        try:
+            estatus_cat = Especieinvasora.objects.get(id=id).idestatuscatalunya.nom
+        except:
+            estatus_cat ="Desconegut"
+        ###
+        nom = genere_especie + subesp
+        try:#UTM de 1 km
+            nutms1 = esp["nutms1"]
+        except:
+            nutms1=0
+        try:#CITACIONS
+            ncitacions = esp["ncitacions"]
+        except:
+            ncitacions=0
+        try:#MASSES AIGUA
+            nmassesaigua = esp["nmassesaigua"]
+        except:
+            nmassesaigua=0
+        ###
+        resultado.append({"nom":nom,"id":id,"grup":grup,"estatus_cat":estatus_cat,"nutm10000":1,"nutm1000":nutms1,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua,"nutms10totals":esp["nutms10totals"]})
+
+
+    # for especie in data["features"]:
+    #     try:
+    #         id=especie["properties"]["IDSPINVASORA"]
+    #         id_taxon=Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
+    #         # calcular el numero de masas de agua y el numero de utms de una especie
+    #         id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+    #
+    #         try:
+    #             subesp = Taxon.objects.get(id=id_taxon).subespecie
+    #             if subesp is None:
+    #                 subesp = ""
+    #             else:
+    #                 subesp = " [subespècie: " + subesp + " ]"
+    #         except:
+    #             subesp=""
+    #         try:
+    #             grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
+    #         except:
+    #             grup ="Desconegut"
+    #
+    #
+    #         massesaigua = []
+    #         nmassesaigua = 0
+    #
+    #         nutm1000 = 0
+    #         nutm10000 = 0
+    #
+    #         nutm10000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula").distinct().count()
+    #         nutm1000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula").distinct().count()
+    #
+    #         ###Ahora sumar las utms "nuevas"
+    #         nutm10000 = nutm10000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, validat="SI").values("utm_10").distinct().count()
+    #         nutm1000 = nutm1000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, validat="SI").values("utm_1").distinct().count()
+    #         # utms = PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
+    #         # for utm in utms:
+    #         #     if utm["idquadricula__resolution"] == 10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
+    #         #         nutm10000 = nutm10000 + 1
+    #         #     if utm["idquadricula__resolution"] == 1000:
+    #         #         nutm1000 = nutm1000 + 1
+    #
+    #         if id_exoaqua:  # si existe una relacion de exoaqua-exocat de dicha especie
+    #             id_exoaqua = id_exoaqua[0]["id_exoaqua"]  # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
+    #             nmassesaigua = MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).count()  # Ojo mirar bien esto!!!
+    #
+    #         #
+    #         ncitacions=Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).count()
+    #         #Ahora las citaciones "nuevas"
+    #         ncitacions = ncitacions + CitacionsEspecie.objects.filter(idspinvasora=id, utmx__isnull=False, utmy__isnull=False, validat="SI").values("utmx").distinct().count()
+    #
+    #         dades=PresenciaSp.objects.filter(idspinvasora=id).values("idspinvasora","idspinvasora__idtaxon__genere","idspinvasora__idtaxon__especie","idspinvasora__idestatuscatalunya__nom").distinct("idspinvasora")
+    #         nom=dades[0]["idspinvasora__idtaxon__genere"]+" "+dades[0]["idspinvasora__idtaxon__especie"]+subesp
+    #         # estatuscat=""
+    #         # try:
+    #         #     estatuscat=dades[0]["idspinvasora__idestatuscatalunya__nom"]
+    #         # except:
+    #         #     estatuscat = "Desconegut"
+    #         resultado.append({"nom":nom,"id":dades[0]["idspinvasora"],"grup":grup,"estatus_cat":dades[0]["idspinvasora__idestatuscatalunya__nom"],"nutm1000":nutm1000,"nutm10000":nutm10000,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua,"nutms10totals":1})
+    #     except:
+    #         resultado.append({"nom":dades[0]["idspinvasora__idtaxon__genere"]+" "+dades[0]["idspinvasora__idtaxon__especie"],"id":"####ERROR####","grup":"####ERROR####","estatus_cat":"####ERROR####","nutm1000":"####ERROR####","nutm10000":"####ERROR####","ncitacions":"####ERROR####","nmassesaigua":"####ERROR####","":"####ERROR####","nutms10totals":"####ERROR####"})
 
     resultado = json.dumps(resultado)
     return HttpResponse(resultado, content_type='application/json;')
@@ -1295,10 +1368,11 @@ def json_especies_de_seleccion(request,multipoligono=False):
     especies = {}
 
     #1
-    utms10 = PresenciaSP10000Global.objects.filter(geom_4326__contained=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms10=Count("idspinvasora"))#.distinct("idspinvasora")
-    utms1 = PresenciaSP1000Global.objects.filter(geom_4326__contained=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms1=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
-    citacions = CitacionsGlobal.objects.filter(geom_4326__contained=poligono).values("idspinvasora").order_by("idspinvasora").annotate(ncitacions=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
-    masses = PresenciaSPMassaAigua.objects.filter(geom_4326__contained=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nmassesaigua=Count("idspinvasora"))#.distinct("idspinvasora")
+    #geom_4326__contained
+    utms10 = PresenciaSP10000Global.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms10=Count("idspinvasora"))#.distinct("idspinvasora")geom_4326__contained
+    utms1 = PresenciaSP1000Global.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms1=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
+    citacions = CitacionsGlobal.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(ncitacions=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
+    masses = PresenciaSPMassaAigua.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nmassesaigua=Count("idspinvasora"))#.distinct("idspinvasora")
 
     #2 Unir las listas
     lista = list(chain(utms10,utms1,citacions,masses))
@@ -1314,8 +1388,37 @@ def json_especies_de_seleccion(request,multipoligono=False):
 
     lista=[]
     for value in comb.itervalues():
-        lista.append({"idspinvasora":value["idspinvasora"],"nutms1":value["nutms1"],"nutms10":value["nutms10"],"ncitacions":value["ncitacions"],"nmassesaigua":value["nmassesaigua"]})
+        lista.append({"idspinvasora":value["idspinvasora"],"nutms1":value["nutms1"],"nutms10":value["nutms10"],"ncitacions":value["ncitacions"],"nmassesaigua":value["nmassesaigua"],"nutms10totals":0})
     resultado = []
+
+    #4
+    ##Estas son todas las utms de 10 de la especie ya que incluye las utms10 que contienen los diferentes puntos
+    for esp in lista:
+        localitats_utm10=0
+        utms10especie=[]
+        nutms10especie=0
+
+        for quad in PresenciaSP10000Global.objects.filter(geom_4326__contained=poligono,idspinvasora=esp["idspinvasora"]).exclude(idquad__in=utms10especie).values("idquad"):
+            utms10especie.append(quad["idquad"])
+            nutms10especie+=1
+
+        for quad in PresenciaSP10000Global.objects.filter(geom_4326__contained=poligono,idspinvasora=esp["idspinvasora"]).exclude(idquad__in=utms10especie).values("idquad"):
+            utms10especie.append(quad["idquad"])
+            nutms10especie += 1
+
+        for cit in CitacionsGlobal.objects.filter(geom_4326__contained=poligono,idspinvasora=esp["idspinvasora"]).values("geom_4326"):
+            for quad in Quadricula.objects.filter(resolution=10000,geom_4326__contains=cit["geom_4326"]).exclude(id__in=utms10especie).values("id"):
+                utms10especie.append(quad["id"])
+                nutms10especie += 1
+
+        for massa in PresenciaSPMassaAigua.objects.filter(geom_4326__contained=poligono,idspinvasora=esp["idspinvasora"]).values("geom_4326"):
+            for quad in Quadricula.objects.filter(resolution=10000,geom_4326__contains=cit["geom_4326"]).exclude(id__in=utms10especie).values("id"):
+                utms10especie.append(quad["id"])
+                nutms10especie += 1
+        esp["nutms10totals"]=nutms10especie
+        #localitats_utm10=PresenciaSP10000Global.objects.filter(geom_4326__contained=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms10=Count("idspinvasora"))#.distinct("idspinvasora")
+
+    #5
     for esp in lista:
         id = esp["idspinvasora"]
         #if id==u'Aix_gale':
@@ -1339,7 +1442,7 @@ def json_especies_de_seleccion(request,multipoligono=False):
             grup ="Desconegut"
 
         try:
-            estatus_cat = Especieinvasora.objects.get(idespecieinvasora=id).estatuscatalunya.nom
+            estatus_cat = Especieinvasora.objects.get(id=id).idestatuscatalunya.nom
         except:
             estatus_cat ="Desconegut"
         ###
@@ -1361,7 +1464,7 @@ def json_especies_de_seleccion(request,multipoligono=False):
         except:
             nmassesaigua=0
         ###
-        resultado.append({"nom":nom,"id":id,"grup":grup,"estatus_cat":estatus_cat,"nutm10000":nutms10,"nutm1000":nutms1,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua})
+        resultado.append({"nom":nom,"id":id,"grup":grup,"estatus_cat":estatus_cat,"nutm10000":nutms10,"nutm1000":nutms1,"ncitacions":ncitacions,"nmassesaigua":nmassesaigua,"nutms10totals":esp["nutms10totals"]})
 
     #2
 
@@ -1439,9 +1542,24 @@ def json_geometries_punts(request):
     geometrias=[]
     id=request.POST["id"]
     quadriculas = [] # se usara para asegurar que no haya quadriculas repetidas
+    #### utm10x10
+    # antiguas
+    for utm in PresenciaSP10000Global.objects.filter(idspinvasora=id,idquad__resolution=10000).values("idquad").distinct("idquad"):
+        #for quad in Quadricula.objects.filter(geom_4326__intersects=utm["geom_4326"].wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+        if utm["idquad"] not in quadriculas:
+            quadriculas.append(utm["idquad"])
+
+    # nuevas
+    for utm in CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, geom__isnull = False, validat="SI").values("utm_10").distinct("utm_10"):
+        #for quad in Quadricula.objects.filter(geom_4326__intersects=GEOSGeometry(utm["geom"], srid=4326).wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+        if utm["utm_10"] not in quadriculas:
+            quadriculas.append(utm["utm_10"])
+
+
+
     #### citaciones pnutuales
     # antiguas
-    for cit in Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("geom_4326").distinct():
+    for cit in CitacionsGlobal.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("geom_4326").distinct():
         for quad in Quadricula.objects.filter(geom_4326__intersects=cit["geom_4326"].wkt,resolution=10000).values("id","geom_4326").distinct("id"):
         #quad = Quadricula.objects.get(geom_4326__intersects=cit["geom_4326"].wkt,resolution=10000).values("id","geom_4326")[0]
             if quad["id"] not in quadriculas:
@@ -1467,14 +1585,20 @@ def json_geometries_punts(request):
 
     #### utm1x1
     # antiguas
-    for utm in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula__geom_4326").distinct("idquadricula"):
-        for quad in Quadricula.objects.filter(geom_4326__intersects=utm["idquadricula__geom_4326"].wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+    for utm in PresenciaSP1000Global.objects.filter(idspinvasora=id,idquad__resolution=1000).values("geom_4326").distinct("idquad"):
+        for quad in Quadricula.objects.filter(geom_4326__intersects=utm["geom_4326"].wkt,resolution=10000).values("id","geom_4326").distinct("id"):
             if quad["id"] not in quadriculas:
                 quadriculas.append(quad["id"])
 
     # nuevas
     for utm in CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, geom__isnull = False, validat="SI").values("geom").distinct("utm_1"):
         for quad in Quadricula.objects.filter(geom_4326__intersects=GEOSGeometry(utm["geom"], srid=4326).wkt,resolution=10000).values("id","geom_4326").distinct("id"):
+            if quad["id"] not in quadriculas:
+                quadriculas.append(quad["id"])
+
+    ##### masses aigua
+    for massa in PresenciaSPMassaAigua.objects.filter(idspinvasora=id).values("geom_4326"):
+        for quad in Quadricula.objects.filter(resolution=10000,geom_4326__intersects=massa["geom_4326"]).values("id","geom_4326").distinct("id"):
             if quad["id"] not in quadriculas:
                 quadriculas.append(quad["id"])
     # # nuevas

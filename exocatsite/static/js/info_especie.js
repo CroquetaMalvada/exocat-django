@@ -133,11 +133,11 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
             //                    console.log(wkt.write());
                         //console.log(v);
                         if (k === (data.length - 1)) {// si es el ultimo elemento de la lista
-                            filtros_geometria_punts=filtros_geometria_punts+"id='"+v+"'"; //filtro=filtro+"INTERSECTS(geom_4326,"+v["geom_4326"]+")";
-                            filtros_url_exportar=filtros_url_exportar+"id=%27"+v+"%27";
+                            filtros_geometria_punts=filtros_geometria_punts+"idquad='"+v+"'"; //filtro=filtro+"INTERSECTS(geom_4326,"+v["geom_4326"]+")";
+                            filtros_url_exportar=filtros_url_exportar+"idquad=%27"+v+"%27";
                         }else{
-                            filtros_geometria_punts=filtros_geometria_punts+"id='"+v+"' OR ";
-                            filtros_url_exportar=filtros_url_exportar+"id=%27"+v+"%27 OR ";
+                            filtros_geometria_punts=filtros_geometria_punts+"idquad='"+v+"' OR ";
+                            filtros_url_exportar=filtros_url_exportar+"idquad=%27"+v+"%27 OR ";
                         }
 
                         //alert(v["geom_4326"]);
@@ -145,10 +145,11 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
                     $("#loading_control_transformar").closest(".menu-item-checkbox").find(".leaflet-control-layers-selector").attr("hidden",false);
                     $("#loading_control_transformar").attr("hidden",true);
                     //$("#exportar_presencia_10000_transformar").attr("hidden",false);
-                    $("#texto_control_transformar").html("Transformar punts a UTMs 10x10km");
+                    $("#texto_control_transformar").html("Localitats agrupades per UTM10km");
                     mapainfo_wmsLayer_presencia_10000_transformar.setParams({cql_filter:filtros_geometria_punts});
                     // para exportar los puntos transformados en 10x10
-                    var icons_pres_10000_transformar="   [ZIP - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_p&outputFormat=SHAPE-ZIP&format_options=filename:"+nombre+"_UTM10km.zip&CQL_FILTER="+filtros_url_exportar+"' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-file-zip-o fa-lg'></i></a>]   [KML - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_p&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_UTM10km&CQL_FILTER="+filtros_url_exportar+"' title='Exportar kml' id='exportar_wms_presencia_10000_transformar'><i class='fa fa-globe fa-lg'></i></a>]"
+                    //console.log(filtros_geometria_punts);
+                    var icons_pres_10000_transformar="   [ZIP - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_global&outputFormat=SHAPE-ZIP&format_options=filename:"+nombre+"_agrupacio_UTM10km.zip&CQL_FILTER="+filtros_url_exportar+"' title='Exportar WFS' id='exportar_wfs_presencia_10000'><i class='fa fa-file-zip-o fa-lg'></i></a>]   [KML - <a href='http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_global&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_agrupacio_UTM10km&CQL_FILTER="+filtros_url_exportar+"' title='Exportar kml' id='exportar_wms_presencia_10000_transformar'><i class='fa fa-globe fa-lg'></i></a>]"
                     $("#exportar_presencia_10000_transformar").append(icons_pres_10000_transformar);
 //                    $("#exportar_wms_presencia_10000_transformar").attr("href","http://exocatdb.creaf.cat/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIPAN:PRESENCIA_SP_10000_p&outputFormat=application/vnd.google-earth.kml+xml&format_options=filename:"+nombre+"_UTM10km&CQL_FILTER="+filtros_url_exportar);
                     //console.log(filtros_geometria_punts);

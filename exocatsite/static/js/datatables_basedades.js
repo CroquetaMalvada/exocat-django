@@ -140,8 +140,8 @@ $(document).ready(function(){
 
         taula_especies_map = $("#table_info_map").DataTable({
                     columnDefs:[
-                        { "width": "9%", "targets": [7] },
-                        { "width": "13%", "targets": [0,1,2,3,4,5,6] }
+                        { "width": "5%", "targets": [8] },
+                        { "width": "10%", "targets": [0,1,2,3,4,5,6,7] }
                     ],
                     dom: 'Bfrtip',
                     buttons:[{
@@ -152,7 +152,7 @@ $(document).ready(function(){
                             text: '<span aria-hidden="true"><i class="fa fa-print fa-lg"></i> Imprimir</span>',
                             autoPrint: true,
                             exportOptions: {
-                                columns: [0,1,2,3,4,5,6],
+                                columns: [0,1,2,3,4,5,6,7],
                             }
                     },{
                         extend: 'excel',
@@ -166,14 +166,14 @@ $(document).ready(function(){
                         title: function(){return  "Informació de area geogràfica"},
                         text: '<span aria-hidden="true"><i class="fa fa-file-pdf-o fa-lg"></i> PDF</span>',
                         exportOptions: {
-                            columns: [0,1,2,3,4,5,6],
+                            columns: [0,1,2,3,4,5,6,7],
                         }
                     },{
                         extend: 'csv',
                         filename: function(){return  "Informació de area geogràfica"},
                         text: '<span aria-hidden="true"><i class="fa fa-table fa-lg"></i> CSV</span>',
                         exportOptions: {
-                            columns: [0,1,2,3,4,5,6],
+                            columns: [0,1,2,3,4,5,6,7],
                         }
                     }],
                     order: [[ 0, "asc" ]],
@@ -372,6 +372,7 @@ $(document).ready(function(){
 
         //tooltip de las herramientas
         $(".boton_herramientas").tooltip();
+        $(".boton_tooltip").tooltip();
 });
 function comprobar_filtrar_data_citacio(){
     if($("#filtrar_data_citacions").is(":checked")){
@@ -422,6 +423,7 @@ function rellenar_table_especies_click(data){ // esta funcion se llama en funcio
             this.ncitacions,
             this.nmassesaigua,
             total,
+//            this.nutms10totals,
             '<a class="btn btn-info mostrar_info_especie" value="'+this.id+'" title="Info" href="#"><i class="fa fa-eye fa-lg"></i></a>'
         ]).draw();
         //alert(this.properties.IDSPINVASORA);
@@ -443,6 +445,7 @@ function rellenar_table_especies_seleccion(data){ // esta funcion se llama en fu
             this.ncitacions,
             this.nmassesaigua,
             total,
+//            this.nutms10totals,
             '<a class="btn btn-info mostrar_info_especie" value="'+this.id+'" title="Info" href="#"><i class="fa fa-eye fa-lg"></i></a>'
         ]);
     });
