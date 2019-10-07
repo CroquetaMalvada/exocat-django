@@ -966,7 +966,10 @@ def json_taula_citacions_fitxer(request):
                     if origen == 'volcado_automatico_natusfera':
                         data=cit.id_paquet[10:21]
                     else:
-                        data=cit.id_paquet[7:9]+"-"+cit.id_paquet[4:6]+"-"+cit.id_paquet[0:4]+" (Hora:"+cit.id_paquet[9:11]+":"+cit.id_paquet[12:14]+")"
+                        if str(cit.id_paquet).startswith("dades_biocat_gbif"):
+                            data = cit.id_paquet[18:29]
+                        else:
+                            data=cit.id_paquet[7:9]+"-"+cit.id_paquet[4:6]+"-"+cit.id_paquet[0:4]+" (Hora:"+cit.id_paquet[9:11]+":"+cit.id_paquet[12:14]+")"
                     #if id_paquet is not None and data is not None and usuari is not None and origen is not None:
                     #poner if origen != excel o csv
                     fitxers_citacions.append({"id_paquet":id_paquet,"data":data,"usuari":usuari,"origen":origen})

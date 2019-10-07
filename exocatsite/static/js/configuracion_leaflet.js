@@ -190,7 +190,7 @@ $(document).ready(function(){
         });
         ///
         mapainfo_wmsLayer_presencia_10000_transformar = L.tileLayer.wms('http://exocatdb.creaf.cat/geoserver/wms?', {
-            layers: 'SIPAN:PRESENCIA_SP_10000_global',
+            layers: 'SIPAN:PRESENCIA_SP_10000_global_vermell',
             transparent: 'true',
             format: 'image/png',
             opacity: 0.5
