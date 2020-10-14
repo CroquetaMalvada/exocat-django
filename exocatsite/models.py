@@ -128,14 +128,16 @@ class Documents(models.Model):
 
 class Especieinvasora(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
+    nom_especie = models.CharField(max_length=255, blank=True, null=True)# anadido en la bdd el 26-08-2020
+    id_gbif = models.IntegerField(null=False)# anadido en la bdd el 26-08-2020
     observacions = models.CharField(max_length=4000, blank=True, null=True)
     present_catalogo = models.CharField(max_length=1, blank=True, null=True)
-    reglament_ue = models.CharField(max_length=1, blank=True, null=True) # anadido en la bdd el 29-05-1028
+    reglament_ue = models.CharField(max_length=1, blank=True, null=True) # anadido en la bdd el 29-05-2018
     regio_nativa = models.CharField(max_length=1000, blank=True, null=True) # modificado
 
     # FOREIGN KEYS *Ojo importante el related name!
 
-    idtaxon = models.ForeignKey('Taxon', models.DO_NOTHING,related_name='id_taxon', db_column='idtaxon', blank=True, null=True)
+    #idtaxon = models.ForeignKey('Taxon', models.DO_NOTHING,related_name='id_taxon', db_column='idtaxon', blank=True, null=True)
     idestatushistoric = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatushistoric', db_column='idestatushistoric', blank=True, null=True) # modificado
     idestatuscatalunya = models.ForeignKey('Estatus', models.DO_NOTHING,related_name='estatuscatalunya', db_column='idestatuscatalunya', blank=True, null=True)# modificado
     idimatgeprincipal = models.ForeignKey('Imatges', models.DO_NOTHING,related_name='id_imatge_principal', db_column='idimatgeprincipal', blank=True, null=True)
@@ -288,7 +290,8 @@ class Nomvulgartaxon(models.Model):
 
 
     #FOREIGN KEYS
-    idtaxon = models.ForeignKey('Taxon', models.DO_NOTHING,related_name='id_respecietaxon', db_column='idtaxon')
+    #idtaxon = models.ForeignKey('Taxon', models.DO_NOTHING,related_name='id_respecietaxon', db_column='idtaxon')
+    id_spinvasora = models.ForeignKey(Especieinvasora, models.DO_NOTHING,related_name='id_especie_nom', db_column='id_spinvasora', blank=True, null=True)
     idnomvulgar = models.ForeignKey(Nomvulgar, models.DO_NOTHING,related_name='id_nomvulgar', db_column='idnomvulgar')
     idnomvulgar_eng = models.ForeignKey(Nomvulgar, models.DO_NOTHING,related_name='id_nomvulgareng', db_column='idnomvulgar_eng', blank=True, null=True)
     idnomvulgar_es = models.ForeignKey(Nomvulgar, models.DO_NOTHING,related_name='id_nomvulgares', db_column='idnomvulgar_es', blank=True, null=True)
@@ -351,45 +354,45 @@ class Quadricula(models.Model):
         managed = False
         db_table = 'quadricula'
 
-class Taxon(models.Model):
-    id = models.CharField(primary_key=True, max_length=100)
-    nomsp = models.CharField(max_length=100, blank=True, null=True)
-    tesaurebiocat = models.CharField(max_length=100, blank=True, null=True)
-    codibiocat = models.CharField(max_length=100, blank=True, null=True)
-    genere = models.CharField(max_length=100, blank=True, null=True)
-    especie = models.CharField(max_length=100, blank=True, null=True)
-    autorespecie = models.CharField(max_length=100, blank=True, null=True)
-    subespecie = models.CharField(max_length=100, blank=True, null=True)
-    autorsubespecie = models.CharField(max_length=100, blank=True, null=True)
-    varietat = models.CharField(max_length=100, blank=True, null=True)
-    autorvarietat = models.CharField(max_length=100, blank=True, null=True)
-    subvarietat = models.CharField(max_length=100, blank=True, null=True)
-    autorsubvarietat = models.CharField(max_length=100, blank=True, null=True)
-    forma = models.CharField(max_length=100, blank=True, null=True)
-    autorforma = models.CharField(max_length=100, blank=True, null=True)
-    codieorca = models.CharField(max_length=100, blank=True, null=True)
-    familia = models.CharField(max_length=100, blank=True, null=True)
-    taxonomicelements_id = models.CharField(max_length=100, blank=True, null=True)
-    scientificname = models.CharField(max_length=100, blank=True, null=True)
-    highertaxon = models.CharField(max_length=100, blank=True, null=True)
-    kingdom = models.CharField(max_length=100, blank=True, null=True)
-    phylum = models.CharField(max_length=100, blank=True, null=True)
-    taxonomicelement_class = models.CharField(max_length=100, blank=True, null=True)
-    taxonomicelement_order = models.CharField(max_length=100, blank=True, null=True)
-    family = models.CharField(max_length=100, blank=True, null=True)
-    genus = models.CharField(max_length=100, blank=True, null=True)
-    specificepithet = models.CharField(max_length=100, blank=True, null=True)
-    infraspecificrank = models.CharField(max_length=100, blank=True, null=True)
-    infraspecificepithet = models.CharField(max_length=100, blank=True, null=True)
-    authoryearofscientificname = models.CharField(max_length=100, blank=True, null=True)
-    nomenclaturalcode = models.CharField(max_length=100, blank=True, null=True)
-    c_esp = models.CharField(max_length=100, blank=True, null=True)
-    c_e_o = models.CharField(max_length=100, blank=True, null=True)
-    c_pcsb = models.CharField(max_length=100, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'taxon'
+# class Taxon(models.Model):
+#     id = models.CharField(primary_key=True, max_length=100)
+#     nomsp = models.CharField(max_length=100, blank=True, null=True)
+#     tesaurebiocat = models.CharField(max_length=100, blank=True, null=True)
+#     codibiocat = models.CharField(max_length=100, blank=True, null=True)
+#     genere = models.CharField(max_length=100, blank=True, null=True)
+#     especie = models.CharField(max_length=100, blank=True, null=True)
+#     autorespecie = models.CharField(max_length=100, blank=True, null=True)
+#     subespecie = models.CharField(max_length=100, blank=True, null=True)
+#     autorsubespecie = models.CharField(max_length=100, blank=True, null=True)
+#     varietat = models.CharField(max_length=100, blank=True, null=True)
+#     autorvarietat = models.CharField(max_length=100, blank=True, null=True)
+#     subvarietat = models.CharField(max_length=100, blank=True, null=True)
+#     autorsubvarietat = models.CharField(max_length=100, blank=True, null=True)
+#     forma = models.CharField(max_length=100, blank=True, null=True)
+#     autorforma = models.CharField(max_length=100, blank=True, null=True)
+#     codieorca = models.CharField(max_length=100, blank=True, null=True)
+#     familia = models.CharField(max_length=100, blank=True, null=True)
+#     taxonomicelements_id = models.CharField(max_length=100, blank=True, null=True)
+#     scientificname = models.CharField(max_length=100, blank=True, null=True)
+#     highertaxon = models.CharField(max_length=100, blank=True, null=True)
+#     kingdom = models.CharField(max_length=100, blank=True, null=True)
+#     phylum = models.CharField(max_length=100, blank=True, null=True)
+#     taxonomicelement_class = models.CharField(max_length=100, blank=True, null=True)
+#     taxonomicelement_order = models.CharField(max_length=100, blank=True, null=True)
+#     family = models.CharField(max_length=100, blank=True, null=True)
+#     genus = models.CharField(max_length=100, blank=True, null=True)
+#     specificepithet = models.CharField(max_length=100, blank=True, null=True)
+#     infraspecificrank = models.CharField(max_length=100, blank=True, null=True)
+#     infraspecificepithet = models.CharField(max_length=100, blank=True, null=True)
+#     authoryearofscientificname = models.CharField(max_length=100, blank=True, null=True)
+#     nomenclaturalcode = models.CharField(max_length=100, blank=True, null=True)
+#     c_esp = models.CharField(max_length=100, blank=True, null=True)
+#     c_e_o = models.CharField(max_length=100, blank=True, null=True)
+#     c_pcsb = models.CharField(max_length=100, blank=True, null=True)
+#
+#     class Meta:
+#         managed = False
+#         db_table = 'taxon'
 
 class Zonageografica(models.Model):
     id = models.CharField(primary_key=True, max_length=100)

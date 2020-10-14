@@ -35,7 +35,7 @@ urlpatterns = [
     url(r'^administrar_citacions_fitxer/',views.view_administrar_citacions_fitxer,name="administrar citacions fitxer"),
     # url(r'^mapa/',views.view_mapa,name="mapa"),
     # AJAX SELECTS BASE DE DADES
-    url('^ajax_varietat_select/', views.json_select_varietat),
+    #url('^ajax_varietat_select/', views.json_select_varietat),
     url('^ajax_grups_select/', views.json_select_groups),
     url('^ajax_viaentrada_select/', views.json_select_viaentrada),
     # url('^ajax_estatus_select/', views.json_select_estatus),

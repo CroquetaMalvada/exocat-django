@@ -78,7 +78,7 @@
                     <select id="id_idspinvasora" name="idspinvasora" class="form-control">
                         {% for especie in especies %}
                         <option value="{{ especie.id }}">
-                            {{especie.idtaxon__genere}} {{especie.idtaxon__especie}}
+                            {{especie.nom_especie}}
                         </option>
                         {% endfor %}
                         <option value="00000">

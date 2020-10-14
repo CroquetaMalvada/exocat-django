@@ -62,14 +62,14 @@ def view_base_dades(request):
 #     # context = {'especies_invasores': "", 'titulo': "ESPECIES INVASORES"}
 #     return render(request, 'exocat/mapa.html')
 
-# JSON DE FILTRES
-def json_select_varietat(request):# Ojo la varietat no esta en un tabla aparte,la extraigo de los taxons y le hago un distinct(esto puede quedar feo si se anaden muchos y con nombres similares)
-    varietats= Taxon.objects.filter(varietat__isnull = False).values("varietat").order_by("varietat").distinct("varietat")
-    resultado=[]
-    for vari in varietats:
-        resultado.append({'varietat': vari["varietat"]})
-    resultado=json.dumps(resultado)
-    return HttpResponse(resultado, content_type='application/json;')
+# # JSON DE FILTRES
+# def json_select_varietat(request):# Ojo la varietat no esta en un tabla aparte,la extraigo de los taxons y le hago un distinct(esto puede quedar feo si se anaden muchos y con nombres similares)
+#     varietats= Taxon.objects.filter(varietat__isnull = False).values("varietat").order_by("varietat").distinct("varietat")
+#     resultado=[]
+#     for vari in varietats:
+#         resultado.append({'varietat': vari["varietat"]})
+#     resultado=json.dumps(resultado)
+#     return HttpResponse(resultado, content_type='application/json;')
 
 def json_select_groups(request):
     grups= Grup.objects.all().order_by("nom")
@@ -120,26 +120,27 @@ def json_select_regionativa(request):
 
 #DATATABLES
 def json_taula_especies(request):
-    especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie")
+    #especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie")
+    especies= Especieinvasora.objects.all().order_by("nom_especie").values("id","nom_especie")
     resultado=[]
     ids_especies=[]
     for especie in especies[int(request.POST["start"]):(int(request.POST["start"])+int(request.POST["length"]))]:
         # nombre de la especie(se juntan el genere con especie y subespecie)
         id=str(especie["id"])
-        genere=especie["idtaxon__genere"]
-        especiestr=especie["idtaxon__especie"]
-        subespeciestr = especie["idtaxon__subespecie"]
-        if especiestr is not None:
-            try:
-                genere=genere+" "+especiestr
-            except:# Ojo poner breakpoint por si especie aparece en blanco
-                genere=""
-        if subespeciestr is not None:
-            genere = genere + " [subespecie: "+subespeciestr+" ]"
+        # genere=especie["idtaxon__genere"]
+        # especiestr=especie["idtaxon__especie"]
+        # subespeciestr = especie["idtaxon__subespecie"]
+        # if especiestr is not None:
+        #     try:
+        #         genere=genere+" "+especiestr
+        #     except:# Ojo poner breakpoint por si especie aparece en blanco
+        #         genere=""
+        # if subespeciestr is not None:
+        #     genere = genere + " [subespecie: "+subespeciestr+" ]"
 
         #grupo
         grup=Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
-        resultado.append({'id':id,'especie': genere,'grup':grup}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
+        resultado.append({'id':id,'especie': especie["nom_especie"],'grup':grup}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
 
     # para el input de ids para el csv
     for especie in especies:
@@ -213,30 +214,42 @@ def filtrar_especies(campos):
     # CREAMOS LOS FILTROS:
     estatus = Estatus.objects.all().values("id") #lo metemos en una variable ya que esta lista la usaremos en mas de una ocasion en los filtros
 
-    def filtro_nombre():
-        if campos["especie"] is not "":
-            for especie in campos["especie"].split(" "):
-                return (Q(idtaxon__genere__icontains=especie) | Q(idtaxon__especie__icontains=especie) | Q (idtaxon__subespecie__icontains=especie) | Q(idtaxon__varietat__icontains=especie))
+    def filtro_nom_especie():
+        if campos["nom_especie"] is not "":
+            #return (Q(idtaxon__genere__icontains=campos["genere"]))
+            return (Q(nom_especie__icontains=campos["nom_especie"]))
         else:
             return Q(id__isnull=False)
 
-    def filtro_genere():
-        if campos["genere"] is not "":
-            return (Q(idtaxon__genere__icontains=campos["genere"]))
-        else:
-            return Q(id__isnull=False)
 
-    def filtro_especie():
-        if campos["especie"] is not "":
-            return (Q(idtaxon__especie__icontains=campos["especie"]))
-        else:
-            return Q(id__isnull=False)
-
-    def filtro_subespecie():
-        if campos["subespecie"] is not "":
-            return (Q(idtaxon__subespecie__icontains=campos["subespecie"]))
-        else:
-            return Q(id__isnull=False)
+    # def filtro_nombre():
+    #     if campos["especie"] is not "":
+    #         for especie in campos["especie"].split(" "):
+    #             #return (Q(idtaxon__genere__icontains=especie) | Q(idtaxon__especie__icontains=especie) | Q (idtaxon__subespecie__icontains=especie) | Q(idtaxon__varietat__icontains=especie))
+    #             return (Q(nom_especie__icontains=especie))
+    #     else:
+    #         return Q(id__isnull=False)
+    #
+    # def filtro_genere():
+    #     if campos["genere"] is not "":
+    #         #return (Q(idtaxon__genere__icontains=campos["genere"]))
+    #         return (Q(nom_especie__icontains=campos["genere"]))
+    #     else:
+    #         return Q(id__isnull=False)
+    #
+    # def filtro_especie():
+    #     if campos["especie"] is not "":
+    #         #return (Q(idtaxon__especie__icontains=campos["especie"]))
+    #         return (Q(nom__especie__icontains=campos["especie"]))
+    #     else:
+    #         return Q(id__isnull=False)
+    #
+    # def filtro_subespecie():
+    #     if campos["subespecie"] is not "":
+    #         #return (Q(idtaxon__subespecie__icontains=campos["subespecie"]))
+    #         return (Q(nom_especie__icontains=campos["subespecie"]))
+    #     else:
+    #         return Q(id__isnull=False)
 
     def filtro_grups():
         if campos["grups"] is not "":
@@ -250,11 +263,11 @@ def filtrar_especies(campos):
         else:
             return Q(id__isnull=False)
 
-    def filtro_varietat():
-        if campos["varietat"] is not "":
-            return (Q(idtaxon__varietat__icontains=campos["varietat"]) | Q(idtaxon__subvarietat__icontains=campos["varietat"]))
-        else:
-            return Q(id__isnull=False)
+    # def filtro_varietat():
+    #     if campos["varietat"] is not "":
+    #         return (Q(idtaxon__varietat__icontains=campos["varietat"]) | Q(idtaxon__subvarietat__icontains=campos["varietat"]))
+    #     else:
+    #         return Q(id__isnull=False)
 
     def filtro_regio_nativa(): #OJO para utilizar el unaccent he tenido que instalarlo en el psql del servidor(como usuario psotgres) y django.contrib.postgres en el INSTALLEDAPPS
         if campos["regionativa"] is not "":
@@ -309,7 +322,9 @@ def filtrar_especies(campos):
 
     especies= Especieinvasora.objects.filter(
         # para el nombre(campo especie) !Ojo __icontains no es sensible a mayusculas a diferencia de __icontains!
-        filtro_nombre(),# incluye el genere,especie,subespecie y varietat
+        filtro_nom_especie(),
+        # filtro_nombre(),
+        # incluye el genere,especie,subespecie y varietat
         # filtro_genere(),
         # filtro_especie(),
         # filtro_subespecie(),
@@ -342,7 +357,7 @@ def filtrar_especies(campos):
         # para las fechas de citaciones
         filtro_data_citacions(),
 
-    ).order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie")
+    ).order_by("nom_especie").values("id","nom_especie")
 
     return especies
 
@@ -357,13 +372,13 @@ def json_taula_especies_filtres(request):
         for especie in especies[int(request.POST["start"]):(int(request.POST["start"]) + int(request.POST["length"]))]:
             # nombre de la especie(se juntan el genere con especie y subespecie)
             id = especie["id"]
-            genere = especie["idtaxon__genere"]
-            especiestr = especie["idtaxon__especie"]
-            subespeciestr = especie["idtaxon__subespecie"]
-            if especiestr is not None:
-                genere = genere + " " + especiestr
-            if subespeciestr is not None:
-                genere = genere + u" [Subespècie: " + subespeciestr + " ]"
+            # genere = especie["idtaxon__genere"]
+            # especiestr = especie["idtaxon__especie"]
+            # subespeciestr = especie["idtaxon__subespecie"]
+            # if especiestr is not None:
+            #     genere = genere + " " + especiestr
+            # if subespeciestr is not None:
+            #     genere = genere + u" [Subespècie: " + subespeciestr + " ]"
 
             # grupo
             if Grupespecie.objects.filter(idespecieinvasora=id).exists():
@@ -371,7 +386,7 @@ def json_taula_especies_filtres(request):
             else:
                 grup = "Desconegut"
 
-            resultado.append({'id': id, 'especie': genere, 'grup': grup})  # ,'nomsvulgars':nomsvulgars,'habitat':habitat
+            resultado.append({'id': id, 'especie': especie["nom_especie"], 'grup': grup})  # ,'nomsvulgars':nomsvulgars,'habitat':habitat
         # para el input de ids para el csv
         for especie in especies:
             ids_especies.append(especie["id"])
@@ -405,15 +420,17 @@ def generar_csv_especies(request):
 
     writer = csv.writer(resultado, delimiter=str(u';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
     resultado.write(u'\ufeff'.encode('utf8')) # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
-    writer.writerow([u'Taxon', u'Grup', 'Regió nativa', u"Vies d'entrada", u'Estatus general', u'Estatus Catalunya',u'Present al "Catálogo"', u'Present al Reglament Europeu'])
+    writer.writerow(['Espècie', 'Regió nativa', u"Vies d'entrada", u'Estatus general', u'Estatus Catalunya',u'Present al "Catálogo"', u'Present al Reglament Europeu'])
+    #u'Taxon', u'Grup',
 
     try:
         cursor = connection.cursor()
         if 'DELETE' in especies or 'delete' in especies or 'UPDATE' in especies or 'update' in especies:# toda precaucion con las querys es poca
             raise Http404('Error al generar el csv.')
         especies = especies.split(",")
-        cursor.execute("SELECT  CONCAT_WS(' ',taxon.genere, taxon.especie) AS taxon,"
-        " taxon.subespecie AS subespecie,"
+        # SELECT CONCAT_WS(' ',taxon.genere, taxon.especie) AS taxon,"
+        # " taxon.subespecie AS subespecie,"
+        cursor.execute("SELECT nom_especie AS nomespecie"
         " grup.nom AS grup,"
         " especieinvasora.regio_nativa AS regionativa,"
         " (SELECT string_agg(viaentrada.viaentrada,',') FROM viaentradaespecie INNER JOIN viaentrada ON viaentrada.id = viaentradaespecie.idviaentrada WHERE viaentradaespecie.idespecieinvasora = especieinvasora.id) AS viesentrada,"
@@ -422,17 +439,17 @@ def generar_csv_especies(request):
         " (SELECT CASE WHEN especieinvasora.present_catalogo='N' THEN 'No' ELSE 'Si' END AS presentcatalog) AS presentcatalog,"
         " (SELECT CASE WHEN especieinvasora.reglament_ue='N' THEN 'No' ELSE 'Si' END AS presentreglamenteur) AS presentreglamenteur"
         " FROM especieinvasora"
-        " INNER JOIN taxon ON especieinvasora.idtaxon = taxon.id" 
+        #" INNER JOIN taxon ON especieinvasora.idtaxon = taxon.id" 
         " INNER JOIN grupespecie ON especieinvasora.id = grupespecie.idespecieinvasora"
         " INNER JOIN grup ON grup.id = grupespecie.idgrup"
-        " WHERE especieinvasora.id = ANY( %s ) ORDER BY taxon",[especies])
+        " WHERE especieinvasora.id = ANY( %s ) ORDER BY especie",[especies])
         fetch = dictfetchall(cursor)
 
         for especie in fetch:
-            subesp=""
-            if especie["subespecie"] is not None:
-                subesp=" [subespecie: "+ especie["subespecie"]+" ]"
-            writer.writerow([especie["taxon"]+subesp, especie["grup"], especie["regionativa"], especie["viesentrada"], especie["estatushistoric"], especie["estatuscatalunya"], especie["presentcatalog"],especie["presentreglamenteur"]])
+            # subesp=""
+            # if especie["subespecie"] is not None:
+            #     subesp=" [subespecie: "+ especie["subespecie"]+" ]"
+            writer.writerow([especie["nomespecie"], especie["grup"], especie["regionativa"], especie["viesentrada"], especie["estatushistoric"], especie["estatuscatalunya"], especie["presentcatalog"],especie["presentreglamenteur"]])
         cursor.close()
         return resultado
     except:
@@ -655,21 +672,22 @@ def upload_citaciones_fichero(request):
                     # encontrar el id_especie en funcion de la especie proporcionada
                     else:
                         try:
-                            taxonencontrado=0
-                            array_especie = especie.split(" ")
-                            if len(array_especie)>2:# si tiene subespecie
-                                idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie__icontains=array_especie[2]).first().id
-                                taxonencontrado = 1
-                            else: # ponemos que subespecie sea None ya que hay especies con mas de una subespecie,y puede devolver multiples taxons
-                                idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie=None).first().id
-                                taxonencontrado = 1
-                            idspinvasora = Especieinvasora.objects.get(idtaxon=idtaxon).id
+                            # taxonencontrado=0
+                            # array_especie = especie.split(" ")
+                            # if len(array_especie)>2:# si tiene subespecie
+                            #     idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie__icontains=array_especie[2]).first().id
+                            #     taxonencontrado = 1
+                            # else: # ponemos que subespecie sea None ya que hay especies con mas de una subespecie,y puede devolver multiples taxons
+                            #     idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie=None).first().id
+                            #     taxonencontrado = 1
+                            #idspinvasora = Especieinvasora.objects.get(idtaxon=idtaxon).id
+                            idspinvasora = Especieinvasora.objects.get(nom_especie=especie).id
                         except:
                             errores+=1
-                            if taxonencontrado == 1:
-                                errorlist.append("El nom de l’espècie '' "+especie+" '' existeix a la base dades pero no consta com a espècie exótica. Comprova que no has escrit un sinónim o contacta amb <a href='mailto:suport.exocat@creaf.uab.cat'>suport.exocat@creaf.uab.cat</a> per a mes info.")
-                            else:
-                                errorlist.append("No s’ha trobat l’espècie '' "+especie+" '' a la base de dades. Comprova que estigui ben escrit o contacta amb <a href='mailto:suport.exocat@creaf.uab.cat'>suport.exocat@creaf.uab.cat</a>")
+                            # if taxonencontrado == 1:
+                            #     errorlist.append("El nom de l’espècie '' "+especie+" '' existeix a la base dades pero no consta com a espècie exótica. Comprova que no has escrit un sinónim o contacta amb <a href='mailto:suport.exocat@creaf.uab.cat'>suport.exocat@creaf.uab.cat</a> per a mes info.")
+                            # else:
+                            errorlist.append("No s’ha trobat l’espècie '' "+especie+" '' a la base de dades. Comprova que estigui ben escrit o contacta amb <a href='mailto:suport.exocat@creaf.uab.cat'>suport.exocat@creaf.uab.cat</a>")
                     #Comprobar que al menos uno de los de coordenadas tenga algo y que las de 1 y 10km existan!
                     vacios=0
                     if utmx=="" or utmy=="" or utmx is None or utmy is None:
@@ -825,12 +843,13 @@ def upload_citaciones_fichero(request):
                                observacions = line[11]
 
                             # ID de especie
-                            array_especie = especie.split(" ")
-                            if len(array_especie)>2:# si tiene subespecie
-                                idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie__icontains=array_especie[2]).first().id
-                            else: # ponemos que subespecie sea None ya que hay especies con mas de una subespecie,y puede devolver multiples taxons
-                                idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie=None).first().id
-                            idspinvasora = Especieinvasora.objects.get(idtaxon=idtaxon).id
+                            # array_especie = especie.split(" ")
+                            # if len(array_especie)>2:# si tiene subespecie
+                            #     idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie__icontains=array_especie[2]).first().id
+                            # else: # ponemos que subespecie sea None ya que hay especies con mas de una subespecie,y puede devolver multiples taxons
+                            #     idtaxon = Taxon.objects.filter(genere__icontains=array_especie[0],especie__icontains=array_especie[1],subespecie=None).first().id
+                            #idspinvasora = Especieinvasora.objects.get(idtaxon=idtaxon).id
+                            idspinvasora = Especieinvasora.objects.get(nom_especie=especie).id
                             #FORMATEAR FECHA
                             errordata = 0
                             # separador -
@@ -1013,14 +1032,15 @@ def json_info_citacions_fitxer(request):
 def json_info_especie(request):
     info=request.POST
     id = info["id"]
-    especieinvasora = Especieinvasora.objects.values_list('idtaxon','idtaxon__genere','idtaxon__especie','idtaxon__subespecie','idtaxon__varietat','idtaxon__subvarietat').get(id=info["id"])
-    id_taxon=especieinvasora[0]
-    genere= especieinvasora[1]
-    especie=especieinvasora[2]
-    subespecie=especieinvasora[3]
-    varietat=especieinvasora[4]
-    subvarietat=especieinvasora[5]
-    nomsvulgars=""
+    #especieinvasora = Especieinvasora.objects.values_list('idtaxon','idtaxon__genere','idtaxon__especie','idtaxon__subespecie','idtaxon__varietat','idtaxon__subvarietat').get(id=info["id"])
+    especieinvasora = Especieinvasora.objects.values_list('nom_especie').get(id=info["id"])
+    # id_taxon=especieinvasora[0]
+    # genere= especieinvasora[1]
+    # especie=especieinvasora[2]
+    # subespecie=especieinvasora[3]
+    # varietat=especieinvasora[4]
+    # subvarietat=especieinvasora[5]
+    # nomsvulgars=""
 
     # OJO que los datos de citacions a excepcion de ncitacions no se utilizaran por ahora
     citacions= Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("citacio","localitat","municipi","comarca","provincia","data","autor_s","font")
@@ -1030,7 +1050,8 @@ def json_info_especie(request):
     # ncitacions = Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).count()
 
     # calcular el numero de masas de agua y el numero de utms de una especie
-    id_exoaqua= ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+    #id_exoaqua= ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+    id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=especieinvasora).values("id_exoaqua")
     massesaigua = []
     nmassesaigua=0
 
@@ -1088,11 +1109,11 @@ def json_info_especie(request):
         nmassesaigua_identificades=""
     #
 
-    for nomv in Nomvulgartaxon.objects.filter(idtaxon=id_taxon):
-        if nomv=="":
-            nomsvulgars=nomv.idnomvulgar.nomvulgar
-        else:
-            nomsvulgars=nomsvulgars+nomv.idnomvulgar.nomvulgar+","
+    # for nomv in Nomvulgartaxon.objects.filter(idtaxon=id_taxon):
+    #     if nomv=="":
+    #         nomsvulgars=nomv.idnomvulgar.nomvulgar
+    #     else:
+    #         nomsvulgars=nomsvulgars+nomv.idnomvulgar.nomvulgar+","
 
     grup = Grupespecie.objects.get(idespecieinvasora=info["id"]).idgrup.nom
     regionativa=Especieinvasora.objects.get(id=info["id"]).regio_nativa
@@ -1160,7 +1181,8 @@ def json_info_especie(request):
     for actuacio in Actuacio.objects.filter(idespecieinvasora=info["id"]).values("iddoc__titol","iddoc__nomoriginal").distinct("iddoc__titol"):
         actuacions.append({"titol":actuacio["iddoc__titol"],"fitxer":actuacio["iddoc__nomoriginal"]})
 
-    resultado=json.dumps({'id':info["id"],'genere':genere,'especie':especie,'subespecie':subespecie,'varietat':varietat,'subvarietat':subvarietat,'nomsvulgars':nomsvulgars,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'presentreglamenteur':presentreglamenteur,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge,'nutm1000':nutm1000,'nutm10000':nutm10000,'ncitacions':ncitacions,'nmassesaigua':nmassesaigua,'nmassesaigua_identificades':nmassesaigua_identificades,'documentacio':documentacio,'actuacions':actuacions})
+    #'genere':genere,'especie':especie,'subespecie':subespecie,'nomsvulgars':nomsvulgars
+    resultado=json.dumps({'id':info["id"],'nom_especie':especieinvasora,'grup':grup,'regionativa':regionativa,'estatushistoric':estatushistoric,'estatuscatalunya':estatuscatalunya,'viesentrada':viesentrada,'presentcatalog':presentcatalog,'presentreglamenteur':presentreglamenteur,'observacions':observacions,'imatges':imatges_especie,'titolimatge':titolimatge,'nutm1000':nutm1000,'nutm10000':nutm10000,'ncitacions':ncitacions,'nmassesaigua':nmassesaigua,'nmassesaigua_identificades':nmassesaigua_identificades,'documentacio':documentacio,'actuacions':actuacions})
     return HttpResponse(resultado, content_type='application/json;')
 
 #
@@ -1239,19 +1261,19 @@ def json_especies_de_cuadro(request):# Ojo aqui no hace falta lo de las citacion
         id = esp["idspinvasora"]
         #if id==u'Aix_gale':
             #None
-        id_taxon = Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
-        try:
-            genere_especie = Taxon.objects.get(id=id_taxon).genere + " " + Taxon.objects.get(id=id_taxon).especie
-        except:
-            genere = "##ERROR##"
-        try:
-            subesp = Taxon.objects.get(id=id_taxon).subespecie
-            if subesp is None:
-                subesp = ""
-            else:
-                subesp = " [subespècie: " + subesp + " ]"
-        except:
-            subesp = ""
+        # id_taxon = Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
+        # try:
+        #     genere_especie = Taxon.objects.get(id=id_taxon).genere + " " + Taxon.objects.get(id=id_taxon).especie
+        # except:
+        #     genere = "##ERROR##"
+        # try:
+        #     subesp = Taxon.objects.get(id=id_taxon).subespecie
+        #     if subesp is None:
+        #         subesp = ""
+        #     else:
+        #         subesp = " [subespècie: " + subesp + " ]"
+        # except:
+        #     subesp = ""
         try:
             grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
         except:
@@ -1262,7 +1284,7 @@ def json_especies_de_cuadro(request):# Ojo aqui no hace falta lo de las citacion
         except:
             estatus_cat ="Desconegut"
         ###
-        nom = genere_especie + subesp
+        nom = esp["nom_especie"];#genere_especie + subesp
         try:#UTM de 1 km
             nutms1 = esp["nutms1"]
         except:
@@ -1426,19 +1448,19 @@ def json_especies_de_seleccion(request,multipoligono=False):
         id = esp["idspinvasora"]
         #if id==u'Aix_gale':
             #None
-        id_taxon = Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
-        try:
-            genere_especie = Taxon.objects.get(id=id_taxon).genere + " " + Taxon.objects.get(id=id_taxon).especie
-        except:
-            genere = "##ERROR##"
-        try:
-            subesp = Taxon.objects.get(id=id_taxon).subespecie
-            if subesp is None:
-                subesp = ""
-            else:
-                subesp = " [subespècie: " + subesp + " ]"
-        except:
-            subesp = ""
+        # id_taxon = Especieinvasora.objects.values_list('idtaxon').get(id=id)[0]
+        # try:
+        #     genere_especie = Taxon.objects.get(id=id_taxon).genere + " " + Taxon.objects.get(id=id_taxon).especie
+        # except:
+        #     genere = "##ERROR##"
+        # try:
+        #     subesp = Taxon.objects.get(id=id_taxon).subespecie
+        #     if subesp is None:
+        #         subesp = ""
+        #     else:
+        #         subesp = " [subespècie: " + subesp + " ]"
+        # except:
+        #    subesp = ""
         try:
             grup = Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
         except:
@@ -1449,7 +1471,7 @@ def json_especies_de_seleccion(request,multipoligono=False):
         except:
             estatus_cat ="Desconegut"
         ###
-        nom = genere_especie + subesp
+        nom = esp["nom_especie"];#genere_especie + subesp
         try:# UTM de 10km
             nutms10 = esp["nutms10"]
         except:
@@ -1770,20 +1792,22 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
     #utms1 = Quadricula.objects.filter(resolution=1000).values("id","geom_4326").order_by("id")
     #citglobal = CitacionsGlobal.objects.all()
     #OJO quitar el[:20] ya que es para desarrollo para solo cojer el top 20 o .reverse()[:20] para los 20 ultimos
-    especies = Especieinvasora.objects.all().values("id","idtaxon","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#.reverse()[:1000]#[:20]filter(id='Bacc_hali')
+    #especies = Especieinvasora.objects.all().values("id","idtaxon","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere")#.reverse()[:1000]#[:20]filter(id='Bacc_hali')
+    especies = Especieinvasora.objects.all().values("id","nom_especie").order_by("nom_especie")#.reverse()[:1000]#[:20]filter(id='Bacc_hali')
     for especie in especies:
         try:
             #1 obtenemos el nombre y lo encadenamos con la subespecie si la tiene
             # nombre de la especie(se juntan el genere con especie y subespecie)
             id = especie["id"]
-            id_taxon= especie["idtaxon"]
-            genere = especie["idtaxon__genere"]
-            especiestr = especie["idtaxon__especie"]
-            subespeciestr = especie["idtaxon__subespecie"]
-            if especiestr is not None:
-                genere = genere + " " + especiestr
-            if subespeciestr is not None:
-                genere = genere + u" [Subespècie: " + subespeciestr + " ]"
+            nom_especie = especie["nom_especie"]
+            id_taxon= especie["idtaxon"] #Ojo! no debería usarse idtaxon pero es la unica forma de relacionar la tabla con las masas de agua
+            # genere = especie["idtaxon__genere"]
+            # especiestr = especie["idtaxon__especie"]
+            # subespeciestr = especie["idtaxon__subespecie"]
+            # if especiestr is not None:
+            #     genere = genere + " " + especiestr
+            # if subespeciestr is not None:
+            #     genere = genere + u" [Subespècie: " + subespeciestr + " ]"
 
             utms10 = []
             utms10_and_info = []
@@ -1873,7 +1897,7 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
                         #     massesaigua.append({"nom":nom,"tipus":tipus,"conca":conca})
 
             for utm in utms10_and_info:
-                writer.writerow([genere, utm["utm"], utm["comentari"]])
+                writer.writerow([nom_especie, utm["utm"], utm["comentari"]])
         except:
             writer.writerow(["#####ERROR AMB LA ESPÈCIE: "+especie["id"]])
 
@@ -1921,7 +1945,6 @@ def view_formularis_localitats_especie(request):
             instance = None
             #nuevo = "1"
             #form = CitacionsEspeciesForm
-
         try:
             id_imatge_principal = ImatgesCitacions.objects.get(id_citacio_especie=request.POST["id_form"],tipus="principal").id
             for img in ImatgesCitacions.objects.filter(id_citacio_especie=request.POST["id_form"],tipus="secundaria").values("id"):
@@ -2114,7 +2137,7 @@ def view_formularis_localitats_especie(request):
     else:
         form = CitacionsEspeciesForm
 
-    especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id", "idtaxon__genere", "idtaxon__especie")
+    especies= Especieinvasora.objects.all().order_by("nom_especie").values("id", "nom_especie")#"idtaxon__genere", "idtaxon__especie")
     context={'form':form,'especies':especies,'id_imatge_principal':id_imatge_principal,'ids_imatges':ids_imatges,'nuevo':nuevo,'id_form':id_form}
     return render(request,'exocat/formularis_localitats_especie.html',context)
 
@@ -2209,8 +2232,8 @@ def json_taula_formularis_usuari(request):
                     nom_especie=form["especie"]
                 else:
                     #especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id", "idtaxon__genere", "idtaxon__especie")
-                    especie=Especieinvasora.objects.filter(id=form["idspinvasora"]).values("id", "idtaxon__genere", "idtaxon__especie")
-                    nom_especie=especie[0]["idtaxon__genere"]+" "+especie[0]["idtaxon__especie"]
+                    especie=Especieinvasora.objects.filter(id=form["idspinvasora"]).values("id", "nom_especie")#"idtaxon__genere", "idtaxon__especie")
+                    nom_especie=especie[0]["nom_especie"]#["idtaxon__genere"]+" "+especie[0]["idtaxon__especie"]
             except:
                 nom_especie=""
 
@@ -2232,17 +2255,19 @@ def json_taula_formularis_usuari(request):
 @login_required(login_url='/login/')
 def view_revisar_citacions_aca(request):
     especies_autocomplete = []
-    for especie in Especieinvasora.objects.all().values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie").order_by("idtaxon__genere"):
+    for especie in Especieinvasora.objects.all().values("id","nom_especie").order_by("nom_especie"):#"idtaxon__genere","idtaxon__especie","idtaxon__subespecie"
         # nombre de la especie(se juntan el genere con especie y subespecie)
         id = especie["id"]
-        genere = especie["idtaxon__genere"]
-        especiestr = especie["idtaxon__especie"]
-        subespeciestr = especie["idtaxon__subespecie"]
-        if especiestr is not None:
-            genere = genere + " " + especiestr
-        if subespeciestr is not None:
-            genere = genere + u" [Subespècie: " + subespeciestr + " ]"
-        especies_autocomplete.append({"id":id,"especie":genere})
+        nom_especie = especie["nom_especie"]
+        # genere = especie["idtaxon__genere"]
+        # especiestr = especie["idtaxon__especie"]
+        # subespeciestr = especie["idtaxon__subespecie"]
+        # if especiestr is not None:
+        #     genere = genere + " " + especiestr
+        # if subespeciestr is not None:
+        #     genere = genere + u" [Subespècie: " + subespeciestr + " ]"
+        #especies_autocomplete.append({"id":id,"especie":genere})
+        especies_autocomplete.append({"id": id, "especie": nom_especie})
 
     context = {'especies_autocomplete':especies_autocomplete,'titulo': "REVISAR CITACIONS EXOAQUA", 'usuari': request.user.username}
     return render(request, 'exocat/revisar_citacions_aca.html', context)

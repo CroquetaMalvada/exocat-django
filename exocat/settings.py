@@ -127,6 +127,20 @@ FILE_UPLOAD_PERMISSIONS = 0644 # Ojo si la version de python es >= 3 entonces es
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 LOGIN_REDIRECT_URL = '/base_dades/'
+
+# #GDAL (prueba)
+#GDAL_LIBRARY_PATH = r'C:\OSGeo4\bin\gdal300.dll'
+# if os.name == 'nt':
+#     import platform
+#     OSGEO4W = r"C:\OSGeo4W"
+#     if '64' in platform.architecture()[0]:
+#         OSGEO4W += "64"
+#     assert os.path.isdir(OSGEO4W), "Directory does not exist: " + OSGEO4W
+#     os.environ['OSGEO4W_ROOT'] = OSGEO4W
+#     os.environ['GDAL_DATA'] = OSGEO4W + r"\share\gdal"
+#     os.environ['PROJ_LIB'] = OSGEO4W + r"\share\proj"
+#     os.environ['PATH'] = OSGEO4W + r"\bin;" + os.environ['PATH']
+
 #Esto solo para produccion ya que en produccion se necesita un collectstatic:
 # STATIC_ROOT = "c:\wsgi_app\gestprjsite\static"
 

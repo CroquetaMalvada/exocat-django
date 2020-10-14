@@ -81,9 +81,10 @@ $(document).ready(function(){
                         dataSrc: 'data',
                         type:"POST",
                         data:function(d){
-                            d.genere=$("#genere").val();
-                            d.especie=$("#especie").val();
-                            d.subespecie=$("#subespecie").val();
+                            //d.genere=$("#genere").val();
+                            //d.especie=$("#especie").val();
+                            //d.subespecie=$("#subespecie").val();
+                            d.nom_especie=$("#nom_especie").val();
                             d.grups=$("#grups").val();
                             d.estatuscatalunya=$("#estatuscatalunya").val();
                             d.varietat=$("#varietat").val();
@@ -454,8 +455,9 @@ function rellenar_table_especies_seleccion(data){ // esta funcion se llama en fu
 
 function rellenar_table_resum_localitats_especie(data){ // esta funcion se llama en info_especie.js
     //taula_resum_localitats_especie.columns(0).clear();
-    taula_resum_localitats_especie.cell(0,1).data(data["genere"]+" "+data["especie"]);
+    //taula_resum_localitats_especie.cell(0,1).data(data["genere"]+" "+data["especie"]);
     //taula_resum_localitats_especie.cell(1,1).data(data["grup"]);
+    taula_resum_localitats_especie.cell(0,1).data(data["nom_especie"]);
     taula_resum_localitats_especie.cell(1,1).data(data["estatus_cat"]);
     taula_resum_localitats_especie.cell(1,1).data(data["nutm10000"]);
     taula_resum_localitats_especie.cell(2,1).data(data["nutm1000"]);

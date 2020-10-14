@@ -8,10 +8,11 @@ $(document).on( 'click','.mostrar_info_especie', function (e) {
         data: {"id":$(this).attr("value")},
 
         success: function(data){
-            var nombre = data['genere']+"_"+data['especie'];
-            $('#info_genere').html(data['genere']);
-            $('#info_especie').html(data['especie']);
-            $('#info_subespecie').html(data['subespecie']);
+            var nombre = data['nom_especie'];//data['genere']+"_"+data['especie'];
+            //$('#info_genere').html(data['genere']);
+            //$('#info_especie').html(data['especie']);
+            //$('#info_subespecie').html(data['subespecie']);
+            $('#info_nom_especie').html(data['nom_especie']);
             $('#info_varietat').html(data['varietat']);
             $('#info_subvarietat').html(data['subvarietat']);
             $('#info_nomsvuglars').html(data['nomsvulgars']);
@@ -233,7 +234,7 @@ function preparar_informe(){
 
 //y una vez tenemos las imagenes,creamos el informe
 function generar_informe(url_image,url_mapa){
-    var cabecera_pdf={text:'Fitxa espècie: '+$("#info_genere").html()+' '+$("#info_especie").html(),style:"titulo"};
+    var cabecera_pdf={text:'Fitxa espècie: '+$("#info_nom_especie").html(),style:"titulo"};//$("#info_genere").html()+' '+$("#info_especie").html()
     var datos_basicos=[];
     $(".dada_especie").each(function(){
         if($(this).html()!="" && $(this).attr("id")!="info_observacions"){
@@ -293,7 +294,7 @@ function generar_informe(url_image,url_mapa){
 //                            headerRows: 1,
 //                            widths: [ '*', 'auto', 100, '*' ],
                             body: [
-                              [ 'Espècie', $("#info_genere").html()+' '+$("#info_especie").html() ],
+                              [ 'Espècie', $("#info_nom_especie").html()],//$("#info_genere").html()+' '+$("#info_especie").html()
                               [ 'Nº UTMs 10km', $("#td_n_utms_10").text()],
                               [ 'Nº UTMs 1km', $("#td_n_utms_1").text()],
                               [ 'Nº Citacions puntuals', $("#td_n_citacions").text()],
@@ -342,7 +343,7 @@ function generar_informe(url_image,url_mapa){
         }
     };
 
-    pdfMake.createPdf(all_pdf).download('Fitxa '+$("#info_genere").html()+' '+$("#info_especie").html()+'.pdf');
+    pdfMake.createPdf(all_pdf).download('Fitxa '+$("#info_nom_especie").html()+'.pdf');//$("#info_genere").html()+' '+$("#info_especie").html()
 //
 //    var doc = new jsPDF()
 //
