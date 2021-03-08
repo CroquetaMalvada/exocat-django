@@ -1284,7 +1284,7 @@ def json_especies_de_cuadro(request):# Ojo aqui no hace falta lo de las citacion
         except:
             estatus_cat ="Desconegut"
         ###
-        nom = esp["nom_especie"];#genere_especie + subesp
+        nom = Especieinvasora.objects.get(id=id).nom_especie#esp["nom_especie"];#genere_especie + subesp
         try:#UTM de 1 km
             nutms1 = esp["nutms1"]
         except:
@@ -1437,7 +1437,7 @@ def json_especies_de_seleccion(request,multipoligono=False):
                 nutms10especie += 1
 
         for massa in PresenciaSPMassaAigua.objects.filter(geom_4326__contained=poligono,idspinvasora=esp["idspinvasora"]).values("geom_4326"):
-            for quad in Quadricula.objects.filter(resolution=10000,geom_4326__contains=cit["geom_4326"]).exclude(id__in=utms10especie).values("id"):
+            for quad in Quadricula.objects.filter(resolution=10000,geom_4326__contains=massa["geom_4326"]).exclude(id__in=utms10especie).values("id"):
                 utms10especie.append(quad["id"])
                 nutms10especie += 1
         esp["nutms10totals"]=nutms10especie
@@ -1471,7 +1471,7 @@ def json_especies_de_seleccion(request,multipoligono=False):
         except:
             estatus_cat ="Desconegut"
         ###
-        nom = esp["nom_especie"];#genere_especie + subesp
+        nom = Especieinvasora.objects.get(id=id).nom_especie#esp["nom_especie"];#genere_especie + subesp
         try:# UTM de 10km
             nutms10 = esp["nutms10"]
         except:
