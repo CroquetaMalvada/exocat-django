@@ -123,29 +123,13 @@
             <form id="form_filtres" method="post">
                 {% csrf_token %}
                 <div class="row">
-                    <div class="col-md-6 d-flex justify-content-center border border-bottom-0">
-                        <h5>Filtrar per:</h5>
-                    </div>
-                </div>
-                <div class="row">
-<!--                    <input type="text" class="form-control" id="buscar_per" name="buscar_per" value="1">-->
-                    <div class="input-group col-md-6 d-flex justify-content-between">
-                        <div><input type="radio" class="buscar_per" name="buscar_per" value="1" checked> Taxon</div>
-                        <div><input type="radio" class="buscar_per" name="buscar_per" value="2"> Sinònim</div>
-                    </div>
-                </div>
-                <div class="row">
                     <!--<div class="input-group col-md-4">-->
                         <!--<span class="input-group-addon">Gènere</span>-->
                         <!--<input type="text" class="form-control" name="genere" id="genere" />-->
                     <!--</div>-->
-                    <div id="div_buscar_taxon" class="input-group col-md-6">
+                    <div class="input-group col-md-6">
                         <span class="input-group-addon">Taxon</span><!--OJO QUE AUNQUE PONGA TAXON ES EL ESPÉCIE!-->
                         <input type="text" class="form-control" name="nom_especie" id="nom_especie" />
-                    </div>
-                    <div id="div_buscar_sinonim" class="input-group col-md-6">
-                        <span class="input-group-addon">Sinònim</span>
-                        <input type="text" class="form-control" name="sinonim_especie" id="sinonim_especie" />
                     </div>
                     <div class="input-group col-md-6">
                         <span class="input-group-addon">Grup</span>
@@ -266,7 +250,6 @@
                    <tr>
                         <th></th>
                         <th>Taxon</th>
-                        <th>Sinònims</th>
                         <th>Grup</th>
                         <!--<th>Estatus Cat</th>-->
                         <!--<th>Varietat</th>-->
@@ -274,7 +257,7 @@
                         <!--<th>Vies d'entrada</th>-->
                         <!--<th>Estatus històric</th>-->
                         <!--<th>Present</th>-->
-                        <th>Informe</th>
+                        <th></th>
                    </tr>
                </thead>
                <tbody></tbody>
@@ -668,10 +651,6 @@ z-index:1001;
 
         <!--RESUM DE LOCALITATS-->
         <div id="div_resum_localitats_especie" class="tab-pane fade col-md-6 offset-md-3" role="tabpanel" align="">
-            <form id="form_generar_csv_citacions_detalls" method="post" action="/generar_csv_citacions_detalls/" hidden>
-                {% csrf_token %}
-                <input hidden id="id_especie_csv_citacions_detalls" name="id_especie_csv_citacions_detalls" value="" />
-            </form>
             <table id="table_resum_localitats_especie" class="table table-striped table-bordered" cellspacing="0" title="Informació sobre la lozalització de l'especie">
                <thead>
                     <tr hidden>

@@ -81,42 +81,6 @@ class Citacions(models.Model):
         managed = False
         db_table = 'citacions'
 
-
-#---- Para generar CSV detalls citacions (5-13-2021) !!No tiene que ver con "citacions" sino con "presencia_sp"!
-
-class Citacions_1(models.Model):
-    especie = models.CharField(max_length=4000, blank=True, null=True)
-    idspinvasora = models.CharField(max_length=100, blank=True, null=True)
-    grup = models.CharField(max_length=255, blank=True, null=True)
-    utm_1 = models.CharField(max_length=255, blank=True, null=True)
-    descripcio = models.CharField(max_length=4000, blank=True, null=True)
-    data = models.CharField(max_length=255, blank=True, null=True)
-    anyo = models.CharField(max_length=255, blank=True, null=True)
-    autor_s = models.CharField(max_length=255, blank=True, null=True)
-    font = models.CharField(max_length=255, blank=True, null=True)
-    referencia = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'citacions_1'
-
-class Citacions_10(models.Model):
-    especie = models.CharField(max_length=4000, blank=True, null=True)
-    idspinvasora = models.CharField(max_length=100, blank=True, null=True)
-    grup = models.CharField(max_length=255, blank=True, null=True)
-    utm_10 = models.CharField(max_length=255, blank=True, null=True)
-    descripcio = models.CharField(max_length=4000, blank=True, null=True)
-    data = models.CharField(max_length=255, blank=True, null=True)
-    anyo = models.CharField(max_length=255, blank=True, null=True)
-    autor_s = models.CharField(max_length=255, blank=True, null=True)
-    font = models.CharField(max_length=255, blank=True, null=True)
-    referencia = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'citacions_10'
-
-#-----
 class Comarques(models.Model):
     gid = models.AutoField(primary_key=True)
     codicomar = models.CharField(max_length=254, blank=True, null=True)
@@ -170,7 +134,7 @@ class Especieinvasora(models.Model):
     present_catalogo = models.CharField(max_length=1, blank=True, null=True)
     reglament_ue = models.CharField(max_length=1, blank=True, null=True) # anadido en la bdd el 29-05-2018
     regio_nativa = models.CharField(max_length=1000, blank=True, null=True) # modificado
-    sinonims = models.CharField(max_length=4000, blank=True, null=True)
+
     # FOREIGN KEYS *Ojo importante el related name!
 
     #idtaxon = models.ForeignKey('Taxon', models.DO_NOTHING,related_name='id_taxon', db_column='idtaxon', blank=True, null=True)
