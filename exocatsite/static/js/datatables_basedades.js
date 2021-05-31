@@ -68,6 +68,7 @@ $(document).ready(function(){
         $('#data_max_citacio').append($('<option />').val(i).html(i));
     }
     comprobar_filtrar_data_citacio();
+    comprobar_buscar_per();
     // Si se esta cargando especies:
 
 
@@ -84,7 +85,9 @@ $(document).ready(function(){
                             //d.genere=$("#genere").val();
                             //d.especie=$("#especie").val();
                             //d.subespecie=$("#subespecie").val();
+                            d.buscar_per=$("input:radio[name='buscar_per']:checked").val();
                             d.nom_especie=$("#nom_especie").val();
+                            d.sinonim_especie=$("#sinonim_especie").val();
                             d.grups=$("#grups").val();
                             d.estatuscatalunya=$("#estatuscatalunya").val();
                             d.varietat=$("#varietat").val();
@@ -103,6 +106,12 @@ $(document).ready(function(){
                     columns:[
                         {'data': 'id'},
                         {'data': 'especie'},
+                        { data:{'sinonims':'sinonims'},"render": function(data){
+                            if(data['sinonims']==null)
+                                return '<a class="btn btn-info disabled"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"><i class="fa fa-eye-slash fa-lg"></i></span></a>';
+                            else
+                                return '<a class="btn btn-info sinonims_especie" title="'+data['sinonims']+'"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"><i class="fa fa-eye fa-lg"></i></span></a>';
+                        }},
                         {'data': 'grup'},
 //                        {'data': 'estatuscat'},
 //                        {'data': 'varietat'},
@@ -110,17 +119,21 @@ $(document).ready(function(){
 //                        {'data': 'viaentrada'},
 //                        {'data': 'estatushistoric'},
 //                        {'data': 'present'},
-                        {'data':{'id':'id'},"render": function(data){return '<a class="btn btn-info mostrar_info_especie" value="'+data["id"]+'" title="Info" href="#"><i class="fa fa-eye fa-lg"></i></a>';}}
+//                        {'data':{'id':'id'},"render": function(data){return '<a class="btn btn-info mostrar_info_especie" value="'+data["id"]+'" title="Info" href="#"><i class="fa fa-eye fa-lg"></i></a>';}}
+                        {'data':{'id':'id'},"render": function(data){return '<a class="btn btn-success mostrar_info_especie" value="'+data["id"]+'" title="Veure info completa" href="#"><i class="fa fa-info fa-lg"></i> <i class="fa fa-newspaper-o fa-lg"></i></a>';}}
                     ],
                     columnDefs:[
                         {"visible":false,"targets":[0]},
-                        { "width": "5%", "targets": [3] }
+                        { "width": "5%", "targets": [2,4] }
                     ],
                     order: [[ 1, "asc" ]],
 //                    fnDrawCallback:function(){// OJO es sensible a mayusculas y minusculas
 //                        var total = $(this).DataTable().column( 5 ).data().sum();
 //                        $("#total_periodicitat_partida").val(total);
 //                    },
+                    drawCallback: function(){
+                        $(".sinonims_especie").tooltip();
+                    },
                     scrollY:        '50vh',
                     scrollCollapse: true,
                     searching:false,
@@ -212,6 +225,13 @@ $(document).ready(function(){
                         extend: 'csv',
                         filename: function(){return 'Resum de localitats de '+taula_resum_localitats_especie.cell(0,1).data()},
                         text: '<span aria-hidden="true"><i class="fa fa-table fa-lg"></i> CSV</span>'
+                    },{
+                        text: '<span aria-hidden="true"><i class="fa fa-file-text-o fa-lg"></i>CSV amb detalls de UTMs</span>',
+                        className: 'text-success',
+                        action: function (){
+                            $("#form_generar_csv_citacions_detalls").submit();
+                            alert("Generant l'arxiu...");
+                        }
                     }],
                     order:false,
                     scrollY:        '50vh',
@@ -310,6 +330,16 @@ $(document).ready(function(){
             //console.debug(event);
         });
 
+        $('.buscar_per').on( 'click', function () {
+            if($(this).val()==1){
+                $("#div_buscar_taxon").show();
+                $("#div_buscar_sinonim").hide();
+            }else{
+                $("#div_buscar_taxon").hide();
+                $("#div_buscar_sinonim").show();
+            }
+        } );
+
         // GENERAR CSV
         $("#generar_csv").click(function(){
 
@@ -389,9 +419,18 @@ function comprobar_filtrar_data_citacio(){
     }
 }
 
+function comprobar_buscar_per(){
+    if($("input:radio[name='buscar_per']:checked").val()==1){
+        $("#div_buscar_taxon").show();
+        $("#div_buscar_sinonim").hide();
+    }else{
+        $("#div_buscar_taxon").hide();
+        $("#div_buscar_sinonim").show();
+    }
+}
 function limpiar_filtros(){
     $("#form_filtres .form-control").each(function(){
-    $(this).val($(this).data("original-value"));
+        $(this).val($(this).data("original-value"));
     });
     $("#filtrar_data_citacions").prop("checked",false);
     comprobar_filtrar_data_citacio();

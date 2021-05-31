@@ -15,6 +15,7 @@ from django.db.models import Q,Count
 from exocatsite.models import *#Grup,Grupespecie,Viaentrada,Viaentradaespecie,Estatus,Especieinvasora,Taxon,Nomvulgar,Nomvulgartaxon,Habitat,Habitatespecie,Regionativa,Zonageografica,Imatges,Imatge
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from itertools import chain
 import json, urllib, datetime, os, requests, codecs, csv, unicodecsv, uuid
@@ -121,7 +122,7 @@ def json_select_regionativa(request):
 #DATATABLES
 def json_taula_especies(request):
     #especies= Especieinvasora.objects.all().order_by("idtaxon__genere").values("id","idtaxon__genere","idtaxon__especie","idtaxon__subespecie")
-    especies= Especieinvasora.objects.all().order_by("nom_especie").values("id","nom_especie")
+    especies= Especieinvasora.objects.all().order_by("nom_especie").values("id","nom_especie","sinonims")
     resultado=[]
     ids_especies=[]
     for especie in especies[int(request.POST["start"]):(int(request.POST["start"])+int(request.POST["length"]))]:
@@ -140,7 +141,7 @@ def json_taula_especies(request):
 
         #grupo
         grup=Grupespecie.objects.get(idespecieinvasora=id).idgrup.nom
-        resultado.append({'id':id,'especie': especie["nom_especie"],'grup':grup}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
+        resultado.append({'id':id,'especie': especie["nom_especie"], 'sinonims':especie["sinonims"], 'grup':grup}) # ,'nomsvulgars':nomsvulgars,'habitat':habitat
 
     # para el input de ids para el csv
     for especie in especies:
@@ -214,42 +215,34 @@ def filtrar_especies(campos):
     # CREAMOS LOS FILTROS:
     estatus = Estatus.objects.all().values("id") #lo metemos en una variable ya que esta lista la usaremos en mas de una ocasion en los filtros
 
-    def filtro_nom_especie():
-        if campos["nom_especie"] is not "":
-            #return (Q(idtaxon__genere__icontains=campos["genere"]))
-            return (Q(nom_especie__icontains=campos["nom_especie"]))
+    def filtro_nom_o_sinonims_especie():
+        if campos["buscar_per"]=="1":
+            if campos["nom_especie"] is not "":
+                # return (Q(idtaxon__genere__icontains=campos["genere"]))
+                return (Q(nom_especie__icontains=campos["nom_especie"]))
+            else:
+                return Q(id__isnull=False)
         else:
-            return Q(id__isnull=False)
+            if campos["sinonim_especie"] is not "":
+                # return (Q(idtaxon__genere__icontains=campos["genere"]))
+                return (Q(sinonims__icontains=campos["sinonim_especie"]))
+            else:
+                return Q(id__isnull=False)
 
-
-    # def filtro_nombre():
-    #     if campos["especie"] is not "":
-    #         for especie in campos["especie"].split(" "):
-    #             #return (Q(idtaxon__genere__icontains=especie) | Q(idtaxon__especie__icontains=especie) | Q (idtaxon__subespecie__icontains=especie) | Q(idtaxon__varietat__icontains=especie))
-    #             return (Q(nom_especie__icontains=especie))
-    #     else:
-    #         return Q(id__isnull=False)
-    #
-    # def filtro_genere():
-    #     if campos["genere"] is not "":
+    # def filtro_nom_especie():
+    #     if campos["nom_especie"] is not "":
     #         #return (Q(idtaxon__genere__icontains=campos["genere"]))
-    #         return (Q(nom_especie__icontains=campos["genere"]))
+    #         return (Q(nom_especie__icontains=campos["nom_especie"]))
     #     else:
     #         return Q(id__isnull=False)
     #
-    # def filtro_especie():
-    #     if campos["especie"] is not "":
-    #         #return (Q(idtaxon__especie__icontains=campos["especie"]))
-    #         return (Q(nom__especie__icontains=campos["especie"]))
+    # def filtro_sinonim_especie():
+    #     if campos["sinonim_especie"] is not "":
+    #         #return (Q(idtaxon__genere__icontains=campos["genere"]))
+    #         return (Q(sinonims__icontains=campos["sinonim_especie"]))
     #     else:
     #         return Q(id__isnull=False)
-    #
-    # def filtro_subespecie():
-    #     if campos["subespecie"] is not "":
-    #         #return (Q(idtaxon__subespecie__icontains=campos["subespecie"]))
-    #         return (Q(nom_especie__icontains=campos["subespecie"]))
-    #     else:
-    #         return Q(id__isnull=False)
+
 
     def filtro_grups():
         if campos["grups"] is not "":
@@ -322,7 +315,8 @@ def filtrar_especies(campos):
 
     especies= Especieinvasora.objects.filter(
         # para el nombre(campo especie) !Ojo __icontains no es sensible a mayusculas a diferencia de __icontains!
-        filtro_nom_especie(),
+        filtro_nom_o_sinonims_especie(),
+        #filtro_nom_especie(),
         # filtro_nombre(),
         # incluye el genere,especie,subespecie y varietat
         # filtro_genere(),
@@ -357,13 +351,13 @@ def filtrar_especies(campos):
         # para las fechas de citaciones
         filtro_data_citacions(),
 
-    ).order_by("nom_especie").values("id","nom_especie")
+    ).order_by("nom_especie").values("id","nom_especie","sinonims")
 
     return especies
 
 #ESPECIES FILTRADAS
 def json_taula_especies_filtres(request):
-    campos=request.POST
+    campos=request.POST #se obtienen de la datatable!
     especies = filtrar_especies(campos)
     # FINALMENTE DEVOLVEMOS CADA ESPECIE QUE HAYA PASADO LOS FILTROS:
     resultado = []
@@ -386,7 +380,7 @@ def json_taula_especies_filtres(request):
             else:
                 grup = "Desconegut"
 
-            resultado.append({'id': id, 'especie': especie["nom_especie"], 'grup': grup})  # ,'nomsvulgars':nomsvulgars,'habitat':habitat
+            resultado.append({'id': id, 'especie': especie["nom_especie"], 'sinonims':especie["sinonims"], 'grup': grup})  # ,'nomsvulgars':nomsvulgars,'habitat':habitat
         # para el input de ids para el csv
         for especie in especies:
             ids_especies.append(especie["id"])
@@ -420,7 +414,7 @@ def generar_csv_especies(request):
 
     writer = csv.writer(resultado, delimiter=str(u';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
     resultado.write(u'\ufeff'.encode('utf8')) # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
-    writer.writerow(['Espècie', 'Regió nativa', u"Vies d'entrada", u'Estatus general', u'Estatus Catalunya',u'Present al "Catálogo"', u'Present al Reglament Europeu'])
+    writer.writerow([u'Espècie', 'Grup', u'Regió nativa', u"Vies d'entrada", u'Estatus general', u'Estatus Catalunya',u'Present al "Catálogo"', u'Present al Reglament Europeu', u'Sinònims'])
     #u'Taxon', u'Grup',
 
     try:
@@ -430,8 +424,9 @@ def generar_csv_especies(request):
         especies = especies.split(",")
         # SELECT CONCAT_WS(' ',taxon.genere, taxon.especie) AS taxon,"
         # " taxon.subespecie AS subespecie,"
-        cursor.execute("SELECT nom_especie AS nomespecie"
+        cursor.execute("SELECT especieinvasora.nom_especie AS nomespecie,"
         " grup.nom AS grup,"
+        " especieinvasora.sinonims AS sinonims,"
         " especieinvasora.regio_nativa AS regionativa,"
         " (SELECT string_agg(viaentrada.viaentrada,',') FROM viaentradaespecie INNER JOIN viaentrada ON viaentrada.id = viaentradaespecie.idviaentrada WHERE viaentradaespecie.idespecieinvasora = especieinvasora.id) AS viesentrada,"
         " (SELECT nom FROM estatus WHERE id=especieinvasora.idestatushistoric) AS estatushistoric,"
@@ -439,17 +434,16 @@ def generar_csv_especies(request):
         " (SELECT CASE WHEN especieinvasora.present_catalogo='N' THEN 'No' ELSE 'Si' END AS presentcatalog) AS presentcatalog,"
         " (SELECT CASE WHEN especieinvasora.reglament_ue='N' THEN 'No' ELSE 'Si' END AS presentreglamenteur) AS presentreglamenteur"
         " FROM especieinvasora"
-        #" INNER JOIN taxon ON especieinvasora.idtaxon = taxon.id" 
         " INNER JOIN grupespecie ON especieinvasora.id = grupespecie.idespecieinvasora"
         " INNER JOIN grup ON grup.id = grupespecie.idgrup"
-        " WHERE especieinvasora.id = ANY( %s ) ORDER BY especie",[especies])
+        " WHERE especieinvasora.id = ANY( %s ) ORDER BY nomespecie",[especies])
         fetch = dictfetchall(cursor)
 
         for especie in fetch:
             # subesp=""
             # if especie["subespecie"] is not None:
             #     subesp=" [subespecie: "+ especie["subespecie"]+" ]"
-            writer.writerow([especie["nomespecie"], especie["grup"], especie["regionativa"], especie["viesentrada"], especie["estatushistoric"], especie["estatuscatalunya"], especie["presentcatalog"],especie["presentreglamenteur"]])
+            writer.writerow([especie["nomespecie"], especie["grup"], especie["regionativa"], especie["viesentrada"], especie["estatushistoric"], especie["estatuscatalunya"], especie["presentcatalog"],especie["presentreglamenteur"],especie["sinonims"]])
         cursor.close()
         return resultado
     except:
@@ -457,6 +451,176 @@ def generar_csv_especies(request):
 
     finally:
         cursor.close()
+
+
+# GENERAR CSV CON DETALLES DE LAS CITACIONES DE ESPECIES FILTRADAS
+def generar_csv_citacions_detalls(request):
+    id = request.POST["id_especie_csv_citacions_detalls"]
+
+    resultado = HttpResponse(content_type='text/csv')
+    resultado['Content-Disposition'] = 'attachment; filename="DetallsUTMs.csv"'
+
+    writer = csv.writer(resultado, delimiter=str(u';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+    resultado.write(u'\ufeff'.encode('utf8')) # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+    #u'Taxon', u'Grup',
+
+    try:
+        # cursor = connection.cursor()
+        if 'DELETE' in id or 'delete' in id or 'UPDATE' in id or 'update' in id:# toda precaucion con las querys es poca
+            raise Http404('Error al generar el csv.')
+    # except:
+    #     raise Http404('Error al generar el csv.')
+    ###------------------------------------------
+        #### ----------------UTMS
+        # writer.writerow(["---------","---------","---------","---------","---------","---------"])
+        # writer.writerow(["UTMs", "---------", "---------", "---------", "---------", "---------"])
+        # writer.writerow(["---------", "---------", "---------", "---------", "---------", "---------"])
+        #obtener detalles de kas utms "antiguas" gracias a las nuevas tablas citacions_1 y citacions_10
+        writer.writerow([u'Espècie', 'UTM1km', 'UTM10km', 'Localització', 'Data', 'Autor', 'Observacions'])
+        utms1 = []
+        utms10 = []
+
+        for utm1_id in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula"):#.distinct():#.count()
+            if Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquadricula"]):
+                for cit in Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquadricula"]):
+                    data = "Indeterminada"
+                    if (cit.data == "Indeterminada"):
+                        if (cit.anyo != "Indeterminada"):
+                            data = cit.anyo
+                    utms1.append({"especie": cit.especie, "utm_1":cit.utm_1, "utm_10":"", "localitzacio":cit.descripcio, "data":data, "autor":cit.autor_s, "observacions":"Ref: "+cit.referencia})
+
+        for utm10_id in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula"):#.distinct():#.count()
+            if Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquadricula"]):
+                for cit in Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquadricula"]):
+                    data = "Indeterminada"
+                    if(cit.data=="Indeterminada"):
+                        if (cit.anyo != "Indeterminada"):
+                            data = cit.anyo
+                    utms10.append({"especie":cit.especie,"utm_1":"","utm_10":cit.utm_10,"localitzacio":cit.descripcio,"data":data,"autor":cit.autor_s,"observacions":"Ref: "+cit.referencia})
+
+        #Ahora de las "nuevas" que se crean en los formularios
+
+        for cit in CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, validat="SI").values("especie","utm_1","utm_10","usuari","data","observacions","paratge","adreca","municipi","poblacio"):#.distinct():
+            #if any(utms10.count(utm10) == 0 for utm10 in utms10):#Si la utm no está duplicada
+            nomespecie = Especieinvasora.objects.get(id=id).nom_especie
+            localitzacio = ""
+            autor = "Anònim"
+            if(cit["paratge"]!="" and cit["paratge"] is not None):
+                localitzacio = localitzacio+" / Paratge: "+cit["paratge"]
+            if(cit["adreca"]!="" and cit["adreca"] is not None):
+                localitzacio = localitzacio+" / Adreça: "+cit["adreca"]
+            if(cit["municipi"]!="" and cit["municipi"] is not None):
+                localitzacio = localitzacio+" / Municipi: "+cit["municipi"]
+            else:
+                if (cit["poblacio"] != "" and cit["poblacio"] is not None):
+                    localitzacio = localitzacio + " / Municipi: " + cit["poblacio"]
+            if(cit["usuari"]!="Anònim" and cit["usuari"] is not None):
+                if User.objects.get(username=cit["usuari"]).username == "admin_creaf":
+                    autor = "Administrador"
+                else:
+                    autor = User.objects.get(username=cit["usuari"]).first_name +" "+User.objects.get(username=cit["usuari"]).last_name
+
+            utms1.append({"especie": nomespecie, "utm_1":cit["utm_1"], "utm_10":"", "localitzacio":localitzacio, "data":cit["data"], "autor":autor, "observacions":cit["observacions"]})
+
+        for cit in CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, validat="SI").values("especie","utm_1","utm_10","usuari","data","observacions","paratge","adreca","municipi","poblacio"):#.values("utm_10"):#.distinct():
+            #if any(utms10.count(utm10) == 0 for utm10 in utms10):#Si la utm no está duplicada
+            nomespecie = Especieinvasora.objects.get(id=id).nom_especie
+            localitzacio = ""
+            autor = "Anònim"
+            if(cit["paratge"]!="" and cit["paratge"] is not None):
+                localitzacio = localitzacio+" / Paratge: "+cit["paratge"]
+            if(cit["adreca"]!="" and cit["adreca"] is not None):
+                localitzacio = localitzacio+" / Adreça: "+cit["adreca"]
+            if(cit["municipi"]!="" and cit["municipi"] is not None):
+                localitzacio = localitzacio+" / Municipi: "+cit["municipi"]
+            else:
+                if (cit["poblacio"] != "" and cit["poblacio"] is not None):
+                    localitzacio = localitzacio + " / Municipi: " + cit["poblacio"]
+            if(cit["usuari"]!="Anònim"):
+                if User.objects.get(username=cit["usuari"]).username == "admin_creaf":
+                    autor = "Administrador"
+                else:
+                    autor = User.objects.get(username=cit["usuari"]).first_name +" "+User.objects.get(username=cit["usuari"]).last_name
+
+            utms10.append({"especie": nomespecie, "utm_1":"", "utm_10":cit["utm_10"], "localitzacio":localitzacio, "data":cit["data"], "autor":autor, "observacions":cit["observacions"]})
+
+        #Escribimos la información en el CSV:
+        for cit in utms1:
+            writer.writerow([cit["especie"],cit["utm_1"],cit["utm_10"],cit["localitzacio"],cit["data"],cit["autor"],cit["observacions"]])
+
+        for cit in utms10:
+            writer.writerow([cit["especie"], cit["utm_1"], cit["utm_10"], cit["localitzacio"], cit["data"], cit["autor"], cit["observacions"]])
+
+
+
+        ######----------------------------DESCOMENTAR EN UN FUTURO??------------------------------------------
+        # #### ----------------PUNTS
+        # writer.writerow(["---------","---------","---------","---------","---------","---------"])
+        # writer.writerow(["PUNTS", "---------", "---------", "---------", "---------", "---------"])
+        # writer.writerow(["---------", "---------", "---------", "---------", "---------", "---------"])
+        # writer.writerow([u'Espècie', 'UTM-x', 'UTM-ym', 'Localització', 'Data', 'Autor'])
+        # punts = []
+        # for cit in Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("especie","utmx","utmy","localitat","municipi","comarca","provincia","data","autor_s"):
+        #     nomespecie = Especieinvasora.objects.get(id=id).nom_especie
+        #     localitzacio = ""
+        #     autor = "Anònim"
+        #     if (cit["localitat"] != "" and cit["localitat"] is not None):
+        #         localitzacio = localitzacio + " / Localitat: " + cit["localitat"]
+        #     if (cit["municipi"] != "" and cit["municipi"] is not None):
+        #         localitzacio = localitzacio + " / Municipi: " + cit["municipi"]
+        #     if (cit["provincia"] != "" and cit["provincia"] is not None):
+        #         localitzacio = localitzacio + " / Provincia: " + cit["provincia"]
+        #     if (cit["comarca"] != "" and cit["comarca"] is not None):
+        #         localitzacio = localitzacio + " / Comarca: " + cit["comarca"]
+        #
+        #     punts.append({"especie": nomespecie, "utm_x":cit["utmx"], "utm_y":cit["utmy"], "localitzacio":localitzacio, "data":cit["data"], "autor":cit["autor_s"]})
+        #
+        # for punt in punts:
+        #     writer.writerow([punt["especie"], punt["utm_x"], punt["utm_y"], punt["localitzacio"], punt["data"], punt["autor"]])
+        #
+        #
+        #
+        # #### ----------------MASSES AIGUA
+        # writer.writerow(["---------","---------","---------","---------","---------","---------"])
+        # writer.writerow(["MASSES D'AIGUA", "---------", "---------", "---------", "---------", "---------"])
+        # writer.writerow(["---------", "---------", "---------", "---------", "---------", "---------"])
+        # writer.writerow(["Massa d'aigua", 'Tipus', 'Conca'])
+        # massesaigua = []
+        # id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id).values("id_exoaqua")
+        # if id_exoaqua: # si existe una relacion de exoaqua-exocat de dicha especie
+        #     id_exoaqua=id_exoaqua[0]["id_exoaqua"] # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
+        #     id_massesaigua= MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).values("id_localitzacio")
+        #     for id_massa in id_massesaigua:
+        #         try:
+        #             massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+        #             nom=massa.nom
+        #         except:
+        #             nom="# Sense Dades #"
+        #         try:
+        #             massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+        #             tipus=massa.id_categor
+        #         except:
+        #             tipus="# Sense Dades #"
+        #         try:
+        #             massa = MassesAigua.objects.get(id=id_massa["id_localitzacio"])
+        #             conca=ConquesPrincipals.objects.filter(id=massa.idconca).values("nom_conca").first()
+        #         except:
+        #             conca="# Sense Dades #"
+        #
+        #         massesaigua.append({"nom":nom,"tipus":tipus,"conca":conca})
+        #
+        # #Escribimos la información en el CSV:
+        # for massa in massesaigua:
+        #     writer.writerow([massa["nom"],massa["tipus"],massa["conca"]])
+
+        ######----------------------------------------------------------------------------------------------------------
+
+
+
+    ###------------------------------------------
+        return resultado
+    except:
+        raise Http404('Error al generar el csv.')
 
 
 #GENERAR UNA PLANTILLA CSV PARA LA INTRODUCCION DE CITACIONES

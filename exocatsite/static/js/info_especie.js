@@ -1,6 +1,7 @@
 $(document).on( 'click','.mostrar_info_especie', function (e) {
     resetear_nav();
     $("#mapa_de_especie").attr("value",$(this).attr("value"));
+    $("#id_especie_csv_citacions_detalls").attr("value",$(this).attr("value"));
     $.ajax({
         dataType: "json",
         url: '/ajax_mostrar_info_especies/',
