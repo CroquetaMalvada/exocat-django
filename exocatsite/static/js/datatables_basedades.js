@@ -68,7 +68,7 @@ $(document).ready(function(){
         $('#data_max_citacio').append($('<option />').val(i).html(i));
     }
     comprobar_filtrar_data_citacio();
-    comprobar_buscar_per();
+//    comprobar_buscar_per();
     // Si se esta cargando especies:
 
 
@@ -85,9 +85,9 @@ $(document).ready(function(){
                             //d.genere=$("#genere").val();
                             //d.especie=$("#especie").val();
                             //d.subespecie=$("#subespecie").val();
-                            d.buscar_per=$("input:radio[name='buscar_per']:checked").val();
+//                            d.buscar_per=$("input:radio[name='buscar_per']:checked").val();
                             d.nom_especie=$("#nom_especie").val();
-                            d.sinonim_especie=$("#sinonim_especie").val();
+//                            d.sinonim_especie=$("#sinonim_especie").val();
                             d.grups=$("#grups").val();
                             d.estatuscatalunya=$("#estatuscatalunya").val();
                             d.varietat=$("#varietat").val();
@@ -330,15 +330,15 @@ $(document).ready(function(){
             //console.debug(event);
         });
 
-        $('.buscar_per').on( 'click', function () {
-            if($(this).val()==1){
-                $("#div_buscar_taxon").show();
-                $("#div_buscar_sinonim").hide();
-            }else{
-                $("#div_buscar_taxon").hide();
-                $("#div_buscar_sinonim").show();
-            }
-        } );
+//        $('.buscar_per').on( 'click', function () {
+//            if($(this).val()==1){
+//                $("#div_buscar_taxon").show();
+//                $("#div_buscar_sinonim").hide();
+//            }else{
+//                $("#div_buscar_taxon").hide();
+//                $("#div_buscar_sinonim").show();
+//            }
+//        } );
 
         // GENERAR CSV
         $("#generar_csv").click(function(){
@@ -419,15 +419,15 @@ function comprobar_filtrar_data_citacio(){
     }
 }
 
-function comprobar_buscar_per(){
-    if($("input:radio[name='buscar_per']:checked").val()==1){
-        $("#div_buscar_taxon").show();
-        $("#div_buscar_sinonim").hide();
-    }else{
-        $("#div_buscar_taxon").hide();
-        $("#div_buscar_sinonim").show();
-    }
-}
+//function comprobar_buscar_per(){
+//    if($("input:radio[name='buscar_per']:checked").val()==1){
+//        $("#div_buscar_taxon").show();
+//        $("#div_buscar_sinonim").hide();
+//    }else{
+//        $("#div_buscar_taxon").hide();
+//        $("#div_buscar_sinonim").show();
+//    }
+//}
 function limpiar_filtros(){
     $("#form_filtres .form-control").each(function(){
         $(this).val($(this).data("original-value"));

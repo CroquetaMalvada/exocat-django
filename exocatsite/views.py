@@ -216,18 +216,20 @@ def filtrar_especies(campos):
     estatus = Estatus.objects.all().values("id") #lo metemos en una variable ya que esta lista la usaremos en mas de una ocasion en los filtros
 
     def filtro_nom_o_sinonims_especie():
-        if campos["buscar_per"]=="1":
-            if campos["nom_especie"] is not "":
-                # return (Q(idtaxon__genere__icontains=campos["genere"]))
-                return (Q(nom_especie__icontains=campos["nom_especie"]))
-            else:
-                return Q(id__isnull=False)
+        # if campos["buscar_per"]=="1":
+        #     if campos["nom_especie"] is not "":
+        #         # return (Q(idtaxon__genere__icontains=campos["genere"]))
+        #         return (Q(nom_especie__icontains=campos["nom_especie"]))
+        #     else:
+        #         return Q(id__isnull=False)
+        # else:
+        #     if campos["sinonim_especie"] is not "":
+        #         # return (Q(idtaxon__genere__icontains=campos["genere"]))
+        #         return (Q(sinonims__icontains=campos["sinonim_especie"]))
+        if campos["nom_especie"] is not "":
+            return (Q(nom_especie__icontains=campos["nom_especie"]) | Q(sinonims__icontains=campos["nom_especie"]))
         else:
-            if campos["sinonim_especie"] is not "":
-                # return (Q(idtaxon__genere__icontains=campos["genere"]))
-                return (Q(sinonims__icontains=campos["sinonim_especie"]))
-            else:
-                return Q(id__isnull=False)
+            return Q(id__isnull=False)
 
     # def filtro_nom_especie():
     #     if campos["nom_especie"] is not "":
