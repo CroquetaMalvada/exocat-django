@@ -474,9 +474,9 @@ def generar_csv_citacions_detalls(request):
     #     raise Http404('Error al generar el csv.')
     ###------------------------------------------
         #### ----------------UTMS
-        # writer.writerow(["---------","---------","---------","---------","---------","---------"])
-        # writer.writerow(["UTMs", "---------", "---------", "---------", "---------", "---------"])
-        # writer.writerow(["---------", "---------", "---------", "---------", "---------", "---------"])
+        # writer.writerow([])#"---------","---------","---------","---------","---------","---------"])
+        # writer.writerow([])  # "---------", "---------", "---------", "---------", "---------", "---------"])
+        writer.writerow(["-----Resultats UTMs-----", "---------", "---------", "---------", "---------", "---------"])
         #obtener detalles de kas utms "antiguas" gracias a las nuevas tablas citacions_1 y citacions_10
         writer.writerow([u'Espècie', 'UTM1km', 'UTM10km', 'Localització', 'Data', 'Autor', 'Observacions'])
         utms1 = []
@@ -555,37 +555,50 @@ def generar_csv_citacions_detalls(request):
 
 
 
-        ######----------------------------DESCOMENTAR EN UN FUTURO??------------------------------------------
-        # #### ----------------PUNTS
-        # writer.writerow(["---------","---------","---------","---------","---------","---------"])
-        # writer.writerow(["PUNTS", "---------", "---------", "---------", "---------", "---------"])
-        # writer.writerow(["---------", "---------", "---------", "---------", "---------", "---------"])
-        # writer.writerow([u'Espècie', 'UTM-x', 'UTM-ym', 'Localització', 'Data', 'Autor'])
-        # punts = []
-        # for cit in Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("especie","utmx","utmy","localitat","municipi","comarca","provincia","data","autor_s"):
-        #     nomespecie = Especieinvasora.objects.get(id=id).nom_especie
-        #     localitzacio = ""
-        #     autor = "Anònim"
-        #     if (cit["localitat"] != "" and cit["localitat"] is not None):
-        #         localitzacio = localitzacio + " / Localitat: " + cit["localitat"]
-        #     if (cit["municipi"] != "" and cit["municipi"] is not None):
-        #         localitzacio = localitzacio + " / Municipi: " + cit["municipi"]
-        #     if (cit["provincia"] != "" and cit["provincia"] is not None):
-        #         localitzacio = localitzacio + " / Provincia: " + cit["provincia"]
-        #     if (cit["comarca"] != "" and cit["comarca"] is not None):
-        #         localitzacio = localitzacio + " / Comarca: " + cit["comarca"]
-        #
-        #     punts.append({"especie": nomespecie, "utm_x":cit["utmx"], "utm_y":cit["utmy"], "localitzacio":localitzacio, "data":cit["data"], "autor":cit["autor_s"]})
-        #
-        # for punt in punts:
-        #     writer.writerow([punt["especie"], punt["utm_x"], punt["utm_y"], punt["localitzacio"], punt["data"], punt["autor"]])
-        #
-        #
-        #
+        #### ----------------PUNTS
+        writer.writerow([])#"---------","---------","---------","---------","---------","---------"])
+        writer.writerow([])  # "---------", "---------", "---------", "---------", "---------", "---------"])
+        writer.writerow(["-----Resultats Punts-----", "---------", "---------", "---------", "---------", "---------"])
+        writer.writerow([u'Espècie', 'UTM-X', 'UTM-Y', 'UTM-Z', 'Localització', 'Data', 'Autor'])
+        punts = []
+        for cit in Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("especie","utmx","utmy","localitat","municipi","comarca","provincia","data","autor_s"):
+            nomespecie = Especieinvasora.objects.get(id=id).nom_especie
+            localitzacio = ""
+            if (cit["localitat"] != "" and cit["localitat"] is not None):
+                localitzacio = localitzacio + " / Localitat: " + cit["localitat"]
+            if (cit["municipi"] != "" and cit["municipi"] is not None):
+                localitzacio = localitzacio + " / Municipi: " + cit["municipi"]
+            if (cit["provincia"] != "" and cit["provincia"] is not None):
+                localitzacio = localitzacio + " / Provincia: " + cit["provincia"]
+            if (cit["comarca"] != "" and cit["comarca"] is not None):
+                localitzacio = localitzacio + " / Comarca: " + cit["comarca"]
+
+            punts.append({"especie": nomespecie, "utm_x":cit["utmx"], "utm_y":cit["utmy"],"utm_z":"", "localitzacio":localitzacio, "data":cit["data"], "autor":cit["autor_s"]})
+
+        for cit in CitacionsEspecie.objects.filter(idspinvasora=id, utmx__isnull=False, utmy__isnull=False, validat="SI").values("especie","utmx","utmy","utmz","localitat","municipi","comarca","adreca","data","usuari"):
+            nomespecie = Especieinvasora.objects.get(id=id).nom_especie
+            localitzacio = ""
+            autor = User.objects.get(username=cit["usuari"]).first_name +" "+User.objects.get(username=cit["usuari"]).last_name
+            if (cit["localitat"] != "" and cit["localitat"] is not None):
+                localitzacio = localitzacio + " / Localitat: " + cit["localitat"]
+            if (cit["municipi"] != "" and cit["municipi"] is not None):
+                localitzacio = localitzacio + " / Municipi: " + cit["municipi"]
+            if (cit["comarca"] != "" and cit["comarca"] is not None):
+                localitzacio = localitzacio + " / Comarca: " + cit["comarca"]
+            if (cit["Adreça"] != "" and cit["Adreca"] is not None):
+                localitzacio = localitzacio + " / Adreça: " + cit["adreca"]
+
+            punts.append({"especie": nomespecie, "utm_x":cit["utmx"], "utm_y":cit["utmy"],"utm_z":cit["utmz"], "localitzacio":localitzacio, "data":cit["data"], "autor":autor})
+
+        for punt in punts:
+            writer.writerow([punt["especie"], punt["utm_x"], punt["utm_y"], punt["utm_z"], punt["localitzacio"], punt["data"], punt["autor"]])
+
+
+        #####----------------------------DESCOMENTAR EN UN FUTURO??------------------------------------------
         # #### ----------------MASSES AIGUA
-        # writer.writerow(["---------","---------","---------","---------","---------","---------"])
-        # writer.writerow(["MASSES D'AIGUA", "---------", "---------", "---------", "---------", "---------"])
-        # writer.writerow(["---------", "---------", "---------", "---------", "---------", "---------"])
+        # writer.writerow([])#"---------","---------","---------","---------","---------","---------"])
+        # writer.writerow([])  # "---------", "---------", "---------", "---------", "---------", "---------"])
+        # writer.writerow(["---Resultats Masses d'aigua---", "---------", "---------", "---------", "---------", "---------"])
         # writer.writerow(["Massa d'aigua", 'Tipus', 'Conca'])
         # massesaigua = []
         # id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id).values("id_exoaqua")

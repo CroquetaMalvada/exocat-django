@@ -226,7 +226,7 @@ $(document).ready(function(){
                         filename: function(){return 'Resum de localitats de '+taula_resum_localitats_especie.cell(0,1).data()},
                         text: '<span aria-hidden="true"><i class="fa fa-table fa-lg"></i> CSV</span>'
                     },{
-                        text: '<span aria-hidden="true"><i class="fa fa-file-text-o fa-lg"></i>CSV amb detalls de UTMs</span>',
+                        text: '<span aria-hidden="true"><i class="fa fa-file-text-o fa-lg"></i>CSV amb detalls de citacions</span>',
                         className: 'text-success',
                         action: function (){
                             $("#form_generar_csv_citacions_detalls").submit();
