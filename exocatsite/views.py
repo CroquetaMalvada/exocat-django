@@ -1979,7 +1979,7 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
             # nombre de la especie(se juntan el genere con especie y subespecie)
             id = especie["id"]
             nom_especie = especie["nom_especie"]
-            id_taxon= especie["idtaxon"] #Ojo! no debería usarse idtaxon pero es la unica forma de relacionar la tabla con las masas de agua
+            #id_taxon= especie["idtaxon"] #Ojo! no debería usarse idtaxon pero es la unica forma de relacionar la tabla con las masas de agua
             # genere = especie["idtaxon__genere"]
             # especiestr = especie["idtaxon__especie"]
             # subespeciestr = especie["idtaxon__subespecie"]
@@ -2026,20 +2026,26 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
 
             #5 Comprobamos las utms1 y que utms de 10km las tienen en su interior
             for utm in Quadricula.objects.filter(id__in=utms1).values("id","geom_4326"):
-                for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=utm["geom_4326"].wkt).exclude(id__in=utms10).values("id"):
-                    utms10.append(utm10["id"])
-                    comentari = "*Concretament a la UTM de 1km " + utm["id"]
-                    utms10_and_info.append({"utm":utm10["id"], "comentari":comentari})
-
+                try:
+                    for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=utm["geom_4326"].wkt).exclude(id__in=utms10).values("id"):
+                        utms10.append(utm10["id"])
+                        comentari = "*Concretament a la UTM de 1km " + utm["id"]
+                        utms10_and_info.append({"utm":utm10["id"], "comentari":comentari})
+                except:
+                    writer.writerow([nom_especie, "#Error en la introducció de dades#", "Hi ha un format incorrecte en una UTM 1km d'aquesta espècie."])
             #6 Hacemos lo mismo con las citaciones puntuales
             for cit in citacions:
-                for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=cit.wkt).exclude(id__in=utms10).values("id"):
-                    utms10.append(utm10["id"])
-                    comentari = "*Concretament a una citació puntual dins d'aquesta UTM."
-                    utms10_and_info.append({"utm": utm10["id"], "comentari": comentari})
+                try:
+                    for utm10 in Quadricula.objects.filter(resolution=10000,geom_4326__contains=cit.wkt).exclude(id__in=utms10).values("id"):
+                        #if utm10["id"]=="CF99":
+                        utms10.append(utm10["id"])
+                        comentari = "*Concretament a una citació puntual dins d'aquesta UTM."
+                        utms10_and_info.append({"utm": utm10["id"], "comentari": comentari})
+                except:
+                    writer.writerow([nom_especie, "#Error en la introducció de dades#", "Hi ha un format incorrecte en una citació d'aquesta espècie."])
 
             #7 Por ultimo miramos las amsas de agua de esa especie y con que utms de 10km colisiona(OJO que se usa el idtaxon y no el id)
-            id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id_taxon).values("id_exoaqua")
+            id_exoaqua = ExoaquaToExocat.objects.filter(id_exocat=id).values("id_exoaqua")
             if id_exoaqua: # si existe una relacion de exoaqua-exocat de dicha especie
                 id_exoaqua=id_exoaqua[0]["id_exoaqua"] # en teoria solo debe devolvernos un resultado(tambien se podria usar un object get)
                 for massa in MassaAiguaTaxon.objects.filter(id_taxon_exoaqua=id_exoaqua).values("id_localitzacio"):
@@ -2053,7 +2059,7 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
                             comentari = "*Concretament a la massa d'aigua '"+nom_massa+"'."
                             utms10_and_info.append({"utm": utm10["id"], "comentari": comentari})
                     except:
-                        None
+                        writer.writerow([nom_especie, "#Error en la introducció de dades#", "Hi ha un format incorrecte en una massa d'aigua d'aquesta espècie."])
 
 
                         # for id_massa in id_massesaigua:
