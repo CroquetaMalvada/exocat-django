@@ -561,7 +561,7 @@ def generar_csv_citacions_detalls(request):
         writer.writerow(["-----Resultats Punts-----", "---------", "---------", "---------", "---------", "---------"])
         writer.writerow([u'Espècie', 'UTM-X', 'UTM-Y', 'UTM-Z', 'Localització', 'Data', 'Autor'])
         punts = []
-        for cit in Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("especie","utmx","utmy","localitat","municipi","comarca","provincia","data","autor_s"):
+        for cit in Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False,geom_4326__isvalid= True).values("especie","utmx","utmy","localitat","municipi","comarca","provincia","data","autor_s"):
             nomespecie = Especieinvasora.objects.get(id=id).nom_especie
             localitzacio = ""
             if (cit["localitat"] != "" and cit["localitat"] is not None):
@@ -1222,7 +1222,7 @@ def json_info_especie(request):
     # nomsvulgars=""
 
     # OJO que los datos de citacions a excepcion de ncitacions no se utilizaran por ahora
-    citacions= Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False).values("citacio","localitat","municipi","comarca","provincia","data","autor_s","font")
+    citacions= Citacions.objects.filter(idspinvasora=id,geom_4326__isnull = False,geom_4326__isvalid= True).values("citacio","localitat","municipi","comarca","provincia","data","autor_s","font")
     ncitacions = citacions.count()
     #Ahora las citaciones "nuevas"
     ncitacions = ncitacions + CitacionsEspecie.objects.filter(idspinvasora=id, utmx__isnull=False, utmy__isnull=False, validat="SI").values("utmx").distinct().count()
