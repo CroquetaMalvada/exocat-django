@@ -1573,8 +1573,13 @@ def json_especies_de_seleccion(request,multipoligono=False):
 
     #1
     #geom_4326__contained
-    utms10 = PresenciaSP10000Global.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms10=Count("idspinvasora"))#.distinct("idspinvasora")geom_4326__contained
-    utms1 = PresenciaSP1000Global.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms1=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
+    if request.GET["nomes_dins"]=='false':
+        utms10 = PresenciaSP10000Global.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms10=Count("idspinvasora"))#.distinct("idspinvasora")geom_4326__contained
+        utms1 = PresenciaSP1000Global.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms1=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
+    else:#si se ha decidido contar solo las utms dentro de la seleccion
+        utms10 = PresenciaSP10000Global.objects.filter(geom_4326__within=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms10=Count("idspinvasora"))#.distinct("idspinvasora")geom_4326__contained
+        utms1 = PresenciaSP1000Global.objects.filter(geom_4326__within=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nutms1=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
+
     citacions = CitacionsGlobal.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(ncitacions=Count("idspinvasora"))#.distinct("idspinvasora")#.distinct("id")
     masses = PresenciaSPMassaAigua.objects.filter(geom_4326__intersects=poligono).values("idspinvasora").order_by("idspinvasora").annotate(nmassesaigua=Count("idspinvasora"))#.distinct("idspinvasora")
 

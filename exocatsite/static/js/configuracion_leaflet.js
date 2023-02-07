@@ -28,6 +28,8 @@ var modo_info_comarques=false;
 
 var drawControl;
 
+var utm_dins_poligon = false;
+
 $(document).ready(function(){
     // Google layers
 	/*var g_roadmap   = new L.Google('ROADMAP');
@@ -536,6 +538,21 @@ $(".boton_herramientas").on("click",function(evt){
         new L.Draw.Rectangle(mymap, drawControl.options.rectangle).enable();
     }else if($(this).attr("id")=="boton_info_poligono"){
         new L.Draw.Polygon(mymap, drawControl.options.polygon).enable();
+         $.confirm({
+            title: 'Tipus de contacte amb UTMs',
+            content: "Comptar les UTM que estiguin en contacte i al interior del dibuix o únicament si es troben a dins del mateix?",
+            confirmButton: 'En contacte i dins',
+            cancelButton: 'Només a dins',
+//            confirmButtonClass: 'btn-info',
+//            cancelButtonClass: 'btn-danger',
+            closeIcon: false,
+            confirm: function(){
+                utm_dins_poligon = false;
+            },
+            cancel: function(){
+                utm_dins_poligon = true;
+            }
+        });
         //new L.Draw.Circle(map, drawControl.options.circle).enable()
     }else if($(this).attr("id")=="boton_info_clicar"){
         activar_modo_clicar();

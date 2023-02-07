@@ -87,21 +87,26 @@ function obtener_especies_geom(){ // OBTENER ESPECIES DE RECTANGULO O FIGURA(aqu
 //    alert("INTERSECTS(geom_4326,"+filtro+")");
     // mostramos las layers(cuadriculas,citacions,rius,etc) que hay dentro de la zona marcada
     //wmsLayer_presencia_10000.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
-    wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-    wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
     wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-    //wmsLayer_citacions_2.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
     wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-//    wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-//    wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-//    wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-//    wmsLayer_citacions_2.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
-//    wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    if(utm_dins_poligon==false){
+        wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+        wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    }else{///Si contar las utms que hay solo dentro del polígono
+        wmsLayer_presencia_10000.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+        wmsLayer_presencia_1000.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+    }
+    //wmsLayer_citacions_2.setParams({cql_filter:"WITHIN(geom_4326,"+filtro+")"});
+    //    wmsLayer_presencia_10000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    //    wmsLayer_presencia_1000.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    //    wmsLayer_citacions.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    //    wmsLayer_citacions_2.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
+    //    wmsLayer_presencia_ma.setParams({cql_filter:"INTERSECTS(geom_4326,"+filtro+")"});
 
 
     $.ajax({
         url:"/especies_seleccion/",
-        data:{"pol":filtro},
+        data:{"pol":filtro,"nomes_dins":utm_dins_poligon},
 //        type:'json',
         success: function (data, status, xhr) {
             //console.log(data);
