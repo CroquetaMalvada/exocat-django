@@ -585,7 +585,7 @@ def generar_csv_citacions_detalls(request):
                 localitzacio = localitzacio + " / Municipi: " + cit["municipi"]
             if (cit["comarca"] != "" and cit["comarca"] is not None):
                 localitzacio = localitzacio + " / Comarca: " + cit["comarca"]
-            if (cit["Adreça"] != "" and cit["Adreca"] is not None):
+            if (cit["adreca"] != "" and cit["adreca"] is not None):
                 localitzacio = localitzacio + " / Adreça: " + cit["adreca"]
 
             punts.append({"especie": nomespecie, "utm_x":cit["utmx"], "utm_y":cit["utmy"],"utm_z":cit["utmz"], "localitzacio":localitzacio, "data":cit["data"], "autor":autor})
