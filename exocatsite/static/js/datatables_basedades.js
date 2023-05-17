@@ -390,6 +390,10 @@ $(document).ready(function(){
             $("#form_generar_csv_informe_especies_utm10").submit();
         });
 
+         //GENERAR INFORME CSV CON TODAS LAS CITACIONES DE CATALUNYA
+        $("#boton_informe_citacions_puntuals").click(function(){
+            $("#form_generar_csv_informe_citacions_puntuals").submit();
+        });
 
         // ajustar columnas al cargar un tab
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {

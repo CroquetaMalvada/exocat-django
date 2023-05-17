@@ -482,18 +482,20 @@ def generar_csv_citacions_detalls(request):
         utms1 = []
         utms10 = []
 
+        #OjO que CITACIONS_1 Y CITACIONS_10 sirven, solo que son las que contienen datos extra a diferencia de PresenciaSp, así que usaremos estas en este caso por ahora.
         for utm1_id in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula"):#.distinct():#.count()
-            if Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquadricula"]):
-                for cit in Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquadricula"]):
+        #for utm1_id in PresenciaSP1000Global.objects.filter(idspinvasora=id, idquad__resolution=1000).values("idquad"):
+            if Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquad"]):
+                for cit in Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquad"]):
                     data = "Indeterminada"
                     if (cit.data == "Indeterminada"):
                         if (cit.anyo != "Indeterminada"):
                             data = cit.anyo
                     utms1.append({"especie": cit.especie, "utm_1":cit.utm_1, "utm_10":"", "localitzacio":cit.descripcio, "data":data, "autor":cit.autor_s, "observacions":"Ref: "+cit.referencia})
-
         for utm10_id in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula"):#.distinct():#.count()
-            if Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquadricula"]):
-                for cit in Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquadricula"]):
+        #for utm10_id in PresenciaSP10000Global.objects.filter(idspinvasora=id, idquad__resolution=10000).values("idquad"):
+            if Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquad"]):
+                for cit in Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquad"]):
                     data = "Indeterminada"
                     if(cit.data=="Indeterminada"):
                         if (cit.anyo != "Indeterminada"):
@@ -1237,12 +1239,18 @@ def json_info_especie(request):
     nutm1000=0
     nutm10000=0
 
-    nutm10000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula").distinct().count()
-    nutm1000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula").distinct().count()
-    ###Ahora sumar las utms "nuevas"
-    nutm10000 = nutm10000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, validat="SI").values("utm_10").distinct().count()
-    nutm1000 = nutm1000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, validat="SI").values("utm_1").distinct().count()
+    ####OLD version
+    # nutm10000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula").distinct().count()
+    # nutm1000= PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula").distinct().count()
+    # ###Ahora sumar las utms "nuevas"
+    # nutm10000 = nutm10000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_10__isnull=False, validat="SI").values("utm_10").distinct().count()
+    # nutm1000 = nutm1000 + CitacionsEspecie.objects.filter(idspinvasora=id, utm_1__isnull=False, validat="SI").values("utm_1").distinct().count()
     ###
+    ####NEW version
+    nutm10000 = PresenciaSP10000Global.objects.filter(idspinvasora=id,idquad__resolution=10000).count()
+    nutm1000 = PresenciaSP1000Global.objects.filter(idspinvasora=id, idquad__resolution=1000).count()
+    ###
+
     # utms10000= PresenciaSp.objects.filter(idspinvasora=id).values("idquadricula__resolution")
     # for utm in utms:
     #     if utm["idquadricula__resolution"]==10000: #Ojo que la resolution no indica nada de metros! si pone 10000 son de 1000m!!!
@@ -2091,6 +2099,36 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
         except:
             writer.writerow(["#####ERROR AMB LA ESPÈCIE: "+especie["id"]])
 
+
+    return resultado
+
+#GENERAR CSV DE TODOS LOS PUNTOS EN CATALUNYA
+def generar_csv_informe_citacions_puntuals(request):
+
+    resultado = HttpResponse(content_type='text/csv')
+    resultado['Content-Disposition'] = 'attachment; filename="InformePunts.csv"'
+
+    writer = csv.writer(resultado, delimiter=str(u';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+    resultado.write(u'\ufeff'.encode('utf8')) # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+    writer.writerow([u'Espècie', u'UtmX', 'UtmY','Data','Estatus Catalunya'])
+    writer.writerow(["-----INFORME1-----", "---------------", "---------------", "---------------", "---------------", "---------------"])
+    #TRAUMA ya que alguien puso "Anse_anse" como "Anse_anse ".Vista creada para comprovar eso!!!
+    citacions = Citacions.objects.filter(utmx__isnull=False,utmy__isnull=False).values("idspinvasora","especie","utmx","utmy","data").order_by("especie")#[:5000]
+    for cit in citacions:
+        try:
+            estatus = Especieinvasora.objects.get(id=cit["idspinvasora"]).idestatuscatalunya.nom
+            writer.writerow([cit["especie"], cit["utmx"], cit["utmy"], cit["data"], estatus])
+        except:
+            writer.writerow(["-ERROR AMB ESPÈCIE-", cit["especie"], "---------------", "---------------", "---------------", "---------------"])
+    writer.writerow(["-----INFORME2-----", "---------------", "---------------", "---------------", "---------------", "---------------"])
+    citacions = CitacionsEspecie.objects.filter(utmx__isnull=False, utmy__isnull=False, validat="SI").values("idspinvasora","especie","utmx","utmy","data").order_by("especie")#[:50]
+    for cit in citacions:
+        try:
+            estatus = Especieinvasora.objects.get(id=cit["idspinvasora"]).idestatuscatalunya.nom
+            nom_especie = Especieinvasora.objects.get(id=cit["idspinvasora"]).nom_especie
+            writer.writerow([nom_especie, cit["utmx"], cit["utmy"], cit["data"], estatus])
+        except:
+            writer.writerow(["-ERROR AMB ESPÈCIE-", cit["especie"], "---------------", "---------------", "---------------", "---------------"])
 
     return resultado
 
