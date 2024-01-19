@@ -395,6 +395,11 @@ $(document).ready(function(){
             $("#form_generar_csv_informe_citacions_puntuals").submit();
         });
 
+        //GENERAR INFORME CSV CON LA LOCALIZACIÓN DE ESPECIES DE X MUNICIPIO
+        $("#boton_informe_especies_municipi").click(function(){
+            $("#form_generar_csv_informe_especies_municipi").submit();
+        });
+
         // ajustar columnas al cargar un tab
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust().draw();

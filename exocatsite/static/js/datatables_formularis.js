@@ -25,19 +25,23 @@ var opciones_idioma = {
 }
 
 var taula_formularis_usuari;
+var filtre_taula = 1;
 $(document).ready(function(){
-
+    $('#filtremostrartots').attr('checked', 'checked');
     // Si se esta cargando especies:
 
     $.fn.dataTable.moment( 'DD-MM-YYYY' ); ///para definir el formato estandar de fechas en las tables(depende de datetime-moment.js y moment.min.js)
     taula_formularis_usuari = $("#taula_formularis_usuari").DataTable({
-//                    processing:true,
+                    processing:true,
 //                    serverSide:true,
 //                    ajax: '/ajax_taula_especies/',
 //                    deferLoading: 10,
                     ajax: {
                         url: '/ajax_formularis_usuari/',
                         dataSrc: '',
+                        data: function(d){
+                            d.filtre_taula = filtre_taula;
+                        }
                     },
                     "deferRender": true,
                     columns:[
@@ -72,3 +76,18 @@ $(document).ready(function(){
             $("#form_formularis_usuari").trigger("submit");
         });
 });
+
+function mostrar_tots() {
+    filtre_taula = 1;
+    taula_formularis_usuari.ajax.reload();
+}
+
+function nomes_validats() {
+    filtre_taula = 2;
+    taula_formularis_usuari.ajax.reload();
+}
+
+function nomes_novalidats() {
+    filtre_taula = 3;
+    taula_formularis_usuari.ajax.reload();
+}

@@ -27,6 +27,9 @@
         {% csrf_token %}
         <input name="id_form" id="id_form" hidden/>
         <input name="cargar_form" hidden/>
+        Filtrar formularis:<br> <input id="filtremostrartots" onclick="mostrar_tots()" type="radio" name="filtrarvalids" checked="true">Mostrar tots</input>
+        <br><input onclick="nomes_validats()" type="radio" name="filtrarvalids" checked=false>Només vàlids</input>
+        <br><input onclick="nomes_novalidats()" type="radio" name="filtrarvalids" checked="false">Només NO vàlids</input>
         <table id="taula_formularis_usuari" class="table table-striped table-bordered" width="100%" cellspacing="0">
            <thead>
                <tr>

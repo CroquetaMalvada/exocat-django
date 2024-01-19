@@ -75,6 +75,9 @@ urlpatterns = [
     # GENERAR INFORME CSV CON ESPECIES Y CITACIONES DE CADA UTM 10KM
     url('^generar_csv_informe_citacions_puntuals/$', views.generar_csv_informe_citacions_puntuals),
 
+    # GENERAR INFORME CSV CON ESPECIES EN X MUNICIPIO
+    url('^generar_csv_informe_especies_municipi/$', views.generar_csv_especies_municipi),
+
     #GENERAR PLANTILLA CSV/EXCEL
     url('^generar_plantilla_citacions/$', views.generar_fichero_plantilla_citaciones),
 

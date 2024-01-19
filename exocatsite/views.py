@@ -2102,6 +2102,49 @@ def generar_csv_informe_especies_utm10(request):# NOTA para el futuro, utilizar 
 
     return resultado
 
+def generar_csv_especies_municipi(request):
+    resultado = HttpResponse(content_type='text/csv')
+    resultado['Content-Disposition'] = 'attachment; filename="EspeciesMunicipi.csv"'
+
+    writer = csv.writer(resultado, delimiter=str(u';').encode('utf-8'), dialect='excel', encoding='utf-8') #  quoting=csv.QUOTE_ALL,
+    resultado.write(u'\ufeff'.encode('utf8')) # IMPORTANTE PARA QUE FUNCIONEN LOS ACENTOS
+    try:
+        cursor = connection.cursor()
+        cursor.execute("SELECT geom FROM municipis_4326 WHERE codimuni='251207'")# 251207 es ejemplo de Lleida
+        fetch = dictfetchall(cursor)
+        geom_municipi=GEOSGeometry(fetch[0]['geom'], srid=4326)
+
+        writer.writerow(["-----Resultats UTMs-----(*Dins del àrea del municipi*)", "---------", "---------"])
+        #obtener detalles de kas utms "antiguas" gracias a las nuevas tablas citacions_1 y citacions_10
+        writer.writerow([u'Espècie', 'UTM10km', 'UTM1km'])
+        utms1 = []
+        utms10 = []
+        #usar __intersects si se quiere contar las utm que no solo estan dentro si no que chocan
+        for utm10 in PresenciaSP10000Global.objects.filter(geom_4326__within=geom_municipi).values("nom","idquad"):
+            writer.writerow([utm10["nom"],'',utm10["idquad"]])
+
+        for utm1 in PresenciaSP1000Global.objects.filter(geom_4326__within=geom_municipi).values("nom","idquad"):
+            writer.writerow([utm1["nom"],'',utm1["idquad"]])
+        #### ----------------PUNTS
+        writer.writerow(["-----Punts-----(*Dins del àrea del municipi*)", "---------", "---------"])
+        writer.writerow([u'Espècie', 'UTM-X', 'UTM-Y'])
+        for cit in  CitacionsGlobal.objects.filter(geom_4326__within=geom_municipi).values("nom","utmx","utmy"):
+            writer.writerow([cit["nom"], cit["utmx"], cit["utmy"]])
+
+        #### ----------------MASSES AIGUA
+        writer.writerow(["-----Masses D'aigua-----(*Masses que estan en contacte amb l'àrea del municipi*)", "---------", "---------"])
+        writer.writerow([u'Espècie', "Massa d'aigua"])
+        for massa in  PresenciaSPMassaAigua.objects.filter(geom_4326__intersects=geom_municipi).values("nom","nom_massa"):
+            writer.writerow([massa["nom"], massa["nom_massa"]])
+        ######----------------------------------------------------------------------------------------------------------
+
+
+
+    ###------------------------------------------
+        return resultado
+    except:
+        raise Http404('Error al generar el csv.')
+
 #GENERAR CSV DE TODOS LOS PUNTOS EN CATALUNYA
 def generar_csv_informe_citacions_puntuals(request):
 
@@ -2447,12 +2490,23 @@ def view_delete_imatge_citacions_especie(request):
 def json_taula_formularis_usuari(request):
     formularios=[]
     nom_especie = ""
+    filtre_taula = request.GET["filtre_taula"]
     if request.user.is_authenticated():
         formscitacions=[]
         if request.user.groups.filter(name="Admins"):
-            formscitacions=CitacionsEspecie.objects.all().values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
+            if filtre_taula == "1":
+                formscitacions=CitacionsEspecie.objects.all().values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
+            if filtre_taula =="2":
+                formscitacions=CitacionsEspecie.objects.filter(validat="SI").values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
+            if filtre_taula =="3":
+                formscitacions=CitacionsEspecie.objects.filter(validat="NO").values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
         else:
-            formscitacions = CitacionsEspecie.objects.filter(usuari=request.user.username).values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
+            if filtre_taula == "1":
+                formscitacions = CitacionsEspecie.objects.filter(usuari=request.user.username).values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
+            if filtre_taula == "2":
+                formscitacions = CitacionsEspecie.objects.filter(usuari=request.user.username,validat="SI").values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
+            if filtre_taula == "3":
+                formscitacions = CitacionsEspecie.objects.filter(usuari=request.user.username,validat="NO").values("id","especie","idspinvasora","usuari","validat","data_creacio","data_modificacio","contacte","NIP")
 
         for form in formscitacions:
             try:

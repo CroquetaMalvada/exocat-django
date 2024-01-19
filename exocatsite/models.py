@@ -615,6 +615,8 @@ class CitacionsGlobal(models.Model):
     especie = models.CharField(max_length=100, blank=True, null=True)
     geom = models.GeometryField(blank=True, null=True)
     geom_4326 = models.GeometryField(blank=True, null=True)
+    utmx = models.FloatField(blank=True, null=True)
+    utmy = models.FloatField(blank=True, null=True)
 
     # def __str__(self):
     #     return self.geom_4326
@@ -663,6 +665,7 @@ class PresenciaSPMassaAigua(models.Model):
     nom = models.TextField(blank=True, null=True)
     especie = models.CharField(max_length=100, blank=True, null=True)
     idmassa = models.CharField(max_length=100, blank=True, null=True)
+    nom_massa = models.TextField(blank=True, null=True)
     geom = models.GeometryField(blank=True, null=True)
     geom_4326 = models.GeometryField(blank=True, null=True)
 

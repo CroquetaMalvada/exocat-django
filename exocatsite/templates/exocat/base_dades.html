@@ -332,6 +332,10 @@
                             <form id="form_generar_csv_informe_citacions_puntuals" method="post" action="/generar_csv_informe_citacions_puntuals/" hidden>
                                 {% csrf_token %}
                             </form>
+                            <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="CSV amb tota la info sobre la biodiversitat de X municipi" id="boton_informe_especies_municipi" onclick="" style="background-image:none;"><i class="fa fa-building fa-lg"></i>  CSV Biodiversitat municipi</a></div><br>
+                            <form id="form_generar_csv_informe_especies_municipi" method="post" action="/generar_csv_informe_especies_municipi/" hidden>
+                                {% csrf_token %}
+                            </form>
                             <div><a href="#!" class="btn btn-secondary btn-lg active boton_herramientas btn-block" title="CSV amb tots els punts de Catalunya" id="boton_informe_citacions_puntuals" onclick="" style="background-image:none;"><i class="fa fa-building fa-lg"></i>  CSV Punts Catalunya</a></div><br>
                         {% endif %}
                     {% endif %}
