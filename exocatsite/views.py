@@ -485,8 +485,8 @@ def generar_csv_citacions_detalls(request):
         #OjO que CITACIONS_1 Y CITACIONS_10 sirven, solo que son las que contienen datos extra a diferencia de PresenciaSp, así que usaremos estas en este caso por ahora.
         for utm1_id in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=1000).values("idquadricula"):#.distinct():#.count()
         #for utm1_id in PresenciaSP1000Global.objects.filter(idspinvasora=id, idquad__resolution=1000).values("idquad"):
-            if Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquad"]):
-                for cit in Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquad"]):
+            if Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquadricula"]):
+                for cit in Citacions_1.objects.filter(idspinvasora=id, utm_1=utm1_id["idquadricula"]):
                     data = "Indeterminada"
                     if (cit.data == "Indeterminada"):
                         if (cit.anyo != "Indeterminada"):
@@ -494,8 +494,8 @@ def generar_csv_citacions_detalls(request):
                     utms1.append({"especie": cit.especie, "utm_1":cit.utm_1, "utm_10":"", "localitzacio":cit.descripcio, "data":data, "autor":cit.autor_s, "observacions":"Ref: "+cit.referencia})
         for utm10_id in PresenciaSp.objects.filter(idspinvasora=id,idquadricula__resolution=10000).values("idquadricula"):#.distinct():#.count()
         #for utm10_id in PresenciaSP10000Global.objects.filter(idspinvasora=id, idquad__resolution=10000).values("idquad"):
-            if Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquad"]):
-                for cit in Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquad"]):
+            if Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquadricula"]):
+                for cit in Citacions_10.objects.filter(idspinvasora=id, utm_10=utm10_id["idquadricula"]):
                     data = "Indeterminada"
                     if(cit.data=="Indeterminada"):
                         if (cit.anyo != "Indeterminada"):
