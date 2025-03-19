@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 from django.contrib.gis.db import models
 #from django.db import models
-import migrations
 
 class Actuacio(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
@@ -328,9 +327,9 @@ class Nomvulgartaxon(models.Model):
     #FOREIGN KEYS
     #idtaxon = models.ForeignKey('Taxon', models.DO_NOTHING,related_name='id_respecietaxon', db_column='idtaxon')
     id_spinvasora = models.ForeignKey(Especieinvasora, models.DO_NOTHING,related_name='id_especie_nom', db_column='id_spinvasora', blank=True, null=True)
-    idnomvulgar = models.ForeignKey(Nomvulgar, models.DO_NOTHING,related_name='id_nomvulgar', db_column='idnomvulgar')
-    idnomvulgar_eng = models.ForeignKey(Nomvulgar, models.DO_NOTHING,related_name='id_nomvulgareng', db_column='idnomvulgar_eng', blank=True, null=True)
-    idnomvulgar_es = models.ForeignKey(Nomvulgar, models.DO_NOTHING,related_name='id_nomvulgares', db_column='idnomvulgar_es', blank=True, null=True)
+    idnomvulgar = models.ForeignKey(Nomvulgar, models.DO_NOTHING,related_name='nomvulgarcat', db_column='idnomvulgar')
+    idnomvulgar_eng = models.ForeignKey(Nomvulgar, models.DO_NOTHING,related_name='nomvulgaren', db_column='idnomvulgar_eng', blank=True, null=True)
+    idnomvulgar_es = models.ForeignKey(Nomvulgar, models.DO_NOTHING,related_name='nomvulgares', db_column='idnomvulgar_es', blank=True, null=True)
 
     class Meta:
         managed = False
@@ -689,3 +688,12 @@ class PresenciaSPMassaAigua(models.Model):
 #     class Meta:
 #         managed = False
 #         db_table = 'citacions_global'
+
+class Nomcomu(models.Model):
+    id_spinvasora = models.ForeignKey(Especieinvasora, models.CASCADE,related_name='nomscomunsespecie', db_column='id_spinvasora')
+    nom = models.CharField(max_length=255)
+    idioma = models.CharField(max_length=10)
+
+    class Meta:
+        managed = False
+        db_table = 'nomscomuns'

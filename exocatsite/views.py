@@ -23,7 +23,7 @@ import json, urllib, datetime, os, requests, codecs, csv, unicodecsv, uuid
 try:
     import cStringIO as StringIO
 except:
-    import StringIO
+    from io import StringIO
 #from xlsxwriter.workbook import Workbook
 from openpyxl import  Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook #util para el httpresponse
@@ -215,6 +215,15 @@ def filtrar_especies(campos):
     # CREAMOS LOS FILTROS:
     estatus = Estatus.objects.all().values("id") #lo metemos en una variable ya que esta lista la usaremos en mas de una ocasion en los filtros
 
+    def filtro_nomvulgar():
+        if campos["nom_especie"] is not "":            
+            noms_vulgars_id = Nomvulgartaxon.objects.filter( 
+                idnomvulgar__nomvulgar__icontains=campos["nom_especie"]
+            ).values('id_spinvasora__id').distinct()
+            return Q(id__in=noms_vulgars_id)
+        else:
+            return Q(id__isnull=False)
+
     def filtro_nom_o_sinonims_especie():
         # if campos["buscar_per"]=="1":
         #     if campos["nom_especie"] is not "":
@@ -225,7 +234,7 @@ def filtrar_especies(campos):
         # else:
         #     if campos["sinonim_especie"] is not "":
         #         # return (Q(idtaxon__genere__icontains=campos["genere"]))
-        #         return (Q(sinonims__icontains=campos["sinonim_especie"]))
+        #         return (Q(sinonims__icontains=campos["sinonim_especie"]))        
         if campos["nom_especie"] is not "":
             return (Q(nom_especie__icontains=campos["nom_especie"]) | Q(sinonims__icontains=campos["nom_especie"]))
         else:
@@ -317,7 +326,7 @@ def filtrar_especies(campos):
 
     especies= Especieinvasora.objects.filter(
         # para el nombre(campo especie) !Ojo __icontains no es sensible a mayusculas a diferencia de __icontains!
-        filtro_nom_o_sinonims_especie(),
+        (filtro_nom_o_sinonims_especie() | filtro_nomvulgar() ),
         #filtro_nom_especie(),
         # filtro_nombre(),
         # incluye el genere,especie,subespecie y varietat
@@ -354,7 +363,7 @@ def filtrar_especies(campos):
         filtro_data_citacions(),
 
     ).order_by("nom_especie").values("id","nom_especie","sinonims")
-
+    
     return especies
 
 #ESPECIES FILTRADAS
@@ -365,7 +374,7 @@ def json_taula_especies_filtres(request):
     resultado = []
     ids_especies = []
     try:
-        for especie in especies[int(request.POST["start"]):(int(request.POST["start"]) + int(request.POST["length"]))]:
+        for especie in especies[int(request.POST["start"]):(int(request.POST["start"]) + int(request.POST["length"]))]:            
             # nombre de la especie(se juntan el genere con especie y subespecie)
             id = especie["id"]
             # genere = especie["idtaxon__genere"]
@@ -382,7 +391,13 @@ def json_taula_especies_filtres(request):
             else:
                 grup = "Desconegut"
 
-            resultado.append({'id': id, 'especie': especie["nom_especie"], 'sinonims':especie["sinonims"], 'grup': grup})  # ,'nomsvulgars':nomsvulgars,'habitat':habitat
+            noms = Nomcomu.objects.filter(id_spinvasora__id=id)
+            if noms.exists():
+                nomscomuns = ' | '.join([ "{0} ({1})".format(f.nom,f.idioma) for f in noms.order_by('idioma','nom') ])
+            else:
+                nomscomuns = ''
+
+            resultado.append({'id': id, 'especie': especie["nom_especie"], 'sinonims':especie["sinonims"], 'grup': grup, 'nomscomuns': nomscomuns})  # ,'nomsvulgars':nomsvulgars,'habitat':habitat
         # para el input de ids para el csv
         for especie in especies:
             ids_especies.append(especie["id"])

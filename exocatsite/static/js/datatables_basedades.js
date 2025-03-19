@@ -112,6 +112,13 @@ $(document).ready(function(){
                             else
                                 return '<a class="btn btn-info sinonims_especie" title="'+data['sinonims']+'"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"><i class="fa fa-eye fa-lg"></i></span></a>';
                         }},
+                        { data:{'nomscomuns':'nomscomuns'},"render": function(data){
+                            if(data['nomscomuns']==null || data['nomscomuns']=='' ){
+                                return '<a class="btn btn-info disabled"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"><i class="fa fa-eye-slash fa-lg"></i></span></a>';
+                            }else{
+                                return '<a class="btn btn-info sinonims_especie" title="'+data['nomscomuns']+'"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"><i class="fa fa-eye fa-lg"></i></span></a>';
+                            }
+                        }},
                         {'data': 'grup'},
 //                        {'data': 'estatuscat'},
 //                        {'data': 'varietat'},
