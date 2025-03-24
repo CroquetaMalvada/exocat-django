@@ -159,14 +159,14 @@ def filtrar_especies(campos):
     ###########ESPECIES QUE TIENEN CITACIONES QUE CUMPLAN LO MANDADO EN LOS FILTROS
     list_especies =[]
     list_espceis_citacions=[]
-    if campos["data_min_citacio"] is not "" or campos["data_max_citacio"] is not "":
+    if campos["data_min_citacio"] != "" or campos["data_max_citacio"] != "":
         data_min=0
         data_max=0
-        if campos["data_min_citacio"] is "":
+        if campos["data_min_citacio"] == "":
             data_min=0
         else:
             data_min=int(campos["data_min_citacio"])
-        if campos["data_max_citacio"] is "":
+        if campos["data_max_citacio"] == "":
             data_max=9999
         else:
             data_max=int(campos["data_max_citacio"])
@@ -216,7 +216,7 @@ def filtrar_especies(campos):
     estatus = Estatus.objects.all().values("id") #lo metemos en una variable ya que esta lista la usaremos en mas de una ocasion en los filtros
 
     def filtro_nomvulgar():
-        if campos["nom_especie"] is not "":            
+        if campos["nom_especie"] != "":            
             noms_vulgars_id = Nomvulgartaxon.objects.filter( 
                 idnomvulgar__nomvulgar__icontains=campos["nom_especie"]
             ).values('id_spinvasora__id').distinct()
@@ -235,7 +235,7 @@ def filtrar_especies(campos):
         #     if campos["sinonim_especie"] is not "":
         #         # return (Q(idtaxon__genere__icontains=campos["genere"]))
         #         return (Q(sinonims__icontains=campos["sinonim_especie"]))        
-        if campos["nom_especie"] is not "":
+        if campos["nom_especie"] != "":
             return (Q(nom_especie__icontains=campos["nom_especie"]) | Q(sinonims__icontains=campos["nom_especie"]))
         else:
             return Q(id__isnull=False)
@@ -256,13 +256,13 @@ def filtrar_especies(campos):
 
 
     def filtro_grups():
-        if campos["grups"] is not "":
+        if campos["grups"] != "":
             return Q(id__in=Grupespecie.objects.filter(idgrup=campos["grups"]).values("idespecieinvasora"))
         else:
             return Q(id__isnull=False)
 
     def filtro_estatus_cat():
-        if campos["estatuscatalunya"] is not "":
+        if campos["estatuscatalunya"] != "":
             return Q(idestatuscatalunya=campos["estatuscatalunya"])
         else:
             return Q(id__isnull=False)
@@ -274,7 +274,7 @@ def filtrar_especies(campos):
     #         return Q(id__isnull=False)
 
     def filtro_regio_nativa(): #OJO para utilizar el unaccent he tenido que instalarlo en el psql del servidor(como usuario psotgres) y django.contrib.postgres en el INSTALLEDAPPS
-        if campos["regionativa"] is not "":
+        if campos["regionativa"] != "":
             return Q(regio_nativa__unaccent__icontains=campos["regionativa"])
         else:
             return Q(id__isnull=False)
@@ -286,25 +286,25 @@ def filtrar_especies(campos):
     #         return Q(id__isnull=False)
 
     def filtro_vias_entrada():
-        if campos["viaentrada"] is not "":
+        if campos["viaentrada"] != "":
             return Q(id__in=Viaentradaespecie.objects.filter(idviaentrada__viaentrada__unaccent__icontains=campos["viaentrada"]).values("idespecieinvasora"))
         else:
             return Q(id__isnull=False)
 
     def filtro_estatus_historico():
-        if campos["estatushistoric"] is not "":
+        if campos["estatushistoric"] != "":
             return Q(idestatushistoric=campos["estatushistoric"])
         else:
             return Q(id__isnull=False)
 
     def filtro_catalogo():
-        if campos["present_catalog"] is not "":
+        if campos["present_catalog"] != "":
             return Q(present_catalogo=campos["present_catalog"])
         else:
             return Q(id__isnull=False)
 
     def filtro_reglamento_eur():
-        if campos["present_reglament_eur"] is not "":
+        if campos["present_reglament_eur"] != "":
             return Q(reglament_ue=campos["present_reglament_eur"])
         else:
             return Q(id__isnull=False)
@@ -2433,16 +2433,19 @@ def view_upload_imatge_citacions_especie(request):
     if request.GET:
     # def get(self, request):
         resultado = []
-        if request.GET.get("id_imatge_principal") is not None: # si es la principal
+        if request.GET.get("id_imatge_principal") is not None and request.GET.get("id_imatge_principal") != '': # si es la principal
             img = ImatgesCitacions.objects.get(id=request.GET["id_imatge_principal"])
             resultado={'name': img.fitxer.name, 'url': img.fitxer.url, 'id': img.id}
 
         else:
-            imatges = request.GET["ids_imatges"].split(",")
-            for imatge in imatges:
-                if imatge != "":
-                    img = ImatgesCitacions.objects.get(id=imatge)
-                    resultado.append({'name': img.fitxer.name, 'url': img.fitxer.url, 'id': img.id})
+            try:
+                imatges = request.GET["ids_imatges"].split(",")
+                for imatge in imatges:
+                    if imatge != "":
+                        img = ImatgesCitacions.objects.get(id=imatge)
+                        resultado.append({'name': img.fitxer.name, 'url': img.fitxer.url, 'id': img.id})
+            except KeyError:
+                pass
 
 
         return JsonResponse(resultado,safe=False)
