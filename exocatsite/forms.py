@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.forms import ModelForm, Textarea, TextInput, Select, EmailInput, NumberInput
 from django import forms
-from django.forms.extras.widgets import SelectDateWidget
+from django.forms.widgets import SelectDateWidget
 from django.forms.widgets import *
 from exocatsite.models import *
 

@@ -26,11 +26,11 @@ except:
     from io import StringIO
 #from xlsxwriter.workbook import Workbook
 from openpyxl import  Workbook, load_workbook
-from openpyxl.writer.excel import save_virtual_workbook #util para el httpresponse
+from openpyxl.writer.excel import save_workbook as save_virtual_workbook #util para el httpresponse
 #Tuto de openpyxl en https://medium.com/aubergine-solutions/working-with-excel-sheets-in-python-using-openpyxl-4f9fd32de87f
 #
-from forms import *
-from models import *
+from .forms import *
+from .models import *
 
 
 from django.db.models.functions import Substr
@@ -2213,7 +2213,7 @@ def view_formularis_localitats_especie(request):
         ids_imatges = request.POST["ids_imatges"]
     imatges=[]
     id_form=""
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         usuari = request.user.username
     else:
         usuari = u"Anònim"

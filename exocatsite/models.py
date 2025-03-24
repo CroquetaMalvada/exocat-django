@@ -555,7 +555,7 @@ def upload_path_handler(instance, filename):
 
 class ImatgesCitacions(models.Model):
     fitxer = models.FileField(upload_to=upload_path_handler,blank=True,null=True)
-    id_citacio_especie = models.ForeignKey(CitacionsEspecie, related_name='imatges_citacio_especie', blank=True, null=True)
+    id_citacio_especie = models.ForeignKey(CitacionsEspecie, related_name='imatges_citacio_especie',on_delete=models.CASCADE, blank=True, null=True)
     tipus = models.CharField(max_length=255, blank=True, null=True)
     data_pujada = models.DateTimeField(auto_now_add=True)
     temporal = models.BooleanField()

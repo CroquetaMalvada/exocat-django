@@ -123,25 +123,30 @@ STATIC_URL = '/static/'
 # STATICFILES_DIRS = (
 #   os.path.join(BASE_DIR, 'static/'),
 # )
-FILE_UPLOAD_PERMISSIONS = 0644 # Ojo si la version de python es >= 3 entonces es 0o644
+FILE_UPLOAD_PERMISSIONS = 644 # Ojo si la version de python es >= 3 entonces es 0o644
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 LOGIN_REDIRECT_URL = '/base_dades/'
 
-# #GDAL (prueba)
-#GDAL_LIBRARY_PATH = r'C:\OSGeo4\bin\gdal300.dll'
-# if os.name == 'nt':
-#     import platform
-#     OSGEO4W = r"C:\OSGeo4W"
-#     if '64' in platform.architecture()[0]:
-#         OSGEO4W += "64"
-#     assert os.path.isdir(OSGEO4W), "Directory does not exist: " + OSGEO4W
-#     os.environ['OSGEO4W_ROOT'] = OSGEO4W
-#     os.environ['GDAL_DATA'] = OSGEO4W + r"\share\gdal"
-#     os.environ['PROJ_LIB'] = OSGEO4W + r"\share\proj"
-#     os.environ['PATH'] = OSGEO4W + r"\bin;" + os.environ['PATH']
+DATABASES = {
+    'default': {
+        'ENGINE': os.environ.get("SQL_ENGINE", 'django.contrib.gis.db.backends.postgis'),
+        'NAME': os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "postgres")),
+        'USER': os.environ.get("SQL_USER", "postgres"),
+        'PASSWORD': os.environ.get("SQL_PASSWORD", ""),
+        'HOST': os.environ.get("SQL_HOST", "db"),
+        'PORT': os.environ.get("SQL_PORT", "5432")
+    }
+}
 
-#Esto solo para produccion ya que en produccion se necesita un collectstatic:
-# STATIC_ROOT = "c:\wsgi_app\gestprjsite\static"
+try:
+    import debugpy
 
-from settings_local import *
+    if not debugpy.is_client_connected():
+        try:
+            debugpy.listen(("0.0.0.0", 5678))
+            print("Waiting for debugger to attach...")
+        except RuntimeError:
+            print("Debugger is already listening. Skipping setup.")
+except ModuleNotFoundError as m:
+    print("Debugpy not installed")

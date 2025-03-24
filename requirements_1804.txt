@@ -1,0 +1,14 @@
+certifi==2018.10.15
+chardet==3.0.4
+Django==1.11.7
+et-xmlfile==1.0.1
+gunicorn==19.8.1
+idna==2.7
+jdcal==1.4
+openpyxl==2.6.1
+psycopg2-binary
+pytz==2018.4
+requests==2.19.1
+unicodecsv==0.14.1
+urllib3==1.23
+debugpy
