@@ -8,7 +8,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views import View
 from django.http import Http404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.http import HttpResponseRedirect
 from django.db import connection
 from django.db.models import Q,Count
@@ -19,6 +19,7 @@ from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from itertools import chain
 import json, urllib, datetime, os, requests, codecs, csv, unicodecsv, uuid
+from urlparse import urlparse, parse_qs
 #para generar un excel
 try:
     import cStringIO as StringIO
@@ -2622,3 +2623,18 @@ def post_revisar_citacions_aca(request):
 #JSON VACIO
 def json_vacio(request):
     return HttpResponse([{}], content_type='application/json;')
+
+def genera_shapefile(request):
+    
+    url = request.GET.get("url")
+
+    params = parse_qs(urlparse(url).query)
+    filename = params["format_options"][0].split("filename:")[1]    
+
+    # try:
+    response = requests.get(url, auth=(settings.GEOSERVER_WFS_USER,settings.GEOSERVER_WFS_PASSWORD), stream=True)
+    response.raise_for_status()
+
+    django_response = HttpResponse(response.content, content_type="application/zip")
+    django_response["Content-Disposition"] = "attachment; filename=" + filename
+    return django_response

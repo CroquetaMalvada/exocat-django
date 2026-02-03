@@ -90,6 +90,8 @@ urlpatterns = [
 
     #AJAX JSON VACIO
     url(r'^json_vacio/$', views.json_vacio, name='cont_json_vacio'),
+
+    url(r'^genera_shapefile/$', views.genera_shapefile, name='genera_shapefile'),
 ]
 # solo para desarrollo
 if settings.DEBUG:
