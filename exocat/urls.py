@@ -89,9 +89,9 @@ urlpatterns = [
     url('^ajax_mostrar_info_citaciones_fichero/', views.json_info_citacions_fitxer),
 
     #AJAX JSON VACIO
-    url(r'^json_vacio/$', views.json_vacio, name='cont_json_vacio'),
+    url(r'^json_vacio/$', views.json_vacio, name='cont_json_vacio'),    
 
-    url(r'^genera_shapefile/$', views.genera_shapefile, name='genera_shapefile'),
+    url(r'^genera_shapefile_safe/$', views.genera_shapefile_safe, name='genera_shapefile_safe'),
 ]
 # solo para desarrollo
 if settings.DEBUG:

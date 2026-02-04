@@ -20,6 +20,9 @@ from django.contrib.gis.geos import GEOSGeometry
 from itertools import chain
 import json, urllib, datetime, os, requests, codecs, csv, unicodecsv, uuid
 from urlparse import urlparse, parse_qs
+from django.core.signing import Signer, BadSignature
+from django.core.exceptions import ValidationError
+
 #para generar un excel
 try:
     import cStringIO as StringIO
@@ -2624,9 +2627,65 @@ def post_revisar_citacions_aca(request):
 def json_vacio(request):
     return HttpResponse([{}], content_type='application/json;')
 
-def genera_shapefile(request):
+
+def genera_shapefile_safe(request):
     
-    url = request.GET.get("url")
+    cql = request.GET.get("cql")
+    id = request.GET.get("id")
+    name = request.GET.get("name")
+    content = request.GET.get("content")
+    format = request.GET.get("format")
+
+    CONTENT_ALLOWED_VALUES = ['pres_10k','pres_1k','cit','ma']
+    FORMAT_ALLOWED_VALUES = ['zip','kml']
+
+    if cql:
+        if not name:
+            raise ValidationError("name parameter is required")
+    else:
+        if not id:
+            raise ValidationError("id parameter is required")
+        
+        if not name:
+            raise ValidationError("name parameter is required")
+        
+        if not content:
+            raise ValidationError("content parameter is required")
+        
+        if content not in CONTENT_ALLOWED_VALUES:
+            raise ValidationError("content parameter invalid value")
+        
+        if not format:
+            raise ValidationError("format parameter is required")
+        
+        if format not in FORMAT_ALLOWED_VALUES:
+            raise ValidationError("content parameter invalid value")
+
+    templates = {
+        'zip':{
+            'pres_10k': settings.URL_PRES_10000_ZIP,
+            'pres_1k': settings.URL_PRES_1000_ZIP,
+            'cit': settings.URL_PRES_CITACIONS_ZIP,
+            'ma': settings.URL_PRES_MASSES_ZIP,
+            'trans_10k': settings.URL_PRES_10000_TRANSFORMAR_ZIP,
+        },
+        'kml':{
+            'pres_10k': settings.URL_PRES_10000_KML,
+            'pres_1k': settings.URL_PRES_1000_KML,
+            'cit': settings.URL_PRES_CITACIONS_KML,
+            'ma': settings.URL_PRES_MASSES_KML,
+            'trans_10k': settings.URL_PRES_10000_TRANSFORMAR_KML,
+        },
+    }
+    
+    try:
+        if cql:
+            url = templates[format][content].format(name,cql)
+        else:
+            url = templates[format][content].format(name,id)
+    except KeyError:
+        raise ValidationError("invalid format/content combination")
+        
 
     params = parse_qs(urlparse(url).query)
     filename = params["format_options"][0].split("filename:")[1]    
